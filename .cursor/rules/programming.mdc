@@ -1,0 +1,16 @@
+---
+alwaysApply: true
+---
+
+<cursorrules_code_style>
+- Prefer functional programming over OOP
+- Use pure functions with clear input/output
+- Use strict typing for all variables and functions
+</cursorrules_code_style>
+
+<cursorrules_python_specifics>
+- Prefer Pydantic over TypedDict for data models
+- Use requirements.txt
+- For complex structures, avoid generic collections
+</cursorrules_python_specifics>
+

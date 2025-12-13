@@ -1,0 +1,46 @@
+[
+  { "name": "sys.uptime.seconds", "oid": "1.3.6.1.2.1.1.3.0", "unit": "seconds", "type": "gauge", "scale": 0.01 },
+  { "name": "sys.name",           "oid": "1.3.6.1.2.1.1.5.0", "unit": "unitless", "type": "gauge" },
+  { "name": "sys.location",       "oid": "1.3.6.1.2.1.1.6.0", "unit": "unitless", "type": "gauge" },
+  
+  { "name": "cpu.core.percent", "oid": "1.3.6.1.2.1.25.3.3.1.2", "unit": "percent", "type": "gauge", "method": "walk", "label_key": "hrDeviceIndex" },
+
+  
+  { "name": "load.1m",  "oid": "1.3.6.1.4.1.2021.10.1.3.1", "unit": "unitless", "type": "gauge" },
+  { "name": "load.5m",  "oid": "1.3.6.1.4.1.2021.10.1.3.2", "unit": "unitless", "type": "gauge" },
+  { "name": "load.15m", "oid": "1.3.6.1.4.1.2021.10.1.3.3", "unit": "unitless", "type": "gauge" },
+
+  { "name": "memory.total",     "oid": "1.3.6.1.4.1.2021.4.5.0",  "unit": "bytes", "type": "gauge", "scale": 1024 },
+  { "name": "memory.available", "oid": "1.3.6.1.4.1.2021.4.6.0",  "unit": "bytes", "type": "gauge", "scale": 1024 },
+  { "name": "memory.free",      "oid": "1.3.6.1.4.1.2021.4.11.0", "unit": "bytes", "type": "gauge", "scale": 1024 },
+  { "name": "memory.shared",    "oid": "1.3.6.1.4.1.2021.4.13.0", "unit": "bytes", "type": "gauge", "scale": 1024 },
+  { "name": "memory.buffers",   "oid": "1.3.6.1.4.1.2021.4.14.0", "unit": "bytes", "type": "gauge", "scale": 1024 },
+  { "name": "memory.cached",    "oid": "1.3.6.1.4.1.2021.4.15.0", "unit": "bytes", "type": "gauge", "scale": 1024 },
+  
+  { "name": "swap.total", "oid": "1.3.6.1.4.1.2021.4.3.0", "unit": "bytes", "type": "gauge", "scale": 1024 },
+  { "name": "swap.free",  "oid": "1.3.6.1.4.1.2021.4.4.0", "unit": "bytes", "type": "gauge", "scale": 1024 },
+  
+  { "name": "network.rx_bytes_total",  "oid": "1.3.6.1.2.1.31.1.1.1.6",  "unit": "bytes", "type": "counter", "method": "walk", "label_key": "ifIndex" },
+  { "name": "network.tx_bytes_total",  "oid": "1.3.6.1.2.1.31.1.1.1.10", "unit": "bytes", "type": "counter", "method": "walk", "label_key": "ifIndex" },
+  { "name": "network.interface.name",         "oid": "1.3.6.1.2.1.31.1.1.1.1","unit": "unitless", "type": "gauge", "method": "walk", "label_key": "ifIndex" },
+  { "name": "network.interface.high_speed_mbps", "oid": "1.3.6.1.2.1.31.1.1.1.15", "unit": "Mbps", "type": "gauge", "method": "walk", "label_key": "ifIndex" },
+  { "name": "network.interface.admin_status", "oid": "1.3.6.1.2.1.2.2.1.7",  "unit": "unitless", "type": "gauge", "method": "walk", "label_key": "ifIndex" },
+  { "name": "network.interface.oper_status",  "oid": "1.3.6.1.2.1.2.2.1.8",  "unit": "unitless", "type": "gauge", "method": "walk", "label_key": "ifIndex" },
+
+  { "name": "disk.usage.mount", "oid": "1.3.6.1.4.1.2021.9.1.2", "unit": "unitless", "type": "gauge", "method": "walk", "label_key": "dskIndex" },
+  { "name": "disk.usage.device", "oid": "1.3.6.1.4.1.2021.9.1.3", "unit": "unitless", "type": "gauge", "method": "walk", "label_key": "dskIndex" },
+  { "name": "disk.usage.total_kb", "oid": "1.3.6.1.4.1.2021.9.1.6", "unit": "bytes", "type": "gauge", "method": "walk", "label_key": "dskIndex", "scale": 1024 },
+  { "name": "disk.usage.avail_kb", "oid": "1.3.6.1.4.1.2021.9.1.7", "unit": "bytes", "type": "gauge", "method": "walk", "label_key": "dskIndex", "scale": 1024 },
+  { "name": "disk.usage.used_kb", "oid": "1.3.6.1.4.1.2021.9.1.8", "unit": "bytes", "type": "gauge", "method": "walk", "label_key": "dskIndex", "scale": 1024 },
+  { "name": "disk.usage.percent", "oid": "1.3.6.1.4.1.2021.9.1.9", "unit": "percent", "type": "gauge", "method": "walk", "label_key": "dskIndex" },
+  
+  { "name": "disk.io.device",            "oid": "1.3.6.1.4.1.2021.13.15.1.1.2",  "unit": "unitless", "type": "gauge",   "method": "walk", "label_key": "index" },
+  { "name": "disk.io.read_count_total",  "oid": "1.3.6.1.4.1.2021.13.15.1.1.5",  "unit": "count",    "type": "counter", "method": "walk", "label_key": "index" },
+  { "name": "disk.io.write_count_total", "oid": "1.3.6.1.4.1.2021.13.15.1.1.6",  "unit": "count",    "type": "counter", "method": "walk", "label_key": "index" },
+  { "name": "disk.io.read_bytes_total_64",  "oid": "1.3.6.1.4.1.2021.13.15.1.1.12", "unit": "bytes", "type": "counter", "method": "walk", "label_key": "index" },
+  { "name": "disk.io.write_bytes_total_64", "oid": "1.3.6.1.4.1.2021.13.15.1.1.13", "unit": "bytes", "type": "counter", "method": "walk", "label_key": "index" },
+  
+  { "name": "temperature.cpu", "oid": "1.3.6.1.4.1.8072.1.3.2.3.1.1.4.116.101.109.112", "unit": "celsius", "type": "gauge", "method": "get" }
+
+]
+

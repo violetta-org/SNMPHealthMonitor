@@ -1,0 +1,53 @@
+{
+  "retention_policies": {
+    "load_avg": {
+      "retention_minutes": 720,
+      "description": "Load averages - keep for 12 hours (optimized for 8s collection interval)"
+    },
+    "cpu_percent": {
+      "retention_minutes": 720,
+      "description": "CPU usage per core - keep for 12 hours (optimized for 8s collection interval)"
+    },
+    "memory": {
+      "retention_minutes": 720,
+      "description": "Memory usage - keep for 12 hours (optimized for 8s collection interval)"
+    },
+    "swap_memory": {
+      "retention_minutes": 720,
+      "description": "Swap usage - keep for 12 hours (optimized for 8s collection interval)"
+    },
+    "disk_usage": {
+      "retention_minutes": 720,
+      "description": "Disk usage - keep for 12 hours (optimized for 8s collection interval)"
+    },
+    "disk_io_counters": {
+      "retention_minutes": 720,
+      "description": "Disk I/O counters - keep for 12 hours (optimized for 8s collection interval)"
+    },
+    "net_io_counters": {
+      "retention_minutes": 720,
+      "description": "Network I/O counters - keep for 12 hours (optimized for 8s collection interval)"
+    },
+    "temperature": {
+      "retention_minutes": 720,
+      "description": "CPU temperature - keep for 12 hours (optimized for 8s collection interval)"
+    },
+    "system_info": {
+      "retention_minutes": 10080,
+      "description": "System info - keep for 7 days (latest per device only)"
+    }
+  },
+  "cleanup_settings": {
+    "check_interval_seconds": 600,
+    "agent_timeout_seconds": 24,
+    "backoff_min_seconds": 1.0,
+    "backoff_max_seconds": 30.0,
+    "backoff_factor": 2.0
+  },
+  "monitoring": {
+    "enable_stats_logging": true,
+    "stats_log_interval_minutes": 60,
+    "max_database_size_mb": 500,
+    "alert_on_size_exceeded": true
+  }
+}

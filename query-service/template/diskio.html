@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Disk IO Metrics - {{ sysname }}{% endblock %}
+
+{% block header_title %}Disk IO Metrics{% endblock %}
+
+{% block content %}
+<section class="metrics-section">
+    <h2 class="section-title">Disk IO Statistics</h2>
+    <div id="diskio-table-container">
+        <table class="diskio-table">
+            <thead>
+                <tr>
+                    <th>Disk</th>
+                    <th>Read Bytes/s</th>
+                    <th>Write Bytes/s</th>
+                    <th>Total Read</th>
+                    <th>Total Write</th>
+                </tr>
+            </thead>
+            <tbody id="diskio-tbody">
+                <!-- Disk IO data will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+    <div id="pagination-container" class="pagination">
+        <!-- Pagination will be dynamically inserted here -->
+    </div>
+</section>
+{% endblock %}

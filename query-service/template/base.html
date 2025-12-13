@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard - {{ sysname }}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body data-sysname="{{ sysname }}" data-topic="{{ topic }}">
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1>{% block header_title %}Dashboard{% endblock %}</h1>
+                <div class="server-info">
+                    <span class="server-label">Server:</span>
+                    <span class="server-name" id="server-name">-</span>
+                    <span id="server-ip" class="server-ip" style="display: none;"></span>
+                    <span id="connection-status" class="status-badge status-disconnected">Checking...</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="last-update">
+                    <span class="update-label">Last update:</span>
+                    <span id="last-update-time">-</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Menu -->
+        <nav class="dashboard-nav">
+            <div class="nav-container">
+                <a href="/api/dashboard/{{ sysname }}/systemstatus" class="nav-item {% if topic == 'systemstatus' %}active{% endif %}" data-topic="systemstatus">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Status</span>
+                </a>
+                <a href="/api/dashboard/{{ sysname }}/network" class="nav-item {% if topic == 'network' %}active{% endif %}" data-topic="network">
+                    <span class="nav-icon">🌐</span>
+                    <span class="nav-label">Network</span>
+                </a>
+                <a href="/api/dashboard/{{ sysname }}/disk" class="nav-item {% if topic == 'disk' %}active{% endif %}" data-topic="disk">
+                    <span class="nav-icon">💿</span>
+                    <span class="nav-label">Disk</span>
+                </a>
+                <a href="/api/dashboard/{{ sysname }}/diskio" class="nav-item {% if topic == 'diskio' %}active{% endif %}" data-topic="diskio">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-label">Disk IO</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="dashboard-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Socket.IO v4 client (CDN) - used by frontend to connect to Flask-SocketIO backend -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+    <!-- ApexCharts for memory chart -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Base dashboard script -->
+    <script type="module" src="/static/js/dashboard.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+
