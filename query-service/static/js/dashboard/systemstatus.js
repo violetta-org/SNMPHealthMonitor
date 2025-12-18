@@ -4,12 +4,14 @@
  */
 import { BaseDashboardUI } from './base.js';
 import { MemoryChart } from '../memory-chart.js';
+import { MemoryPercentChart } from '../memory-percent-chart.js';
 
 export class SystemStatusDashboard extends BaseDashboardUI {
     constructor(dataProcessor) {
         super(dataProcessor);
         this.cpuCoresInitialized = false;
         this.memoryChart = new MemoryChart();
+        this.memoryPercentChart = new MemoryPercentChart();
     }
 
     /**
@@ -109,6 +111,20 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         if (processedData.memory_history && processedData.memory_history.length > 0) {
             console.log(`[SystemStatusDashboard] Loading ${processedData.memory_history.length} memory history points`);
             this.memoryChart.updateHistory(processedData.memory_history);
+        }
+
+        // Memory percent history (initial load only)
+        if (processedData.memory_percent_history && processedData.memory_percent_history.length > 0) {
+            console.log(`[SystemStatusDashboard] Loading ${processedData.memory_percent_history.length} memory percent history points`);
+            this.memoryPercentChart.updateHistory(processedData.memory_percent_history);
+        }
+
+        // Update memory percent chart with latest data (real-time)
+        if (processedData.memory && processedData.memory.time && processedData.memory.percent !== undefined) {
+            this.memoryPercentChart.appendData({
+                time: processedData.memory.time,
+                percent: processedData.memory.percent
+            });
         }
 
         // Swap

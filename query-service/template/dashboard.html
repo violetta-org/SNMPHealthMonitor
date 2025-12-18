@@ -114,8 +114,15 @@
                 </div>
             </section>
 
-            <!-- Memory Chart Section -->
+            <!-- Memory Charts Section -->
             <section class="details-section">
+                <!-- Memory Usage Percentage Chart -->
+                <div class="detail-card memory-chart-card">
+                    <h3 class="detail-title">Biểu đồ Phần trăm Bộ nhớ</h3>
+                    <div id="memory-percent-chart"></div>
+                </div>
+                
+                <!-- Memory Stacked Area Chart -->
                 <div class="detail-card memory-chart-card">
                     <h3 class="detail-title">Biểu đồ Bộ nhớ</h3>
                     <div id="memory-chart"></div>
@@ -139,4 +146,5 @@
 
 {% block extra_scripts %}
 <script type="module" src="/static/js/memory-chart.js"></script>
+<script type="module" src="/static/js/memory-percent-chart.js"></script>
 {% endblock %}

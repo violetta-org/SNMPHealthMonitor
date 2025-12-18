@@ -1,0 +1,13 @@
+*__pycache__*
+__pycache__/
+*.pyc
+
+# Ignore virtual environment directories
+venv/
+env/
+.venv/
+.env/
+.cursorignore
+notebooks/
+.cursor/
+database/*.txt

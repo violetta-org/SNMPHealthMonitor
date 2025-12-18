@@ -21,13 +21,12 @@ def on_new_data(message: dict):
     
     sysname = message.get('sysname')
     metric_count = message.get('metric_count', 0)
-    notify_timestamp = message.get('timestamp')
     
     if not sysname:
         print(f"[QueryService] Invalid notification message: missing sysname")
         return
     
-    print(f"[QueryService] New data notification for {sysname}, metric_count: {metric_count}, notify_timestamp: {notify_timestamp}")
+    print(f"[QueryService] New data notification for {sysname}, metric_count: {metric_count}")
     
     # Check which topics have active subscriptions
     try:
@@ -35,8 +34,8 @@ def on_new_data(message: dict):
 
         # Only stream to topics that have subscribers
         for topic in active_topics:
-            print(f"[QueryService] Streaming {topic} to subscribers with notify_timestamp: {notify_timestamp}")
-            stream_topic_data(sysname, topic, notify_timestamp=notify_timestamp)
+            print(f"[QueryService] Streaming {topic} to subscribers")
+            stream_topic_data(sysname, topic)
     except Exception as e:
         print(f"[QueryService] Error scheduling streaming tasks: {e}")
 

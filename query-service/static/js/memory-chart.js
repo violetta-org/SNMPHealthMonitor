@@ -8,6 +8,7 @@ export class MemoryChart {
         this.chart = null;
         this.colors = ['#008FFB', '#00E396', '#FEB019']; // Used (Blue), Cached (Green), Free (Orange)
         this.initialized = false;
+        this.lastTimestamp = null; // Track last appended timestamp to avoid duplicates
     }
 
     /**
@@ -208,6 +209,11 @@ export class MemoryChart {
             { name: 'Cached', data: cachedData },
             { name: 'Free', data: freeData }
         ]);
+
+        // Update last timestamp from history data (use usedData as reference)
+        if (usedData.length > 0) {
+            this.lastTimestamp = usedData[usedData.length - 1][0]; // Last data point's timestamp
+        }
     }
 
     /**
@@ -230,6 +236,12 @@ export class MemoryChart {
         const cached = memoryData.cached || 0;
         const free = memoryData.free || 0;
 
+        // Filter duplicate: chỉ append nếu timestamp mới hơn timestamp cuối cùng
+        if (this.lastTimestamp !== null && timestamp <= this.lastTimestamp) {
+            console.log(`[MemoryChart] Skipping duplicate data point: time=${memoryData.time} (last=${this.lastTimestamp})`);
+            return;
+        }
+
         console.log(`[MemoryChart] Appending data point: time=${memoryData.time}, used=${used}, cached=${cached}, free=${free}`);
 
         // Append new data point to each series
@@ -243,6 +255,9 @@ export class MemoryChart {
             seriesIndex: 2, // Free
             data: [[timestamp, free]]
         }]);
+
+        // Update last timestamp
+        this.lastTimestamp = timestamp;
     }
 
     /**
