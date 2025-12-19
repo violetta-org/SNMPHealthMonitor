@@ -3,15 +3,21 @@
  * Handles system status page (aggregated metrics)
  */
 import { BaseDashboardUI } from './base.js';
-import { MemoryChart } from '../memory-chart.js';
-import { MemoryPercentChart } from '../memory-percent-chart.js';
+import { initializeSystemCharts } from '../system-chart.js';
 
 export class SystemStatusDashboard extends BaseDashboardUI {
     constructor(dataProcessor) {
         super(dataProcessor);
         this.cpuCoresInitialized = false;
-        this.memoryChart = new MemoryChart();
-        this.memoryPercentChart = new MemoryPercentChart();
+
+        // Charts will be lazily initialized once total memory is known
+        this.charts = null; // { ramUsageChart, ramPercentChart, swapChart, dataManager }
+
+        // Local data buffers mapped by series index
+        this.ramUsedData = [];
+        this.ramCachedData = [];
+        this.ramPercentData = [];
+        this.swapData = [];
     }
 
     /**
@@ -31,22 +37,6 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         this.registerElement('cpu-gauge', '#cpu-gauge');
         this.registerElement('cpu-value', '#cpu-value');
         this.registerElement('cpu-count', '#cpu-count');
-        
-        // Memory
-        this.registerElement('memory-gauge', '#memory-gauge');
-        this.registerElement('memory-value', '#memory-value');
-        this.registerElement('memory-total', '#memory-total');
-        this.registerElement('memory-free', '#memory-free');
-        this.registerElement('memory-used', '#memory-used');
-        this.registerElement('memory-total-detail', '#memory-total-detail');
-        
-        // Swap
-        this.registerElement('swap-gauge', '#swap-gauge');
-        this.registerElement('swap-value', '#swap-value');
-        this.registerElement('swap-total', '#swap-total');
-        this.registerElement('swap-free', '#swap-free');
-        this.registerElement('swap-used', '#swap-used');
-        this.registerElement('swap-total-detail', '#swap-total-detail');
         
         // Load averages
         this.registerElement('load-1m-gauge', '#load-1m-gauge');
@@ -94,48 +84,41 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
         // Memory
         if (processedData.memory) {
-            const memPercent = processedData.memory.percent || 0;
-            this.updateGauge('memory', memPercent);
-            this.updateText('memory-used', this.dataProcessor.formatBytes(processedData.memory.used));
-            this.updateText('memory-total', this.dataProcessor.formatBytes(processedData.memory.total));
-            this.updateText('memory-total-detail', this.dataProcessor.formatBytes(processedData.memory.total));
-            this.updateText('memory-free', this.dataProcessor.formatBytes(processedData.memory.free));
+            // Initialize charts when total memory is available
+            if (!this.charts && processedData.memory.total) {
+                this.charts = initializeSystemCharts(processedData.memory.total);
+            }
 
-            // Update memory chart with latest data (real-time)
-            if (processedData.memory.time) {
-                this.memoryChart.appendData(processedData.memory);
+            if (this.charts) {
+                const timeLabel = processedData.memory.time || new Date().toISOString();
+                const formatted = this.charts.dataManager.addDataPoint(
+                    timeLabel,
+                    processedData.memory.used || 0,
+                    processedData.memory.cached || 0,
+                    processedData.memory.percent !== undefined ? processedData.memory.percent : 0,
+                    processedData.swap ? (processedData.swap.used || 0) : 0
+                );
+
+                // Push into local buffers
+                this.ramUsedData.push(formatted.ramUsed);
+                this.ramCachedData.push(formatted.ramCached);
+                this.ramPercentData.push(formatted.ramPercent);
+                this.swapData.push(formatted.swapUsed);
+
+                // Apply updates via explicit index mapping
+                this.charts.dataManager.updateChart(this.charts.ramUsageChart, {
+                    0: this.ramUsedData,
+                    1: this.ramCachedData
+                });
+                this.charts.dataManager.updateChart(this.charts.ramPercentChart, {
+                    0: this.ramPercentData
+                });
+                this.charts.dataManager.updateChart(this.charts.swapChart, {
+                    0: this.swapData
+                });
             }
         }
-
-        // Memory history (initial load only)
-        if (processedData.memory_history && processedData.memory_history.length > 0) {
-            console.log(`[SystemStatusDashboard] Loading ${processedData.memory_history.length} memory history points`);
-            this.memoryChart.updateHistory(processedData.memory_history);
-        }
-
-        // Memory percent history (initial load only)
-        if (processedData.memory_percent_history && processedData.memory_percent_history.length > 0) {
-            console.log(`[SystemStatusDashboard] Loading ${processedData.memory_percent_history.length} memory percent history points`);
-            this.memoryPercentChart.updateHistory(processedData.memory_percent_history);
-        }
-
-        // Update memory percent chart with latest data (real-time)
-        if (processedData.memory && processedData.memory.time && processedData.memory.percent !== undefined) {
-            this.memoryPercentChart.appendData({
-                time: processedData.memory.time,
-                percent: processedData.memory.percent
-            });
-        }
-
-        // Swap
-        if (processedData.swap) {
-            const swapPercent = processedData.swap.percent || 0;
-            this.updateGauge('swap', swapPercent);
-            this.updateText('swap-used', this.dataProcessor.formatBytes(processedData.swap.used));
-            this.updateText('swap-total', this.dataProcessor.formatBytes(processedData.swap.total));
-            this.updateText('swap-total-detail', this.dataProcessor.formatBytes(processedData.swap.total));
-            this.updateText('swap-free', this.dataProcessor.formatBytes(processedData.swap.free));
-        }
+        // Swap handled together with memory via dataManager
 
         // Load Averages
         if (processedData.load_avg) {
@@ -157,6 +140,8 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             this.updateText('temperature-value', 'N/A');
         }
     }
+
+    // Charts are synchronized via echarts.connect in initializeSystemCharts
 
     /**
      * Update CPU cores display

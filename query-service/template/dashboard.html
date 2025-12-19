@@ -36,34 +36,6 @@
             <section class="metrics-section">
                 <h2 class="section-title">System Metrics</h2>
                 <div class="gauges-grid">
-                    <!-- Memory Usage -->
-                    <div class="gauge-card">
-                        <svg id="memory-gauge" class="gauge" viewBox="0 0 120 120">
-                            <circle class="gauge-background" cx="60" cy="60" r="45" fill="none" stroke="#3a4d5f" stroke-width="8"/>
-                            <circle class="gauge-progress" cx="60" cy="60" r="45" fill="none" stroke="#00bcd4" stroke-width="8" 
-                                    stroke-dasharray="283" stroke-dashoffset="283" transform="rotate(-90 60 60)" stroke-linecap="round"/>
-                            <text x="60" y="55" text-anchor="middle" class="gauge-value" id="memory-value">0%</text>
-                            <text x="60" y="70" text-anchor="middle" class="gauge-sublabel">Memory</text>
-                        </svg>
-                        <div class="gauge-info">
-                            <span id="memory-used">-</span> / <span id="memory-total">-</span>
-                        </div>
-                    </div>
-
-                    <!-- SWAP Usage -->
-                    <div class="gauge-card">
-                        <svg id="swap-gauge" class="gauge" viewBox="0 0 120 120">
-                            <circle class="gauge-background" cx="60" cy="60" r="45" fill="none" stroke="#3a4d5f" stroke-width="8"/>
-                            <circle class="gauge-progress" cx="60" cy="60" r="45" fill="none" stroke="#00bcd4" stroke-width="8" 
-                                    stroke-dasharray="283" stroke-dashoffset="283" transform="rotate(-90 60 60)" stroke-linecap="round"/>
-                            <text x="60" y="55" text-anchor="middle" class="gauge-value" id="swap-value">0%</text>
-                            <text x="60" y="70" text-anchor="middle" class="gauge-sublabel">SWAP</text>
-                        </svg>
-                        <div class="gauge-info">
-                            <span id="swap-used">-</span> / <span id="swap-total">-</span>
-                        </div>
-                    </div>
-
                     <!-- Load Average 1m -->
                     <div class="gauge-card">
                         <svg id="load-1m-gauge" class="gauge" viewBox="0 0 120 120">
@@ -116,35 +88,26 @@
 
             <!-- Memory Charts Section -->
             <section class="details-section">
-                <!-- Memory Usage Percentage Chart -->
+                <!-- Memory Percentage Line Chart -->
                 <div class="detail-card memory-chart-card">
                     <h3 class="detail-title">Biểu đồ Phần trăm Bộ nhớ</h3>
-                    <div id="memory-percent-chart"></div>
-                </div>
-                
-                <!-- Memory Stacked Area Chart -->
-                <div class="detail-card memory-chart-card">
-                    <h3 class="detail-title">Biểu đồ Bộ nhớ</h3>
-                    <div id="memory-chart"></div>
+                    <div id="memory-percent-chart" style="height: 320px;"></div>
                 </div>
 
-                <div class="detail-card">
-                    <h3 class="detail-title">Swap Details</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Total</label>
-                            <span id="swap-total-detail">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Free</label>
-                            <span id="swap-free">-</span>
-                        </div>
-                    </div>
+                <!-- Memory Usage Stacked Area Chart -->
+                <div class="detail-card memory-chart-card">
+                    <h3 class="detail-title">Biểu đồ Bộ nhớ (RAM)</h3>
+                    <div id="memory-usage-chart" style="height: 400px;"></div>
+                </div>
+
+                <!-- Swap Usage Line Chart -->
+                <div class="detail-card swap-chart-card">
+                    <h3 class="detail-title">Biểu đồ Swap</h3>
+                    <div id="swap-usage-chart" style="height: 320px;"></div>
                 </div>
             </section>
 {% endblock %}
 
 {% block extra_scripts %}
-<script type="module" src="/static/js/memory-chart.js"></script>
-<script type="module" src="/static/js/memory-percent-chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 {% endblock %}

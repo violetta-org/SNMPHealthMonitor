@@ -66,6 +66,8 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
     <!-- ApexCharts for memory chart -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- ECharts (must load before module scripts that use echarts global) -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <!-- Base dashboard script -->
     <script type="module" src="/static/js/dashboard.js"></script>
     {% block extra_scripts %}{% endblock %}
