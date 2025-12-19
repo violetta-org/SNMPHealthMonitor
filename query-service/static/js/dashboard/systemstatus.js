@@ -29,10 +29,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         this.registerElement('sys-location', '#sys-location');
         this.registerElement('sys-uptime', '#sys-uptime');
         
-        // CPU Global
-        this.registerElement('cpu-gauge', '#cpu-gauge');
-        this.registerElement('cpu-value', '#cpu-value');
-        this.registerElement('cpu-count', '#cpu-count');
+        // CPU Global: removed Total CPU display; per-core gauges are created dynamically
         
         // Memory Section
         this.registerElement('memory-gauge', '#memory-gauge');
@@ -93,9 +90,8 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         // 4. Memory Updates
         if (processedData.memory) {
             const memPercent = processedData.memory.percent || 0;
-            // Update Text & Gauges
-            this.updateGauge('memory', memPercent); // Cập nhật gauge tròn
-            this.updateText('memory-value', memPercent.toFixed(1) + '%'); // Text ở giữa gauge
+            // Update Gauges: value + unit now inside the gauge
+            this.updateGauge('memory', memPercent);
             this.updateText('memory-used', this.dataProcessor.formatBytes(processedData.memory.used));
             this.updateText('memory-total', this.dataProcessor.formatBytes(processedData.memory.total));
             this.updateText('memory-total-detail', this.dataProcessor.formatBytes(processedData.memory.total));
@@ -126,7 +122,6 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         if (processedData.swap) {
             const swapPercent = processedData.swap.percent || 0;
             this.updateGauge('swap', swapPercent);
-            this.updateText('swap-value', swapPercent.toFixed(1) + '%');
             this.updateText('swap-used', this.dataProcessor.formatBytes(processedData.swap.used));
             this.updateText('swap-total', this.dataProcessor.formatBytes(processedData.swap.total));
             this.updateText('swap-total-detail', this.dataProcessor.formatBytes(processedData.swap.total));
@@ -135,17 +130,21 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
         // 7. Load Averages
         if (processedData.load_avg) {
-            // Giả sử 100% tương đương load = số core (hoặc fix cứng là 10 cho dễ nhìn)
-            // Ở đây hiển thị raw value
-            this.updateText('load-1m-value', processedData.load_avg.load_1m || 0);
-            this.updateText('load-5m-value', processedData.load_avg.load_5m || 0);
-            this.updateText('load-15m-value', processedData.load_avg.load_15m || 0);
+            // Normalize loads to percentage: use cpu count to scale
+            const cpuCount = processedData.cpu_percent ? processedData.cpu_percent.length : 1;
+            const load1 = (processedData.load_avg.load_1m || 0) / cpuCount * 100;
+            const load5 = (processedData.load_avg.load_5m || 0) / cpuCount * 100;
+            const load15 = (processedData.load_avg.load_15m || 0) / cpuCount * 100;
+
+            this.updateGauge('load-1m', load1);
+            this.updateGauge('load-5m', load5);
+            this.updateGauge('load-15m', load15);
         }
 
-        // 8. Temperature
+        // 8. Temperature (show value inside gauge and unit °C)
         if (processedData.temperature && processedData.temperature.cpu_temp !== undefined) {
             const temp = processedData.temperature.cpu_temp;
-            this.updateText('temperature-value', temp !== null ? temp.toFixed(1) : '-');
+            this.updateGauge('temperature', temp !== null ? temp : 0);
         }
     }
 
@@ -170,7 +169,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             const percent = cpu.percent || 0;
             const gaugeId = `cpu-core-${index}`;
             const gaugeElement = document.getElementById(`${gaugeId}-gauge`);
-            const valueElement = document.getElementById(`${gaugeId}-value`);
+                const valueElement = document.getElementById(`${gaugeId}-value`);
             
             if (gaugeElement && valueElement) {
                 const progressCircle = gaugeElement.querySelector('.gauge-progress');
@@ -179,24 +178,31 @@ export class SystemStatusDashboard extends BaseDashboardUI {
                     const offset = circumference - (percent / 100) * circumference;
                     progressCircle.style.strokeDashoffset = offset;
                 }
-                valueElement.textContent = Math.round(percent) + '%';
+                    // Show one decimal and put unit in gauge-unit if exists
+                    valueElement.textContent = percent.toFixed(1);
+                    const unitEl = document.getElementById(`${gaugeId}-unit`);
+                    if (unitEl) unitEl.textContent = '%';
             }
         });
     }
 
     createCPUCoreGauge(coreIndex) {
         const div = document.createElement('div');
-        div.className = 'cpu-core-card'; // Đảm bảo class này có CSS
+        // Use the same markup as Memory/Swap gauges so CPU core cards look identical
         const gaugeId = `cpu-core-${coreIndex}`;
-        
+        div.className = 'gauge-card';
         div.innerHTML = `
-            <svg id="${gaugeId}-gauge" class="gauge cpu-core-gauge" viewBox="0 0 120 120" style="width:80px; height:80px;">
-                <circle class="gauge-background" cx="60" cy="60" r="45" fill="none" stroke="#3a4d5f" stroke-width="8"/>
-                <circle class="gauge-progress" cx="60" cy="60" r="45" fill="none" stroke="#00bcd4" stroke-width="8" 
-                        stroke-dasharray="283" stroke-dashoffset="283" transform="rotate(-90 60 60)" stroke-linecap="round"/>
-                <text x="60" y="65" text-anchor="middle" class="gauge-value" id="${gaugeId}-value" style="font-size: 20px; fill: #fff;">0%</text>
-            </svg>
-            <div class="gauge-info" style="text-align:center; margin-top:5px; color: #a0aec0; font-size: 12px;">Core ${coreIndex}</div>
+            <h3>Core ${coreIndex + 1}</h3>
+            <div class="gauge-wrapper">
+                <svg id="${gaugeId}-gauge" class="gauge" viewBox="0 0 120 120">
+                    <circle class="gauge-background" cx="60" cy="60" r="45"></circle>
+                    <circle class="gauge-progress" cx="60" cy="60" r="45"></circle>
+                </svg>
+                <div class="gauge-content">
+                    <span id="${gaugeId}-value" class="gauge-value">0.0</span>
+                    <span id="${gaugeId}-unit" class="gauge-unit">%</span>
+                </div>
+            </div>
         `;
         return div;
     }

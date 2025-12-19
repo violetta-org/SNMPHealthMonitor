@@ -119,8 +119,10 @@ export class DashboardUI {
                     const offset = circumference - (percent / 100) * circumference;
                     progressCircle.style.strokeDashoffset = offset;
                 }
-                
-                valueElement.textContent = Math.round(percent) + '%';
+                // Show one decimal and set unit in the gauge-unit element
+                valueElement.textContent = percent.toFixed(1);
+                const unitEl = document.getElementById(`${gaugeId}-unit`);
+                if (unitEl) unitEl.textContent = '%';
             }
         });
 
@@ -132,21 +134,24 @@ export class DashboardUI {
      */
     createCPUCoreGauge(coreIndex) {
         const card = document.createElement('div');
-        card.className = 'cpu-core-card';
-        
+        card.className = 'gauge-card';
+
         const gaugeId = `cpu-core-${coreIndex}`;
-        
+
         card.innerHTML = `
-            <svg id="${gaugeId}-gauge" class="cpu-core-gauge" viewBox="0 0 120 120">
-                <circle class="gauge-background" cx="60" cy="60" r="45" fill="none" stroke="#3a4d5f" stroke-width="8"/>
-                <circle class="gauge-progress" cx="60" cy="60" r="45" fill="none" stroke="#00bcd4" stroke-width="8" 
-                        stroke-dasharray="283" stroke-dashoffset="283" transform="rotate(-90 60 60)" stroke-linecap="round"/>
-                <text x="60" y="55" text-anchor="middle" class="gauge-value" id="${gaugeId}-value">0%</text>
-                <text x="60" y="70" text-anchor="middle" class="gauge-sublabel">Core ${coreIndex}</text>
-            </svg>
-            <div class="gauge-info">CPU ${coreIndex}</div>
+            <h3>Core ${coreIndex + 1}</h3>
+            <div class="gauge-wrapper">
+                <svg id="${gaugeId}-gauge" class="gauge" viewBox="0 0 120 120">
+                    <circle class="gauge-background" cx="60" cy="60" r="45"></circle>
+                    <circle class="gauge-progress" cx="60" cy="60" r="45"></circle>
+                </svg>
+                <div class="gauge-content">
+                    <span id="${gaugeId}-value" class="gauge-value">0.0</span>
+                    <span id="${gaugeId}-unit" class="gauge-unit">%</span>
+                </div>
+            </div>
         `;
-        
+
         return card;
     }
 
@@ -172,10 +177,35 @@ export class DashboardUI {
             progressCircle.style.strokeDashoffset = offset;
         }
         
-        // Update value text
+        // Update value text for gauge center: use one decimal place
         if (valueElement) {
-            valueElement.textContent = Math.round(clampedPercent) + '%';
+            // show with one decimal place (e.g., '28.7')
+            valueElement.textContent = clampedPercent.toFixed(1);
         }
+
+        // Set unit if gauge has a '.gauge-unit' sibling
+        let unitEl = null;
+        if (gaugeElement.parentElement) {
+            unitEl = gaugeElement.parentElement.querySelector('.gauge-unit');
+        }
+        if (!unitEl) {
+            // fallback: try next sibling of value
+            if (valueElement && valueElement.nextElementSibling && valueElement.nextElementSibling.classList.contains('gauge-unit')) {
+                unitEl = valueElement.nextElementSibling;
+            }
+        }
+
+        if (unitEl) {
+            // Decide unit by id
+            let unit = '%';
+            if (id.startsWith('temperature')) unit = '°C';
+            else if (id.startsWith('cpu-core')) unit = '%';
+            else if (id.startsWith('load-')) unit = '%';
+            else if (id === 'memory' || id === 'swap') unit = '%';
+            unitEl.textContent = unit;
+        }
+
+        // (No CSS fallback anymore) SVG progress circle covers gauge rendering.
         
         console.log(`[DashboardUI] Updated gauge ${id}: ${clampedPercent.toFixed(1)}%`);
     }

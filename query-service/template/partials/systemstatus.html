@@ -19,19 +19,8 @@
 <section class="metrics-section">
     <h2 class="section-title">CPU Metrics</h2>
     <div class="gauges-grid">
-        <div class="gauge-card">
-            <h3>Total CPU</h3>
-            <div class="gauge-wrapper">
-                <canvas id="cpu-gauge" style="width: 100%; height: 100%;"></canvas>
-            </div>
-            <div class="gauge-footer">
-                <span id="cpu-value" class="gauge-value">-</span>% 
-                (<span id="cpu-count">-</span> Cores)
-            </div>
-        </div>
+        <!-- removed Total CPU card as requested; CPU cores shown below -->
     </div>
-    
-    <h3 class="mt-3">Core Details</h3>
     <div id="cpu-cores-container" class="cpu-cores-grid"></div>
 </section>
 
@@ -47,12 +36,9 @@
                     <circle class="gauge-progress" cx="60" cy="60" r="45"></circle>
                 </svg>
                 <div class="gauge-content">
-                    <span id="memory-value" class="gauge-value">0%</span>
+                    <span id="memory-value" class="gauge-value">0.0</span>
+                    <span class="gauge-unit">%</span>
                 </div>
-            </div>
-            <div class="gauge-footer">
-                Used: <span id="memory-used">-</span> / Total: <span id="memory-total">-</span><br>
-                Free: <span id="memory-free">-</span>
             </div>
         </div>
 
@@ -64,39 +50,63 @@
                     <circle class="gauge-progress" cx="60" cy="60" r="45"></circle>
                 </svg>
                 <div class="gauge-content">
-                    <span id="swap-value" class="gauge-value">0%</span>
+                    <span id="swap-value" class="gauge-value">0.0</span>
+                    <span class="gauge-unit">%</span>
                 </div>
             </div>
-            <div class="gauge-footer">
-                Used: <span id="swap-used">-</span> / Total: <span id="swap-total">-</span>
-            </div>
         </div>
 
-        <div class="gauge-card mini-gauge">
+        <div class="gauge-card">
             <h3>Load 1m</h3>
-            <div id="load-1m-gauge" class="mini-chart-container" style="height: 50px;"></div>
-            <div class="gauge-value-text" id="load-1m-value">-</div>
-        </div>
-
-        <div class="gauge-card mini-gauge">
-            <h3>Load 5m</h3>
-            <div id="load-5m-gauge" class="mini-chart-container" style="height: 50px;"></div>
-            <div class="gauge-value-text" id="load-5m-value">-</div>
-        </div>
-
-        <div class="gauge-card mini-gauge">
-            <h3>Load 15m</h3>
-            <div id="load-15m-gauge" class="mini-chart-container" style="height: 50px;"></div>
-            <div class="gauge-value-text" id="load-15m-value">-</div>
-        </div>
-
-        <div class="gauge-card mini-gauge">
-            <h3>Temp</h3>
-            <div id="temperature-gauge" class="mini-chart-container" style="height: 50px;"></div>
-            <div class="gauge-value-text">
-                <span id="temperature-value">-</span>°C
-                <small id="temperature-info" style="display:block; font-size: 0.7em;"></small>
+            <div class="gauge-wrapper">
+                <svg id="load-1m-gauge" class="gauge" viewBox="0 0 120 120">
+                    <circle class="gauge-background" cx="60" cy="60" r="45"></circle>
+                    <circle class="gauge-progress" cx="60" cy="60" r="45"></circle>
+                </svg>
+                <div class="gauge-content">
+                    <span id="load-1m-value" class="gauge-value">-</span>
+                </div>
             </div>
+        </div>
+
+        <div class="gauge-card">
+            <h3>Load 5m</h3>
+            <div class="gauge-wrapper">
+                <svg id="load-5m-gauge" class="gauge" viewBox="0 0 120 120">
+                    <circle class="gauge-background" cx="60" cy="60" r="45"></circle>
+                    <circle class="gauge-progress" cx="60" cy="60" r="45"></circle>
+                </svg>
+                <div class="gauge-content">
+                    <span id="load-5m-value" class="gauge-value">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="gauge-card">
+            <h3>Load 15m</h3>
+            <div class="gauge-wrapper">
+                <svg id="load-15m-gauge" class="gauge" viewBox="0 0 120 120">
+                    <circle class="gauge-background" cx="60" cy="60" r="45"></circle>
+                    <circle class="gauge-progress" cx="60" cy="60" r="45"></circle>
+                </svg>
+                <div class="gauge-content">
+                    <span id="load-15m-value" class="gauge-value">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="gauge-card">
+            <h3>Temp</h3>
+            <div class="gauge-wrapper">
+                <svg id="temperature-gauge" class="gauge" viewBox="0 0 120 120">
+                    <circle class="gauge-background" cx="60" cy="60" r="45"></circle>
+                    <circle class="gauge-progress" cx="60" cy="60" r="45"></circle>
+                </svg>
+                <div class="gauge-content">
+                    <span id="temperature-value" class="gauge-value">-</span>
+                </div>
+            </div>
+            <small id="temperature-info" style="display:block; font-size: 0.7em; margin-top:6px;"></small>
         </div>
     </div>
 </section>
@@ -109,7 +119,7 @@
         
         <div class="detail-grid mt-2">
             <div class="detail-item">
-                <label>Total Detail</label>
+                <label>Tổng</label>
                 <span id="memory-total-detail">-</span>
             </div>
         </div>

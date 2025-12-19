@@ -246,6 +246,13 @@ body {
     font-weight: bold;
     color: var(--text-primary);
 }
+.gauge-unit {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-left: 6px;
+    align-self: flex-end;
+    padding-bottom: 6px;
+}
 
 /* Footer dưới Gauge (Used / Total) */
 .gauge-footer {
@@ -253,17 +260,7 @@ body {
     color: var(--text-secondary);
 }
 
-/* Mini Gauges (Load avg, Temp) */
-.mini-gauge h3 {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 5px;
-}
-.gauge-value-text {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--accent);
-}
+/* small gauge tweaks removed - small gauges now use same SVG-style markup as Memory/Swap */
 
 /* ================= 7. CPU Cores Grid ================= */
 .cpu-cores-grid { 
