@@ -91,23 +91,21 @@
                 <!-- Memory Percentage Line Chart -->
                 <div class="detail-card memory-chart-card">
                     <h3 class="detail-title">Biểu đồ Phần trăm Bộ nhớ</h3>
-                    <div id="memory-percent-chart" style="height: 320px;"></div>
+                    <div id="memory-percent-chart" style="width: 100%; height: 320px;"></div>
                 </div>
 
                 <!-- Memory Usage Stacked Area Chart -->
                 <div class="detail-card memory-chart-card">
                     <h3 class="detail-title">Biểu đồ Bộ nhớ (RAM)</h3>
-                    <div id="memory-usage-chart" style="height: 400px;"></div>
+                    <div id="memory-usage-chart" style="width: 100%; height: 400px;"></div>
                 </div>
 
                 <!-- Swap Usage Line Chart -->
                 <div class="detail-card swap-chart-card">
                     <h3 class="detail-title">Biểu đồ Swap</h3>
-                    <div id="swap-usage-chart" style="height: 320px;"></div>
+                    <div id="swap-usage-chart" style="width: 100%; height: 320px;"></div>
                 </div>
             </section>
 {% endblock %}
 
-{% block extra_scripts %}
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-{% endblock %}
+{% block extra_scripts %}{% endblock %}

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import math
 from typing import List, Dict, Any, Optional
 from db.connection import get_db
 from utils.serialize import serialize_row, serialize_rows
@@ -903,6 +904,78 @@ def get_status_metrics(
         temperature_part = get_temperature_metrics(sysname, start_time=start_time, end_time=end_time)
         memory_history = get_memory_history(sysname, start_time=start_time, end_time=end_time)
         memory_percent_history = get_memory_percent_history(sysname, start_time=start_time, end_time=end_time)
+
+        # Stress-testing support: backfill dummy history up to ~1000 points if insufficient
+        try:
+            target_points = 1000
+            mem_hist = memory_history if isinstance(memory_history, list) else []
+            perc_hist = memory_percent_history if isinstance(memory_percent_history, list) else []
+
+            current_len = len(mem_hist)
+            if current_len < target_points:
+                missing = target_points - current_len
+                # Determine base total from latest snapshot if available
+                total_bytes = None
+                try:
+                    mem_obj = memory_part.get('memory') if isinstance(memory_part, dict) else None
+                    if isinstance(mem_obj, dict):
+                        total_bytes = mem_obj.get('total')
+                    elif isinstance(mem_obj, list) and len(mem_obj) > 0:
+                        # take last record's total
+                        total_bytes = mem_obj[-1].get('total')
+                except Exception:
+                    total_bytes = None
+                if not total_bytes:
+                    total_bytes = 8 * 1024 * 1024 * 1024  # default 8GB for testing
+
+                # Determine time anchor (use earliest record time if exists, else now)
+                if current_len > 0 and mem_hist[0].get('time'):
+                    try:
+                        anchor = mem_hist[0]['time']
+                        if isinstance(anchor, str):
+                            anchor_dt = datetime.fromisoformat(anchor.replace('Z', '+00:00')).replace(tzinfo=None)
+                        else:
+                            anchor_dt = anchor  # assume datetime
+                    except Exception:
+                        anchor_dt = datetime.now()
+                else:
+                    anchor_dt = datetime.now()
+
+                # Generate older points before anchor, 1s apart
+                fill_hist = []
+                fill_perc = []
+                for i in range(missing, 0, -1):
+                    t = anchor_dt - timedelta(seconds=i)
+                    # Sine/cosine patterns for used/cached
+                    used_ratio = 0.5 + 0.3 * math.sin(i / 12.0)  # varies 20%-80%
+                    cached_ratio = 0.10 + 0.05 * math.cos(i / 17.0)
+                    used = max(0, min(total_bytes, int(total_bytes * used_ratio)))
+                    cached = max(0, int(total_bytes * cached_ratio))
+                    free = max(0, total_bytes - used - cached)
+                    # If free dipped negative due to rounding, adjust cached
+                    if used + cached > total_bytes:
+                        cached = max(0, total_bytes - used)
+                        free = total_bytes - used - cached
+
+                    time_iso = t.isoformat()
+                    fill_hist.append({
+                        'time': time_iso,
+                        'used': used,
+                        'cached': cached,
+                        'free': free,
+                        'total': total_bytes
+                    })
+                    fill_perc.append({
+                        'time': time_iso,
+                        'percent': round((used / total_bytes) * 100.0, 2)
+                    })
+
+                # Prepend synthetic history so that real data (if any) remains at the end (latest)
+                memory_history = fill_hist + mem_hist
+                memory_percent_history = fill_perc + perc_hist
+                print(f"[DEBUG] get_status_metrics: Backfilled dummy history: {missing} points (total={len(memory_history)})")
+        except Exception as gen_err:
+            print(f"[DEBUG] get_status_metrics: Dummy history generation failed: {gen_err}")
         # Merge parts (keys are distinct: system_info, load_avg, memory, swap, cpu_percent, temperature)
         status.update(system_part or {})
         status.update(memory_part or {})

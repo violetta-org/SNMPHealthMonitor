@@ -131,6 +131,15 @@ export class Dashboard {
     destroy() {
         console.log('[Dashboard] Destroying dashboard');
         this.wsManager.disconnect();
+        // Clean up chart performance monitors if present
+        try {
+            if (this.uiUpdater && this.uiUpdater.charts && this.uiUpdater.charts.dataManager && typeof this.uiUpdater.charts.dataManager.destroy === 'function') {
+                this.uiUpdater.charts.dataManager.destroy();
+                console.log('[Dashboard] ChartDataManager destroyed');
+            }
+        } catch (e) {
+            console.warn('[Dashboard] Error during ChartDataManager destroy', e);
+        }
     }
 }
 

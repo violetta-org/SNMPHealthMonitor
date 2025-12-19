@@ -59,14 +59,15 @@ const getValueAxisConfig = (scale = true, name = '', unit = '') => ({
     nameTextStyle: { color: '#888', padding: [0, 0, 0, -20] },
     scale: scale,
     splitLine: { show: true, lineStyle: { color: 'rgba(255, 255, 255, 0.08)' } },
-    axisLabel: { color: '#aaa', fontSize: 11, formatter: `{value} ${unit}` },
+    axisLabel: { color: '#aaa', fontSize: 11, fontFamily: 'Consolas, monospace', formatter: `{value} ${unit}` },
     axisLine: { show: false }
 });
 
 // --- CHART CREATION ---
 
 export function createRAMUsageChart(container) {
-    const chart = echarts.init(container);
+    const existing = echarts.getInstanceByDom(container);
+    const chart = existing || echarts.init(container);
     const option = {
         backgroundColor: 'transparent',
         tooltip: {
@@ -121,14 +122,15 @@ export function createRAMUsageChart(container) {
 }
 
 export function createRAMPercentChart(container) {
-    const chart = echarts.init(container);
+    const existing = echarts.getInstanceByDom(container);
+    const chart = existing || echarts.init(container);
     const option = {
         backgroundColor: 'transparent',
         tooltip: {
             trigger: 'axis',
             backgroundColor: 'rgba(22, 33, 62, 0.9)',
             borderColor: '#ff2a6d',
-            textStyle: { color: '#fff' },
+            textStyle: { color: '#fff', fontFamily: 'Consolas, monospace' },
             formatter: '{b}<br/>{a}: {c}%'
         },
         grid: getCommonGrid(),
@@ -151,14 +153,15 @@ export function createRAMPercentChart(container) {
 }
 
 export function createSwapChart(container) {
-    const chart = echarts.init(container);
+    const existing = echarts.getInstanceByDom(container);
+    const chart = existing || echarts.init(container);
     const option = {
         backgroundColor: 'transparent',
         tooltip: {
             trigger: 'axis',
             backgroundColor: 'rgba(22, 33, 62, 0.9)',
             borderColor: '#bd00ff',
-            textStyle: { color: '#fff' }
+            textStyle: { color: '#fff', fontFamily: 'Consolas, monospace' }
         },
         grid: getCommonGrid(),
         xAxis: getTimeAxisConfig(),
@@ -177,24 +180,116 @@ export function createSwapChart(container) {
 // --- DATA MANAGER CLASS ---
 
 export class ChartDataManager {
-    constructor(maxDataPoints = 60) {
-        this.maxPoints = maxDataPoints;
+    constructor(maxDataPoints = 3000, sampleThreshold = 2000) {
+        this.maxPoints = maxDataPoints; // window size
+        this.sampleThreshold = sampleThreshold; // threshold to downsample incoming bulk data
         this.timeData = [];
+        this.updateCount = 0;
+
+        // Lightweight FPS + update counter monitor (logs every 5s)
+        if (typeof window !== 'undefined' && window.requestAnimationFrame) {
+            this.__perf = { frames: 0, last: performance.now(), rafId: null };
+            this.__perfRunning = true;
+            const loop = () => { 
+                if (!this.__perfRunning) return; 
+                this.__perf.frames++; 
+                this.__perf.rafId = window.requestAnimationFrame(loop); 
+            };
+            this.__perf.rafId = window.requestAnimationFrame(loop);
+            this.perfInterval = setInterval(() => {
+                const now = performance.now();
+                const elapsed = (now - this.__perf.last) / 1000;
+                const fps = this.__perf.frames / (elapsed || 1);
+                console.log(`[Charts][Perf] updates=${this.updateCount} fps=${fps.toFixed(1)} points=${this.timeData.length}`);
+                this.__perf.frames = 0;
+                this.__perf.last = now;
+                this.updateCount = 0;
+            }, 5000);
+        }
     }
 
+    setMaxPoints(n) { this.maxPoints = n; }
+    setSampleThreshold(n) { this.sampleThreshold = n; }
+
     toGB(bytes) {
-        return (bytes / (1024 * 1024 * 1024)).toFixed(2);
+        const v = bytes / (1024 * 1024 * 1024);
+        return Number(v.toFixed(2));
+    }
+
+    // Uniform downsampling helper (keeps the last point)
+    _downsample(array, target) {
+        if (!Array.isArray(array)) return array;
+        const len = array.length;
+        if (len <= target) return array.slice();
+        const step = Math.ceil(len / target);
+        const sampled = [];
+        for (let i = 0; i < len; i += step) sampled.push(array[i]);
+        if (sampled[sampled.length - 1] !== array[len - 1]) sampled.push(array[len - 1]);
+        return sampled;
+    }
+
+    // Bulk load initial history safely with optional downsampling
+    // timeLabels: ["2025-01-01T00:00:00Z", ...]
+    // dataMap: { 0: [y0,...], 1: [y1,...] }
+    bulkLoad(timeLabels, dataMap) {
+        if (!Array.isArray(timeLabels) || !dataMap) return { timeData: [], series: {} };
+        let t = timeLabels.slice();
+        if (t.length > this.sampleThreshold) {
+            t = this._downsample(t, this.sampleThreshold);
+        }
+        // Enforce max window
+        if (t.length > this.maxPoints) {
+            t = t.slice(t.length - this.maxPoints);
+        }
+        // Align each series to downsampled + windowed time size
+        const aligned = {};
+        Object.entries(dataMap).forEach(([idx, arr]) => {
+            let seriesArr = arr.slice();
+            if (arr.length !== timeLabels.length) {
+                // Best-effort: if mismatch, attempt to downsample independently
+                if (arr.length > this.sampleThreshold) seriesArr = this._downsample(arr, this.sampleThreshold);
+            } else if (arr.length > this.sampleThreshold) {
+                seriesArr = this._downsample(arr, this.sampleThreshold);
+            }
+            // After downsample, enforce same tail length as t
+            if (seriesArr.length > t.length) {
+                seriesArr = seriesArr.slice(seriesArr.length - t.length);
+            } else if (seriesArr.length < t.length) {
+                // pad with first value to match length
+                const padCount = t.length - seriesArr.length;
+                const padVal = seriesArr.length ? seriesArr[0] : 0;
+                seriesArr = new Array(padCount).fill(padVal).concat(seriesArr);
+            }
+            aligned[idx] = seriesArr;
+        });
+
+        this.timeData = t;
+        return { timeData: this.timeData, series: aligned };
     }
 
     addDataPoint(timestamp, ramUsed, ramCached, ramPercent, swapUsed) {
-        this.timeData.push(timestamp);
+        // Normalize timestamp to ISO string when possible
+        let timeLabel = timestamp;
+        try {
+            const d = new Date(timestamp);
+            timeLabel = isNaN(d.getTime()) ? String(timestamp) : d.toISOString();
+        } catch (e) {
+            timeLabel = String(timestamp);
+        }
+        this.timeData.push(timeLabel);
         if (this.timeData.length > this.maxPoints) this.timeData.shift();
 
+        // Strict numeric casting and NaN guards
+        const usedNum = Number.parseFloat(ramUsed);
+        const cachedNum = Number.parseFloat(ramCached);
+        const percentNum = Number.parseFloat(ramPercent);
+        const swapNum = Number.parseFloat(swapUsed);
+
         return {
-            ramUsed: this.toGB(ramUsed),
-            ramCached: this.toGB(ramCached),
-            ramPercent: ramPercent.toFixed(1),
-            swapUsed: this.toGB(swapUsed)
+            ramUsed: this.toGB(Number.isFinite(usedNum) ? usedNum : 0),
+            ramCached: this.toGB(Number.isFinite(cachedNum) ? cachedNum : 0),
+            ramPercent: Number.isFinite(percentNum) ? Number(percentNum.toFixed(1)) : 0,
+            swapUsed: this.toGB(Number.isFinite(swapNum) ? swapNum : 0)
         };
     }
 
@@ -202,30 +297,44 @@ export class ChartDataManager {
     updateChart(chart, dataArrays) {
         if (!chart) return;
 
-        const updateOption = {
-            xAxis: { data: this.timeData }
-        };
+        // Trim each provided series to current window length
+        const len = this.timeData.length;
+        const updateOption = { xAxis: { data: this.timeData } };
 
-        // dataArrays format: { 0: [data...], 1: [data...] }
         Object.entries(dataArrays).forEach(([index, data]) => {
-            updateOption[`series[${index}]`] = { 
-                data: data.slice(-this.maxPoints) 
-            };
+            let arr = Array.isArray(data) ? data : [];
+            if (arr.length > len) arr = arr.slice(arr.length - len);
+            else if (arr.length < len) {
+                const padVal = arr.length ? arr[0] : 0;
+                arr = new Array(len - arr.length).fill(padVal).concat(arr);
+            }
+            updateOption[`series[${index}]`] = { data: arr };
         });
 
         chart.setOption(updateOption);
+        this.updateCount++;
+    }
+
+    destroy() {
+        // Stop performance monitor timers/raf to avoid leaks and duplicate logs
+        if (this.perfInterval) {
+            clearInterval(this.perfInterval);
+            this.perfInterval = null;
+        }
+        if (this.__perf && this.__perf.rafId && typeof window !== 'undefined' && window.cancelAnimationFrame) {
+            window.cancelAnimationFrame(this.__perf.rafId);
+        }
+        this.__perfRunning = false;
     }
 }
 
 export function initializeSystemCharts(totalRAMBytes) {
-    const totalRAMGB = (totalRAMBytes / (1024 * 1024 * 1024)).toFixed(2);
-
     const ramUsageChart = createRAMUsageChart(document.getElementById('memory-usage-chart'));
-    
-    // Set MarkLine Total for RAM Chart (Series index 2)
-    ramUsageChart.setOption({
-        series: [{}, {}, { markLine: { data: [{ yAxis: totalRAMGB }] } }] 
-    });
+    // Set MarkLine Total only when a valid positive total is provided
+    if (Number.isFinite(totalRAMBytes) && totalRAMBytes > 0) {
+        const totalRAMGB = (totalRAMBytes / (1024 * 1024 * 1024)).toFixed(2);
+        ramUsageChart.setOption({ series: [{}, {}, { markLine: { data: [{ yAxis: totalRAMGB }] } }] });
+    }
 
     const ramPercentChart = createRAMPercentChart(document.getElementById('memory-percent-chart'));
     const swapChart = createSwapChart(document.getElementById('swap-usage-chart'));
@@ -240,12 +349,12 @@ export function initializeSystemCharts(totalRAMBytes) {
         ramUsageChart.resize();
         ramPercentChart.resize();
         swapChart.resize();
-    });
+    }, { passive: true });
 
     return {
         ramUsageChart,
         ramPercentChart,
         swapChart,
-        dataManager: new ChartDataManager(60)
+        dataManager: new ChartDataManager(3000, 2000)
     };
 }

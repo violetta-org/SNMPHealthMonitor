@@ -10,14 +10,28 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         super(dataProcessor);
         this.cpuCoresInitialized = false;
 
-        // Charts will be lazily initialized once total memory is known
-        this.charts = null; // { ramUsageChart, ramPercentChart, swapChart, dataManager }
+        // Initialize charts ONCE on page load (total RAM line will be set later when available)
+        if (!this.isInitialized) {
+            this.charts = initializeSystemCharts(undefined); // { ramUsageChart, ramPercentChart, swapChart, dataManager }
+            this.isInitialized = true;
+        }
 
         // Local data buffers mapped by series index
         this.ramUsedData = [];
         this.ramCachedData = [];
         this.ramPercentData = [];
         this.swapData = [];
+
+        // Flags
+        this.totalRamMarkSet = false;
+        this._ramHistoryLoaded = false;
+        this._percentHistoryLoaded = false;
+
+        // Update throttling (max 1 per 500ms)
+        this._throttleInterval = 500;
+        this._lastFlush = 0;
+        this._pendingFrame = false;
+        this._latestData = null;
     }
 
     /**
@@ -56,6 +70,23 @@ export class SystemStatusDashboard extends BaseDashboardUI {
      * Update system status UI
      */
     update(processedData) {
+        // Throttle incoming UI updates to avoid render flood
+        this._latestData = processedData;
+        const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+        const delta = now - this._lastFlush;
+        if (delta < this._throttleInterval) {
+            if (!this._pendingFrame) {
+                this._pendingFrame = true;
+                const delay = Math.max(0, this._throttleInterval - delta);
+                setTimeout(() => {
+                    this._pendingFrame = false;
+                    this.update(this._latestData);
+                }, delay);
+            }
+            return;
+        }
+        this._lastFlush = now;
+
         console.log('[SystemStatusDashboard] Updating system status UI', processedData);
         
         // Update device info (online status, last_seen, ip_address)
@@ -84,39 +115,67 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
         // Memory
         if (processedData.memory) {
-            // Initialize charts when total memory is available
-            if (!this.charts && processedData.memory.total) {
-                this.charts = initializeSystemCharts(processedData.memory.total);
+            // Set Total RAM markLine once when total becomes available
+            if (!this.totalRamMarkSet && processedData.memory.total) {
+                const totalGB = (processedData.memory.total / (1024 * 1024 * 1024)).toFixed(2);
+                this.charts.ramUsageChart.setOption({ series: [{}, {}, { markLine: { data: [{ yAxis: totalGB }] } }] });
+                this.totalRamMarkSet = true;
             }
 
-            if (this.charts) {
-                const timeLabel = processedData.memory.time || new Date().toISOString();
-                const formatted = this.charts.dataManager.addDataPoint(
-                    timeLabel,
-                    processedData.memory.used || 0,
-                    processedData.memory.cached || 0,
-                    processedData.memory.percent !== undefined ? processedData.memory.percent : 0,
-                    processedData.swap ? (processedData.swap.used || 0) : 0
-                );
+            // Bulk-load initial history once (1000+ points OK)
+            if (!this._ramHistoryLoaded && processedData.memory_history && processedData.memory_history.length > 0) {
+                const toISO = (t) => new Date(t).toISOString();
+                const timeLabelsISO = processedData.memory_history.map(p => toISO(p.time));
+                const usedGB = processedData.memory_history.map(p => this.charts.dataManager.toGB(p.used || 0));
+                const cachedGB = processedData.memory_history.map(p => this.charts.dataManager.toGB(p.cached || 0));
 
-                // Push into local buffers
-                this.ramUsedData.push(formatted.ramUsed);
-                this.ramCachedData.push(formatted.ramCached);
-                this.ramPercentData.push(formatted.ramPercent);
-                this.swapData.push(formatted.swapUsed);
+                const bulkResult = this.charts.dataManager.bulkLoad(timeLabelsISO, {
+                    0: usedGB,
+                    1: cachedGB
+                });
 
-                // Apply updates via explicit index mapping
-                this.charts.dataManager.updateChart(this.charts.ramUsageChart, {
-                    0: this.ramUsedData,
-                    1: this.ramCachedData
-                });
-                this.charts.dataManager.updateChart(this.charts.ramPercentChart, {
-                    0: this.ramPercentData
-                });
-                this.charts.dataManager.updateChart(this.charts.swapChart, {
-                    0: this.swapData
-                });
+                // Adopt aligned series to local buffers
+                this.ramUsedData = bulkResult.series[0] || [];
+                this.ramCachedData = bulkResult.series[1] || [];
+
+                // For percent, align to manager.timeData by mapping from percent history
+                if (processedData.memory_percent_history && processedData.memory_percent_history.length > 0) {
+                    const pMap = new Map(processedData.memory_percent_history.map(pt => [toISO(pt.time), Number((pt.percent || 0).toFixed(1))]));
+                    this.ramPercentData = this.charts.dataManager.timeData.map(t => pMap.get(t) ?? 0);
+                    this._percentHistoryLoaded = true;
+                }
+
+                // Draw initial state
+                this.charts.dataManager.updateChart(this.charts.ramUsageChart, { 0: this.ramUsedData, 1: this.ramCachedData });
+                this.charts.dataManager.updateChart(this.charts.ramPercentChart, { 0: this.ramPercentData });
+
+                this._ramHistoryLoaded = true;
             }
+
+            // Stream update (append only)
+            const timeLabel = processedData.memory.time ? new Date(processedData.memory.time).toISOString() : new Date().toISOString();
+            const formatted = this.charts.dataManager.addDataPoint(
+                timeLabel,
+                processedData.memory.used || 0,
+                processedData.memory.cached || 0,
+                processedData.memory.percent !== undefined ? processedData.memory.percent : 0,
+                processedData.swap ? (processedData.swap.used || 0) : 0
+            );
+
+            this.ramUsedData.push(formatted.ramUsed);
+            this.ramCachedData.push(formatted.ramCached);
+            this.ramPercentData.push(formatted.ramPercent);
+            this.swapData.push(formatted.swapUsed);
+
+            // One-time debug: prove numeric types after casting
+            if (!this._debugLogged) {
+                console.log('DEBUG DATA TYPE:', typeof formatted.ramUsed, formatted.ramUsed, typeof formatted.ramPercent, formatted.ramPercent);
+                this._debugLogged = true;
+            }
+
+            this.charts.dataManager.updateChart(this.charts.ramUsageChart, { 0: this.ramUsedData, 1: this.ramCachedData });
+            this.charts.dataManager.updateChart(this.charts.ramPercentChart, { 0: this.ramPercentData });
+            this.charts.dataManager.updateChart(this.charts.swapChart, { 0: this.swapData });
         }
         // Swap handled together with memory via dataManager
 
