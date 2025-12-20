@@ -41,6 +41,10 @@ export class Dashboard {
         
         // Register UI elements (topic-specific)
         this.uiUpdater.registerElements();
+        // Attach WebSocket manager for range queries
+        if (typeof this.uiUpdater.attachWebSocketManager === 'function') {
+            this.uiUpdater.attachWebSocketManager(this.wsManager, this.sysname, this.topic);
+        }
         
         // Setup WebSocket event handlers
         this.setupWebSocketHandlers();
@@ -61,6 +65,10 @@ export class Dashboard {
             // Tạm thời không update WebSocket status
             // this.uiUpdater.updateConnectionStatus(true);
             this.uiUpdater.hideError();
+            // On first connection, bootstrap with default live range (last 15m)
+            if (typeof this.uiUpdater.setTimeRange === 'function') {
+                try { this.uiUpdater.setTimeRange('live'); } catch (e) { console.warn('[Dashboard] setTimeRange live failed', e); }
+            }
         });
         
         // Handle disconnection

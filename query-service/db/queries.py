@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import math
+import os
 import logging
 from typing import List, Dict, Any, Optional
 from db.connection import get_db
@@ -8,6 +9,7 @@ from utils.logging import configure_logger
 
 logger = configure_logger(__name__)
 logger.setLevel(logging.CRITICAL)
+TESTING_MODE = os.getenv('TESTING_MODE', '0') == '1'
 
 
 def calculate_group_interval(duration: timedelta) -> int:
@@ -35,6 +37,55 @@ def calculate_group_interval(duration: timedelta) -> int:
         return 300  # 5 minute buckets
     else:  # >= 24 hours
         return 3600  # 1 hour buckets
+
+
+def calculate_group_interval_dynamic(duration: timedelta, target_points: int = 500) -> int:
+    """
+    Calculate a dynamic aggregation interval in seconds targeting ~target_points.
+    Returns 0 for raw data if total_seconds <= target_points.
+    """
+    total_seconds = max(1, int(duration.total_seconds()))
+    if total_seconds <= target_points:
+        return 0
+    return max(1, int(round(total_seconds / float(target_points))))
+
+
+def _generate_dummy_history(start_time: datetime, end_time: datetime, total_bytes: int, target_points: int = 1000):
+    """Generate dummy memory history and percent history for testing.
+    Returns (memory_history, memory_percent_history).
+    """
+    total_bytes = total_bytes or (8 * 1024 * 1024 * 1024)
+    duration = end_time - start_time
+    total_seconds = max(1, int(duration.total_seconds()))
+    step = max(1, total_seconds // max(1, target_points))
+    points = max(1, min(target_points, total_seconds // step))
+
+    mem_hist = []
+    perc_hist = []
+    for i in range(points):
+        t = start_time + timedelta(seconds=i * step)
+        # Sine/cosine patterns
+        used_ratio = 0.5 + 0.3 * math.sin(i / 12.0)
+        cached_ratio = 0.10 + 0.05 * math.cos(i / 17.0)
+        used = max(0, min(total_bytes, int(total_bytes * used_ratio)))
+        cached = max(0, int(total_bytes * cached_ratio))
+        free = max(0, total_bytes - used - cached)
+        if used + cached > total_bytes:
+            cached = max(0, total_bytes - used)
+            free = total_bytes - used - cached
+        time_iso = t.isoformat()
+        mem_hist.append({
+            'time': time_iso,
+            'used': used,
+            'cached': cached,
+            'free': free,
+            'total': total_bytes
+        })
+        perc_hist.append({
+            'time': time_iso,
+            'percent': round((used / total_bytes) * 100.0, 2)
+        })
+    return mem_hist, perc_hist
 
 
 def get_device_info(sysname: str) -> Dict[str, Any]:
@@ -110,7 +161,7 @@ def get_system_metrics(
                 # Range Mode: All load averages in time range (with downsampling)
                 end_time = end_time or datetime.now()
                 duration = end_time - start_time
-                interval = calculate_group_interval(duration)
+                interval = calculate_group_interval_dynamic(duration, target_points=500)
                 
                 if interval == 0:
                     # Raw data
@@ -212,10 +263,10 @@ def get_memory_history(
     with get_db() as conn:
         with conn.cursor() as cur:
             if start_time is not None:
-                # Range Mode: All records in time range (with downsampling)
+                # Range Mode: All records in time range (with dynamic downsampling ~500 points)
                 end_time = end_time or datetime.now()
                 duration = end_time - start_time
-                interval = calculate_group_interval(duration)
+                interval = calculate_group_interval_dynamic(duration, target_points=500)
                 
                 if interval == 0:
                     # Raw data
@@ -226,7 +277,7 @@ def get_memory_history(
                         ORDER BY time ASC
                     """, (sysname, start_time, end_time))
                 else:
-                    # Aggregated data: AVG values per time bucket
+                    # Aggregated data: AVG values per time bucket (dynamic interval)
                     cur.execute(f"""
                         SELECT 
                             FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time,
@@ -290,7 +341,7 @@ def get_memory_percent_history(
                         ORDER BY time ASC
                     """, (sysname, start_time, end_time))
                 else:
-                    # Aggregated data: AVG percent per time bucket
+                    # Aggregated data: AVG percent per dynamic time bucket
                     cur.execute(f"""
                         SELECT 
                             FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time,
@@ -910,75 +961,27 @@ def get_status_metrics(
         memory_history = get_memory_history(sysname, start_time=start_time, end_time=end_time)
         memory_percent_history = get_memory_percent_history(sysname, start_time=start_time, end_time=end_time)
 
-        # Stress-testing support: backfill dummy history up to ~1000 points if insufficient
+        # Testing-only: generate dummy history when DB returns no rows in Range Mode
         try:
-            target_points = 1000
-            mem_hist = memory_history if isinstance(memory_history, list) else []
-            perc_hist = memory_percent_history if isinstance(memory_percent_history, list) else []
-
-            current_len = len(mem_hist)
-            if current_len < target_points:
-                missing = target_points - current_len
-                # Determine base total from latest snapshot if available
-                total_bytes = None
-                try:
-                    mem_obj = memory_part.get('memory') if isinstance(memory_part, dict) else None
-                    if isinstance(mem_obj, dict):
-                        total_bytes = mem_obj.get('total')
-                    elif isinstance(mem_obj, list) and len(mem_obj) > 0:
-                        # take last record's total
-                        total_bytes = mem_obj[-1].get('total')
-                except Exception:
+            if TESTING_MODE and start_time is not None:
+                mem_hist = memory_history if isinstance(memory_history, list) else []
+                if len(mem_hist) == 0:
+                    # infer total bytes from current memory snapshot if available
                     total_bytes = None
-                if not total_bytes:
-                    total_bytes = 8 * 1024 * 1024 * 1024  # default 8GB for testing
-
-                # Determine time anchor (use earliest record time if exists, else now)
-                if current_len > 0 and mem_hist[0].get('time'):
                     try:
-                        anchor = mem_hist[0]['time']
-                        if isinstance(anchor, str):
-                            anchor_dt = datetime.fromisoformat(anchor.replace('Z', '+00:00')).replace(tzinfo=None)
-                        else:
-                            anchor_dt = anchor  # assume datetime
+                        mem_obj = memory_part.get('memory') if isinstance(memory_part, dict) else None
+                        if isinstance(mem_obj, dict):
+                            total_bytes = mem_obj.get('total')
+                        elif isinstance(mem_obj, list) and len(mem_obj) > 0:
+                            total_bytes = mem_obj[-1].get('total')
                     except Exception:
-                        anchor_dt = datetime.now()
-                else:
-                    anchor_dt = datetime.now()
-
-                # Generate older points before anchor, 1s apart
-                fill_hist = []
-                fill_perc = []
-                for i in range(missing, 0, -1):
-                    t = anchor_dt - timedelta(seconds=i)
-                    # Sine/cosine patterns for used/cached
-                    used_ratio = 0.5 + 0.3 * math.sin(i / 12.0)  # varies 20%-80%
-                    cached_ratio = 0.10 + 0.05 * math.cos(i / 17.0)
-                    used = max(0, min(total_bytes, int(total_bytes * used_ratio)))
-                    cached = max(0, int(total_bytes * cached_ratio))
-                    free = max(0, total_bytes - used - cached)
-                    # If free dipped negative due to rounding, adjust cached
-                    if used + cached > total_bytes:
-                        cached = max(0, total_bytes - used)
-                        free = total_bytes - used - cached
-
-                    time_iso = t.isoformat()
-                    fill_hist.append({
-                        'time': time_iso,
-                        'used': used,
-                        'cached': cached,
-                        'free': free,
-                        'total': total_bytes
-                    })
-                    fill_perc.append({
-                        'time': time_iso,
-                        'percent': round((used / total_bytes) * 100.0, 2)
-                    })
-
-                # Prepend synthetic history so that real data (if any) remains at the end (latest)
-                memory_history = fill_hist + mem_hist
-                memory_percent_history = fill_perc + perc_hist
-                print(f"[DEBUG] get_status_metrics: Backfilled dummy history: {missing} points (total={len(memory_history)})")
+                        total_bytes = None
+                    if not total_bytes:
+                        total_bytes = 8 * 1024 * 1024 * 1024  # default 8GB for testing
+                    st = start_time
+                    et = end_time or datetime.now()
+                    memory_history, memory_percent_history = _generate_dummy_history(st, et, total_bytes, target_points=1000)
+                    print(f"[DEBUG] get_status_metrics: Generated dummy history (testing mode): {len(memory_history)} points")
         except Exception as gen_err:
             print(f"[DEBUG] get_status_metrics: Dummy history generation failed: {gen_err}")
         # Merge parts (keys are distinct: system_info, load_avg, memory, swap, cpu_percent, temperature)

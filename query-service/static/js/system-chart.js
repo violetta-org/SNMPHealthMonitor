@@ -21,6 +21,8 @@ const getCommonLegend = () => ({
 
 const getCommonToolbox = () => ({
     feature: {
+        dataZoom: { yAxisIndex: 'none' },
+        restore: {},
         saveAsImage: { title: 'Save', pixelRatio: 2 }
     },
     iconStyle: { borderColor: '#aaa' },
@@ -80,32 +82,29 @@ export function createRAMUsageChart(container) {
         grid: getCommonGrid(),
         legend: getCommonLegend(),
         toolbox: getCommonToolbox(),
+        dataZoom: [
+            { type: 'slider', xAxisIndex: 0, bottom: 0, height: 18 },
+            { type: 'inside', xAxisIndex: 0 }
+        ],
         xAxis: getTimeAxisConfig(),
-        yAxis: {
-            ...getValueAxisConfig(true, '', 'GB'),
-            min: (value) => Math.max(0, value.min - 0.5) 
-        },
+        yAxis: { ...getValueAxisConfig(true, '', 'GB') },
         series: [
             // Series 0: Used
             {
-                name: 'Used', type: 'line', smooth: false,
-                showSymbol: true, symbol: 'circle', symbolSize: 6,
-                lineStyle: { color: '#00f2ff', width: 3, shadowBlur: 15, shadowColor: '#00f2ff' },
-                itemStyle: { color: '#00f2ff' },
-                areaStyle: {
-                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                        { offset: 0, color: 'rgba(0, 242, 255, 0.5)' },
-                        { offset: 1, color: 'rgba(0, 242, 255, 0.0)' }
-                    ])
-                },
+                name: 'Used', type: 'line', smooth: false, stack: 'mem',
+                showSymbol: false,
+                lineStyle: { color: '#00aaff', width: 2 },
+                itemStyle: { color: '#00aaff' },
+                areaStyle: { opacity: 0.3 },
                 data: []
             },
             // Series 1: Cached
             {
-                name: 'Cached', type: 'line', smooth: false,
-                showSymbol: true, symbol: 'circle', symbolSize: 6,
-                lineStyle: { color: '#00ff9d', width: 3, shadowBlur: 15, shadowColor: '#00ff9d' },
-                itemStyle: { color: '#00ff9d' },
+                name: 'Cached', type: 'line', smooth: false, stack: 'mem',
+                showSymbol: false,
+                lineStyle: { color: '#00c67a', width: 2 },
+                itemStyle: { color: '#00c67a' },
+                areaStyle: { opacity: 0.3 },
                 data: []
             },
             // Series 2: MarkLine Total
@@ -138,6 +137,10 @@ export function createRAMPercentChart(container) {
             formatter: '{b}<br/>{a}: {c}%'
         },
         grid: getCommonGrid(),
+        dataZoom: [
+            { type: 'slider', xAxisIndex: 0, bottom: 0, height: 18 },
+            { type: 'inside', xAxisIndex: 0 }
+        ],
         xAxis: getTimeAxisConfig(),
         yAxis: { ...getValueAxisConfig(false, '', '%'), max: 100 },
         series: [{
@@ -168,12 +171,16 @@ export function createSwapChart(container) {
             textStyle: { color: '#fff', fontFamily: 'Consolas, monospace' }
         },
         grid: getCommonGrid(),
+        dataZoom: [
+            { type: 'slider', xAxisIndex: 0, bottom: 0, height: 18 },
+            { type: 'inside', xAxisIndex: 0 }
+        ],
         xAxis: getTimeAxisConfig(),
         yAxis: getValueAxisConfig(true, '', 'GB'),
         series: [{
-            name: 'Swap Used', type: 'line', step: 'start', showSymbol: false,
+            name: 'Swap Used', type: 'bar',
             itemStyle: { color: '#bd00ff' },
-            areaStyle: { opacity: 0.2 },
+            barWidth: '60%',
             data: []
         }]
     };
@@ -355,7 +362,10 @@ export function initializeSystemCharts(totalRAMBytes) {
     // Set MarkLine Total only when a valid positive total is provided
     if (Number.isFinite(totalRAMBytes) && totalRAMBytes > 0) {
         const totalRAMGB = (totalRAMBytes / (1024 * 1024 * 1024)).toFixed(2);
-        ramUsageChart.setOption({ series: [{}, {}, { markLine: { data: [{ yAxis: totalRAMGB }] } }] });
+        ramUsageChart.setOption({ 
+            yAxis: { min: 0, max: Number(totalRAMGB) },
+            series: [{}, {}, { markLine: { data: [{ yAxis: totalRAMGB }] } }] 
+        });
     }
 
     const ramPercentChart = createRAMPercentChart(document.getElementById('memory-percent-chart'));

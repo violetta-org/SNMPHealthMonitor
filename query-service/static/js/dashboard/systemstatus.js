@@ -32,6 +32,12 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         this._lastFlush = 0;
         this._pendingFrame = false;
         this._latestData = null;
+
+        // Hybrid time range state
+        this.currentRange = 'live'; // 'live' | '1h' | '6h' | '24h' | '7d' | 'custom'
+        this.acceptStreaming = true;
+        this.sysname = null;
+        this.wsManager = null;
     }
 
     /**
@@ -41,6 +47,14 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         // Header elements
         this.registerElement('connection-status', '#connection-status');
         this.registerElement('last-update-time', '#last-update-time');
+        // Time range selector
+        const rangeEl = document.getElementById('time-range');
+        if (rangeEl) {
+            rangeEl.addEventListener('change', (e) => {
+                const val = e.target.value;
+                this.setTimeRange(val);
+            });
+        }
         
         // System info
         this.registerElement('sysname', '#sysname');
@@ -120,7 +134,10 @@ export class SystemStatusDashboard extends BaseDashboardUI {
                 this.totalRamBytes = processedData.memory.total;
                 this.totalRamGB = this.totalRamBytes / (1024 * 1024 * 1024);
                 const totalGB = this.totalRamGB.toFixed(2);
-                this.charts.ramUsageChart.setOption({ series: [{}, {}, { markLine: { data: [{ yAxis: totalGB }] } }] });
+                this.charts.ramUsageChart.setOption({ 
+                    yAxis: { min: 0, max: this.totalRamGB },
+                    series: [{}, {}, { markLine: { data: [{ yAxis: totalGB }] } }] 
+                });
                 this.totalRamMarkSet = true;
             }
 
@@ -148,24 +165,17 @@ export class SystemStatusDashboard extends BaseDashboardUI {
                 }
 
                 // Draw initial state
-                // Smart auto-zoom: if usage stays low, zoom Y max to 50% of total to enhance detail
-            if (this.totalRamGB) {
-                const maxUsage = this.ramUsedData.length ? this.ramUsedData.reduce((m, v) => Math.max(m, Number(v) || 0), 0) : 0;
-                if (maxUsage < this.totalRamGB * 0.3) {
-                    this.charts.ramUsageChart.setOption({ yAxis: { max: this.totalRamGB * 0.5 } });
-                } else {
-                    // revert to full scale at total RAM for readability
-                    this.charts.ramUsageChart.setOption({ yAxis: { max: this.totalRamGB } });
-                }
-            }
-
-            this.charts.dataManager.updateChart(this.charts.ramUsageChart, { 0: this.ramUsedData, 1: this.ramCachedData });
+                this.charts.dataManager.updateChart(this.charts.ramUsageChart, { 0: this.ramUsedData, 1: this.ramCachedData });
                 this.charts.dataManager.updateChart(this.charts.ramPercentChart, { 0: this.ramPercentData });
 
                 this._ramHistoryLoaded = true;
             }
 
             // Stream update (append only)
+            if (!this.acceptStreaming) {
+                // In historical mode: ignore real-time appends
+                return;
+            }
             const timeLabel = processedData.memory.time ? new Date(processedData.memory.time).toISOString() : new Date().toISOString();
             const formatted = this.charts.dataManager.addDataPoint(
                 timeLabel,
@@ -214,6 +224,73 @@ export class SystemStatusDashboard extends BaseDashboardUI {
     }
 
     // Charts are synchronized via echarts.connect in initializeSystemCharts
+
+    attachWebSocketManager(wsManager, sysname, topic) {
+        this.wsManager = wsManager;
+        this.sysname = sysname;
+        this.topic = topic;
+    }
+
+    clearCharts() {
+        // Reset buffers and time axis
+        this.ramUsedData = [];
+        this.ramCachedData = [];
+        this.ramPercentData = [];
+        this.swapData = [];
+        if (this.charts && this.charts.dataManager) {
+            this.charts.dataManager.timeData = [];
+        }
+        if (this.charts) {
+            this.charts.ramUsageChart.setOption({ xAxis: { data: [] }, series: [{ data: [] }, { data: [] }, {}] });
+            this.charts.ramPercentChart.setOption({ xAxis: { data: [] }, series: [{ data: [] }] });
+            this.charts.swapChart.setOption({ xAxis: { data: [] }, series: [{ data: [] }] });
+        }
+        this._ramHistoryLoaded = false;
+        this._percentHistoryLoaded = false;
+    }
+
+    setTimeRange(rangeType, customStart = null, customEnd = null) {
+        this.currentRange = rangeType;
+        const now = new Date();
+        let start, end;
+        if (rangeType === 'live') {
+            // last 15 minutes history + resume streaming
+            start = new Date(now.getTime() - 15 * 60 * 1000);
+            end = now;
+            this.acceptStreaming = true;
+        } else if (rangeType === '1h') {
+            start = new Date(now.getTime() - 60 * 60 * 1000);
+            end = now;
+            this.acceptStreaming = false;
+        } else if (rangeType === '6h') {
+            start = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+            end = now;
+            this.acceptStreaming = false;
+        } else if (rangeType === '24h') {
+            start = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            end = now;
+            this.acceptStreaming = false;
+        } else if (rangeType === '7d') {
+            start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            end = now;
+            this.acceptStreaming = false;
+        } else if (rangeType === 'custom' && customStart && customEnd) {
+            start = new Date(customStart);
+            end = new Date(customEnd);
+            this.acceptStreaming = false;
+        } else {
+            return;
+        }
+
+        if (!this.wsManager || !this.sysname) return;
+        this.clearCharts();
+        this.wsManager.queryRange({
+            sysname: this.sysname,
+            topic: this.topic || 'systemstatus',
+            start_time: start.toISOString(),
+            end_time: end.toISOString()
+        });
+    }
 
     /**
      * Update CPU cores display

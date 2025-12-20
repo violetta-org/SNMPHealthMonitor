@@ -13,6 +13,27 @@ export class WebSocketManager {
     }
 
     /**
+     * Emit a historical range query to server
+     * data: { sysname, topic, start_time, end_time, page?, per_page? }
+     */
+    queryRange(data) {
+        if (!this.socket || !this.isConnected) {
+            console.warn('[WebSocketManager] Cannot query range - socket not connected');
+            return;
+        }
+        const payload = {
+            sysname: data.sysname || this.sysname,
+            topic: data.topic || this.topic,
+            start_time: data.start_time,
+            end_time: data.end_time,
+            page: data.page,
+            per_page: data.per_page
+        };
+        console.log('[WebSocketManager] Emitting query_range', payload);
+        this.socket.emit('query_range', payload);
+    }
+
+    /**
      * Connect to Socket.IO server và subscribe sysname/topic
      */
     connect() {
