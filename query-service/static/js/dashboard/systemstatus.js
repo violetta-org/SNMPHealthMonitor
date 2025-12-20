@@ -142,8 +142,13 @@ export class SystemStatusDashboard extends BaseDashboardUI {
                 this.totalRamBytes = processedData.memory.total;
                 this.totalRamGB = this.totalRamBytes / (1024 * 1024 * 1024);
                 if (this.charts?.ramUsageChart && typeof this.charts.ramUsageChart.updateOptions === 'function') {
+                    const currentYaxis = this.charts.ramUsageChart.w?.config?.yaxis || {};
                     this.charts.ramUsageChart.updateOptions({
-                        yaxis: { min: 0, max: this.totalRamGB }
+                        yaxis: {
+                            ...currentYaxis,
+                            min: 0,
+                            max: this.totalRamGB
+                        }
                     }, false, true);
                 }
                 this.totalRamMarkSet = true;

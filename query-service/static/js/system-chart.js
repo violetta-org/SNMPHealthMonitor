@@ -262,87 +262,73 @@ export class ChartDataManager {
 export function createCpuNetworkChart(container) {
     if (!container) return null;
     if (typeof ApexCharts === 'undefined') {
-        console.error('[SystemCharts] ApexCharts is not loaded.');
         return null;
     }
 
     const options = {
         chart: {
-            type: 'line',
+            type: 'line', // Quan trọng: Toàn bộ biểu đồ là dạng đường kẻ
             height: 350,
-            animations: {
-                enabled: true,
-                easing: 'easeinout',
-                speed: 350
-            },
+            animations: { enabled: true, easing: 'linear', speed: 300 },
             toolbar: { show: false },
             zoom: { enabled: false },
             background: 'transparent',
             fontFamily: 'Consolas, monospace'
         },
         series: [
-            { name: 'CPU %', type: 'area', data: [] },
+            // SỬA Ở ĐÂY: Đổi type từ 'area' thành 'line'
+            { name: 'CPU %', type: 'line', data: [] }, 
             { name: 'Throughput', type: 'line', data: [] }
         ],
-        colors: ['#39ff14', '#29b6f6'],
+        colors: ['#FF0000', '#29b6f6'], // Đỏ tươi và Xanh dương
+        
         stroke: {
             curve: 'smooth',
-            width: [4, 2]
+            width: [3, 2], // CPU dày 3px cho rõ, Network 2px
         },
+        
+        // SỬA Ở ĐÂY: Loại bỏ hoàn toàn opacity, để Solid 100%
         fill: {
-            type: ['gradient', 'solid'],
-            gradient: {
-                shade: 'dark',
-                type: 'vertical',
-                opacityFrom: 0.5,
-                opacityTo: 0.1,
-                stops: [0, 80, 100]
-            }
+            type: 'solid',
+            opacity: 1 
         },
+
         dataLabels: { enabled: false },
         grid: {
             show: true,
             borderColor: '#333',
             strokeDashArray: 3,
-            padding: { left: 10, right: 10, top: 10, bottom: 0 }
         },
         xaxis: {
             type: 'datetime',
             labels: {
-                datetimeUTC: false,
                 style: { colors: '#aaa', fontSize: '11px' },
-                datetimeFormatter: {
-                    hour: 'HH:mm:ss',
-                    minute: 'HH:mm:ss',
-                    second: 'HH:mm:ss'
-                }
+                datetimeFormatter: { hour: 'HH:mm:ss', minute: 'HH:mm:ss', second: 'HH:mm:ss' }
             },
-            axisBorder: { color: '#444' },
+            axisBorder: { show: false },
             axisTicks: { color: '#444' },
             tooltip: { enabled: false }
         },
         yaxis: [
             {
-                title: { text: 'CPU %', style: { color: '#39ff14', fontSize: '12px' } },
+                seriesName: 'CPU %',
                 min: 0,
-                max: 100,
+                max: 100, // LƯU Ý: Nếu muốn đường đỏ "nhảy múa" mạnh như đường xanh, hãy xóa dòng này đi!
                 labels: {
-                    style: { colors: '#39ff14', fontSize: '11px' },
+                    style: { colors: '#FF0000', fontSize: '11px' },
                     formatter: (v) => `${v.toFixed(0)}%`
                 },
-                forceNiceScale: true,
-                tickAmount: 5
+                title: { text: 'CPU %', style: { color: '#FF0000' } }
             },
             {
+                seriesName: 'Throughput',
                 opposite: true,
-                title: { text: 'Throughput', style: { color: '#29b6f6', fontSize: '12px' } },
-                min: 0,
+                min: 0, // Để tự động max, giúp đường xanh dao động rõ
                 labels: {
                     style: { colors: '#29b6f6', fontSize: '11px' },
                     formatter: (v) => formatNetworkRate(v)
                 },
-                forceNiceScale: true,
-                tickAmount: 5
+                title: { text: 'Throughput', style: { color: '#29b6f6' } }
             }
         ],
         tooltip: {
@@ -359,13 +345,12 @@ export function createCpuNetworkChart(container) {
         legend: {
             show: true,
             position: 'top',
-            horizontalAlign: 'right',
             labels: { colors: '#ccc' }
         }
     };
 
-    if (container.__apexChart && typeof container.__apexChart.destroy === 'function') {
-        try { container.__apexChart.destroy(); } catch (e) { /* ignore */ }
+    if (container.__apexChart) {
+        try { container.__apexChart.destroy(); } catch (e) {}
     }
 
     const chart = new ApexCharts(container, options);
