@@ -431,7 +431,6 @@ def get_network_metrics(
                     WHERE a.rn = 1
                     ORDER BY a.iface
                     """, (sysname,))
-                result['net_io'] = serialize_rows(cur.fetchall())
             else:
                 # Range Mode: All network I/O records with rates (with downsampling)
                 end_time = end_time or datetime.now()
@@ -510,8 +509,9 @@ def get_network_metrics(
                         GROUP BY interface, time_bucket
                         ORDER BY time_bucket ASC, interface ASC
                     """, (sysname, start_time, end_time))
+
+            # Fetch results for whichever query was executed above
             result['net_io'] = serialize_rows(cur.fetchall())
-            
             return result
 
 
@@ -547,7 +547,8 @@ def get_disk_metrics(
                       AND d1.device_partition NOT LIKE 'tmpfs'
                       AND d1.device_partition NOT LIKE '%%tmpfs%%'
                 """, (sysname, sysname))
-                result['disk_usage'] = serialize_rows(cur.fetchall())
+                rows = cur.fetchall()
+                result['disk_usage'] = serialize_rows(rows)
             else:
                 # Range Mode: All disk usage records in time range (with downsampling)
                 end_time = end_time or datetime.now()
@@ -587,7 +588,8 @@ def get_disk_metrics(
                         GROUP BY mount, device_partition, FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval})
                         ORDER BY time ASC, mount ASC
                     """, (sysname, start_time, end_time))
-            result['disk_usage'] = serialize_rows(cur.fetchall())
+                rows = cur.fetchall()
+                result['disk_usage'] = serialize_rows(rows)
             
             return result
 
@@ -673,54 +675,17 @@ def get_disk_io_metrics(
             result = {}
             
             if start_time is None:
-                # Snapshot Mode: Latest disk I/O with rates from previous record (paginated)
+                # Snapshot Mode: Latest disk I/O with rates
                 cur.execute("""
                     WITH last2 AS (
                         SELECT disk, time, read_bytes, write_bytes,
                             ROW_NUMBER() OVER (PARTITION BY disk ORDER BY time DESC) AS rn
                         FROM disk_io_counters
-                            WHERE sysname = %s
-                    ),
-                    active_disks AS (
-                        SELECT 
-                            a.disk,
-                            a.time,
-                            a.read_bytes,
-                            a.write_bytes,
-                            CASE 
-                                WHEN b.time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, b.time, a.time) > 0 THEN
-                                    GREATEST(0, (a.read_bytes - b.read_bytes) / 
-                                        (TIMESTAMPDIFF(MICROSECOND, b.time, a.time) / 1e6))
-                                ELSE NULL
-                            END AS read_bytes_s,
-                            CASE 
-                                WHEN b.time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, b.time, a.time) > 0 THEN
-                                    GREATEST(0, (a.write_bytes - b.write_bytes) / 
-                                        (TIMESTAMPDIFF(MICROSECOND, b.time, a.time) / 1e6))
-                                ELSE NULL
-                            END AS write_bytes_s
-                        FROM last2 a
-                        LEFT JOIN last2 b ON a.disk = b.disk AND a.rn = 1 AND b.rn = 2
-                        WHERE a.rn = 1
-                    ),
-                    filtered_disks AS (
-                        SELECT 
-                            disk,
-                            time,
-                            read_bytes,
-                            write_bytes,
-                            read_bytes_s,
-                            write_bytes_s,
-                            COUNT(*) OVER() as total_count
-                        FROM active_disks
-                        WHERE 
-                            disk NOT LIKE 'loop%%' 
-                            AND disk NOT LIKE 'sr%%'
-                            AND disk NOT LIKE 'ram%%'
-                            AND disk NOT LIKE 'zram%%'
+                        WHERE sysname = %s
                     )
                     SELECT 
                         disk,
+                        time,
                         read_bytes,
                         write_bytes,
                         read_bytes_s,
@@ -730,23 +695,6 @@ def get_disk_io_metrics(
                     ORDER BY COALESCE(read_bytes_s, 0) + COALESCE(write_bytes_s, 0) DESC, disk
                     LIMIT %s OFFSET %s
                     """, (sysname, per_page, offset))
-                
-                rows = serialize_rows(cur.fetchall())
-                total_count = rows[0]['total_count'] if rows else 0
-                
-                # Remove total_count from data rows
-                for row in rows:
-                    row.pop('total_count', None)
-                
-                result['disk_io'] = {
-                    'data': rows,
-                    'pagination': {
-                        'page': page,
-                        'per_page': per_page,
-                        'total': total_count,
-                        'total_pages': (total_count + per_page - 1) // per_page
-                    }
-                }
             else:
                 # Range Mode: All disk I/O records with rates (with downsampling)
                 end_time = end_time or datetime.now()
@@ -780,14 +728,12 @@ def get_disk_io_metrics(
                             write_bytes,
                             CASE 
                                 WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                    GREATEST(0, (read_bytes - prev_read_bytes) / 
-                                        (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
+                                    GREATEST(0, (read_bytes - prev_read_bytes) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
                                 ELSE NULL
                             END AS read_bytes_s,
                             CASE 
                                 WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                    GREATEST(0, (write_bytes - prev_write_bytes) / 
-                                        (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
+                                    GREATEST(0, (write_bytes - prev_write_bytes) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
                                 ELSE NULL
                             END AS write_bytes_s
                         FROM ranked
@@ -829,18 +775,18 @@ def get_disk_io_metrics(
                         GROUP BY disk, time_bucket
                         ORDER BY time_bucket ASC, disk ASC
                     """, (sysname, start_time, end_time))
-                
-                rows = serialize_rows(cur.fetchall())
-                result['disk_io'] = {
-                    'data': rows,
-                    'pagination': {
-                        'page': 1,
-                        'per_page': len(rows),
-                        'total': len(rows),
-                        'total_pages': 1
-                    }
+
+            # Single fetchall for all modes
+            rows = serialize_rows(cur.fetchall())
+            result['disk_io'] = {
+                'data': rows,
+                'pagination': {
+                    'page': page,
+                    'per_page': per_page,
+                    'total': len(rows),
+                    'total_pages': 1
                 }
-            
+            }
             return result
 
 

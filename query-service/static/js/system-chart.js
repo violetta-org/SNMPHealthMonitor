@@ -127,9 +127,9 @@ export class ChartDataManager {
                 const now = performance.now();
                 const elapsed = (now - this.__perf.last) / 1000;
                 const fps = this.__perf.frames / (elapsed || 1);
-                console.log(`[Charts][Perf] updates=${this.updateCount} fps=${fps.toFixed(1)} points=${this.timeData.length}`);
+                // console.log(`[Charts][Perf] updates=${this.updateCount} fps=${fps.toFixed(1)} points=${this.timeData.length}`);
                 this.__perf.frames = 0;
-                this.__perf.last = now;
+                this.__perf.last = now
                 this.updateCount = 0;
             }, 5000);
         }
