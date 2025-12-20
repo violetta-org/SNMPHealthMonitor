@@ -117,7 +117,9 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         if (processedData.memory) {
             // Set Total RAM markLine once when total becomes available
             if (!this.totalRamMarkSet && processedData.memory.total) {
-                const totalGB = (processedData.memory.total / (1024 * 1024 * 1024)).toFixed(2);
+                this.totalRamBytes = processedData.memory.total;
+                this.totalRamGB = this.totalRamBytes / (1024 * 1024 * 1024);
+                const totalGB = this.totalRamGB.toFixed(2);
                 this.charts.ramUsageChart.setOption({ series: [{}, {}, { markLine: { data: [{ yAxis: totalGB }] } }] });
                 this.totalRamMarkSet = true;
             }
@@ -146,7 +148,18 @@ export class SystemStatusDashboard extends BaseDashboardUI {
                 }
 
                 // Draw initial state
-                this.charts.dataManager.updateChart(this.charts.ramUsageChart, { 0: this.ramUsedData, 1: this.ramCachedData });
+                // Smart auto-zoom: if usage stays low, zoom Y max to 50% of total to enhance detail
+            if (this.totalRamGB) {
+                const maxUsage = this.ramUsedData.length ? this.ramUsedData.reduce((m, v) => Math.max(m, Number(v) || 0), 0) : 0;
+                if (maxUsage < this.totalRamGB * 0.3) {
+                    this.charts.ramUsageChart.setOption({ yAxis: { max: this.totalRamGB * 0.5 } });
+                } else {
+                    // revert to full scale at total RAM for readability
+                    this.charts.ramUsageChart.setOption({ yAxis: { max: this.totalRamGB } });
+                }
+            }
+
+            this.charts.dataManager.updateChart(this.charts.ramUsageChart, { 0: this.ramUsedData, 1: this.ramCachedData });
                 this.charts.dataManager.updateChart(this.charts.ramPercentChart, { 0: this.ramPercentData });
 
                 this._ramHistoryLoaded = true;

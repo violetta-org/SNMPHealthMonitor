@@ -88,7 +88,9 @@ export function createRAMUsageChart(container) {
         series: [
             // Series 0: Used
             {
-                name: 'Used', type: 'line', smooth: true, showSymbol: false,
+                name: 'Used', type: 'line', smooth: false,
+                showSymbol: true, symbol: 'circle', symbolSize: 6,
+                lineStyle: { color: '#00f2ff', width: 3, shadowBlur: 15, shadowColor: '#00f2ff' },
                 itemStyle: { color: '#00f2ff' },
                 areaStyle: {
                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -100,7 +102,9 @@ export function createRAMUsageChart(container) {
             },
             // Series 1: Cached
             {
-                name: 'Cached', type: 'line', smooth: true, showSymbol: false,
+                name: 'Cached', type: 'line', smooth: false,
+                showSymbol: true, symbol: 'circle', symbolSize: 6,
+                lineStyle: { color: '#00ff9d', width: 3, shadowBlur: 15, shadowColor: '#00ff9d' },
                 itemStyle: { color: '#00ff9d' },
                 data: []
             },
@@ -293,25 +297,43 @@ export class ChartDataManager {
         };
     }
 
-    // Explicitly update series by Index using strict mapping
+    // Explicit mapping by chart DOM id to avoid dynamic keys
     updateChart(chart, dataArrays) {
         if (!chart) return;
+        const chartId = chart.getDom().id;
 
-        // Trim each provided series to current window length
+        // Normalize arrays to current window length
         const len = this.timeData.length;
-        const updateOption = { xAxis: { data: this.timeData } };
-
-        Object.entries(dataArrays).forEach(([index, data]) => {
-            let arr = Array.isArray(data) ? data : [];
-            if (arr.length > len) arr = arr.slice(arr.length - len);
-            else if (arr.length < len) {
-                const padVal = arr.length ? arr[0] : 0;
-                arr = new Array(len - arr.length).fill(padVal).concat(arr);
+        const norm = (arr) => {
+            let out = Array.isArray(arr) ? arr.slice() : [];
+            if (out.length > len) out = out.slice(out.length - len);
+            else if (out.length < len) {
+                const padVal = out.length ? out[0] : 0;
+                out = new Array(len - out.length).fill(padVal).concat(out);
             }
-            updateOption[`series[${index}]`] = { data: arr };
-        });
+            return out;
+        };
 
-        chart.setOption(updateOption);
+        // Base option with timeline
+        const option = {
+            xAxis: { data: this.timeData },
+            series: []
+        };
+
+        // Explicit per-chart mapping
+        if (chartId === 'memory-usage-chart') {
+            option.series = [
+                { data: norm(dataArrays[0]) },
+                { data: norm(dataArrays[1]) },
+                {} // Preserve existing markLine config on series[2]
+            ];
+        } else if (chartId === 'memory-percent-chart') {
+            option.series = [ { data: norm(dataArrays[0]) } ];
+        } else if (chartId === 'swap-usage-chart') {
+            option.series = [ { data: norm(dataArrays[0]) } ];
+        }
+
+        chart.setOption(option);
         this.updateCount++;
     }
 

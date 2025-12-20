@@ -1,8 +1,13 @@
 from datetime import datetime, timedelta
 import math
+import logging
 from typing import List, Dict, Any, Optional
 from db.connection import get_db
 from utils.serialize import serialize_row, serialize_rows
+from utils.logging import configure_logger
+
+logger = configure_logger(__name__)
+logger.setLevel(logging.CRITICAL)
 
 
 def calculate_group_interval(duration: timedelta) -> int:
@@ -988,6 +993,8 @@ def get_status_metrics(
             status['temperature'] = temperature_part['temperature']
         
         print(f"[DEBUG] get_status_metrics: Aggregation complete with keys={list(status.keys())}")
+        #print the whole data to check if null
+        logger.debug(status)
         return status
     except Exception as e:
         print(f"[DEBUG] get_status_metrics: Error during aggregation: {e}")
