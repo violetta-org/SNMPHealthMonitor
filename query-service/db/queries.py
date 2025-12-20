@@ -10,33 +10,6 @@ logger = configure_logger(__name__)
 logger.setLevel(logging.CRITICAL)
 
 
-def calculate_group_interval(duration: timedelta) -> int:
-    """
-    Calculate aggregation interval in seconds based on time range duration.
-    Target: 500-1000 data points for optimal chart rendering.
-    
-    Args:
-        duration: Time range duration (end_time - start_time)
-    
-    Returns:
-        interval_seconds: Aggregation interval in seconds
-        - 0: Raw data (no aggregation)
-        - 60: 1 minute buckets
-        - 300: 5 minute buckets
-        - 3600: 1 hour buckets
-    """
-    total_seconds = duration.total_seconds()
-    
-    if total_seconds < 3600:  # < 1 hour
-        return 0  # Raw data
-    elif total_seconds < 21600:  # < 6 hours
-        return 60  # 1 minute buckets
-    elif total_seconds < 86400:  # < 24 hours
-        return 300  # 5 minute buckets
-    else:  # >= 24 hours
-        return 3600  # 1 hour buckets
-
-
 def calculate_group_interval_dynamic(duration: timedelta, target_points: int = 500) -> int:
     """
     Calculate a dynamic aggregation interval in seconds targeting ~target_points.
@@ -46,6 +19,30 @@ def calculate_group_interval_dynamic(duration: timedelta, target_points: int = 5
     if total_seconds <= target_points:
         return 0
     return max(1, int(round(total_seconds / float(target_points))))
+
+
+def resolve_time_range(
+    start_time: Optional[datetime],
+    end_time: Optional[datetime] = None,
+    target_points: int = 500
+) -> tuple:
+    """
+    Helper to resolve time range and calculate interval.
+    
+    Args:
+        start_time: Start time (None for snapshot mode)
+        end_time: End time (defaults to now if start_time provided)
+        target_points: Target number of data points
+    
+    Returns:
+        (end_time, interval) tuple where interval=0 means raw data
+    """
+    if start_time is None:
+        return None, 0
+    end_time = end_time or datetime.now()
+    duration = end_time - start_time
+    interval = calculate_group_interval_dynamic(duration, target_points)
+    return end_time, interval
 
 
  
@@ -185,7 +182,7 @@ def get_cpu_metrics(
                 # Range Mode: All CPU percent records in time range (with downsampling)
                 end_time = end_time or datetime.now()
                 duration = end_time - start_time
-                interval = calculate_group_interval(duration)
+                interval = calculate_group_interval_dynamic(duration)
                 
                 if interval == 0:
                     # Raw data
@@ -212,42 +209,48 @@ def get_cpu_metrics(
             return result
 
 
-def get_memory_history(
+def get_memory_timeseries(
     sysname: str,
+    fields: List[str],
     start_time: Optional[datetime] = None,
     end_time: Optional[datetime] = None,
-    limit: Optional[int] = None
+    limit: Optional[int] = None,
+    target_points: int = 500
 ) -> List[Dict[str, Any]]:
-    """Get memory history data for chart.
+    """Generic memory timeseries query.
     
-    If start_time is provided, returns all records in range (with downsampling if needed).
-    Otherwise, returns latest N records (if limit specified).
+    Args:
+        sysname: System name
+        fields: List of fields to select (e.g., ['used', 'cached', 'free', 'total'] or ['percent'])
+        start_time: Start time for range query (None for snapshot mode)
+        end_time: End time for range query
+        limit: Max records for snapshot mode (default 60)
+        target_points: Target data points for downsampling
+    
+    Returns:
+        List of records with time and requested fields
     """
+    fields_str = ', '.join(fields)
+    avg_fields_str = ', '.join([f'AVG({f}) as {f}' for f in fields])
+    default_limit = limit or 60
+    
     with get_db() as conn:
         with conn.cursor() as cur:
+            end_time, interval = resolve_time_range(start_time, end_time, target_points)
+            
             if start_time is not None:
-                # Range Mode: All records in time range (with dynamic downsampling ~500 points)
-                end_time = end_time or datetime.now()
-                duration = end_time - start_time
-                interval = calculate_group_interval_dynamic(duration, target_points=500)
-                
                 if interval == 0:
-                    # Raw data
-                    cur.execute("""
-                        SELECT time, used, cached, free, total
+                    cur.execute(f"""
+                        SELECT time, {fields_str}
                         FROM memory
                         WHERE sysname = %s AND time >= %s AND time <= %s
                         ORDER BY time ASC
                     """, (sysname, start_time, end_time))
                 else:
-                    # Aggregated data: AVG values per time bucket (dynamic interval)
                     cur.execute(f"""
                         SELECT 
                             FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time,
-                            AVG(used) as used,
-                            AVG(cached) as cached,
-                            AVG(free) as free,
-                            AVG(total) as total
+                            {avg_fields_str}
                         FROM memory
                         WHERE sysname = %s AND time >= %s AND time <= %s
                         GROUP BY FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval})
@@ -255,25 +258,25 @@ def get_memory_history(
                     """, (sysname, start_time, end_time))
                 return serialize_rows(cur.fetchall())
             else:
-                # Snapshot Mode: Latest N records
-                if limit:
-                    cur.execute("""
-                        SELECT time, used, cached, free, total
-                        FROM memory
-                        WHERE sysname = %s
-                        ORDER BY time DESC
-                        LIMIT %s
-                    """, (sysname, limit))
-                else:
-                    cur.execute("""
-                        SELECT time, used, cached, free, total
-                        FROM memory
-                        WHERE sysname = %s
-                        ORDER BY time DESC
-                        LIMIT 60
-                    """, (sysname,))
+                cur.execute(f"""
+                    SELECT time, {fields_str}
+                    FROM memory
+                    WHERE sysname = %s
+                    ORDER BY time DESC
+                    LIMIT %s
+                """, (sysname, default_limit))
                 rows = serialize_rows(cur.fetchall())
-                return list(reversed(rows))  # Reverse để thời gian chạy từ cũ -> mới
+                return list(reversed(rows))
+
+
+def get_memory_history(
+    sysname: str,
+    start_time: Optional[datetime] = None,
+    end_time: Optional[datetime] = None,
+    limit: Optional[int] = None
+) -> List[Dict[str, Any]]:
+    """Get memory history data for chart (wrapper for backward compatibility)."""
+    return get_memory_timeseries(sysname, ['used', 'cached', 'free', 'total'], start_time, end_time, limit)
 
 
 def get_memory_percent_history(
@@ -282,59 +285,8 @@ def get_memory_percent_history(
     end_time: Optional[datetime] = None,
     limit: Optional[int] = None
 ) -> List[Dict[str, Any]]:
-    """Get memory percent history data for percentage chart.
-    
-    If start_time is provided, returns all records in range (with downsampling if needed).
-    Otherwise, returns latest N records (if limit specified).
-    """
-    with get_db() as conn:
-        with conn.cursor() as cur:
-            if start_time is not None:
-                # Range Mode: All records in time range (with downsampling)
-                end_time = end_time or datetime.now()
-                duration = end_time - start_time
-                interval = calculate_group_interval(duration)
-                
-                if interval == 0:
-                    # Raw data
-                    cur.execute("""
-                        SELECT time, percent
-                        FROM memory
-                        WHERE sysname = %s AND time >= %s AND time <= %s
-                        ORDER BY time ASC
-                    """, (sysname, start_time, end_time))
-                else:
-                    # Aggregated data: AVG percent per dynamic time bucket
-                    cur.execute(f"""
-                        SELECT 
-                            FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time,
-                            AVG(percent) as percent
-                        FROM memory
-                        WHERE sysname = %s AND time >= %s AND time <= %s
-                        GROUP BY FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval})
-                        ORDER BY time ASC
-                    """, (sysname, start_time, end_time))
-                return serialize_rows(cur.fetchall())
-            else:
-                # Snapshot Mode: Latest N records
-                if limit:
-                    cur.execute("""
-                        SELECT time, percent
-                        FROM memory
-                        WHERE sysname = %s
-                        ORDER BY time DESC
-                        LIMIT %s
-                    """, (sysname, limit))
-                else:
-                    cur.execute("""
-                        SELECT time, percent
-                        FROM memory
-                        WHERE sysname = %s
-                        ORDER BY time DESC
-                        LIMIT 200
-                    """, (sysname,))
-                rows = serialize_rows(cur.fetchall())
-                return list(reversed(rows))  # Reverse để thời gian chạy từ cũ -> mới
+    """Get memory percent history data (wrapper for backward compatibility)."""
+    return get_memory_timeseries(sysname, ['percent'], start_time, end_time, limit or 200)
 
 
 def get_memory_metrics(
@@ -377,7 +329,7 @@ def get_memory_metrics(
                 # Range Mode: All memory records in time range (with downsampling)
                 end_time = end_time or datetime.now()
                 duration = end_time - start_time
-                interval = calculate_group_interval(duration)
+                interval = calculate_group_interval_dynamic(duration)
                 
                 if interval == 0:
                     # Raw data
@@ -484,7 +436,7 @@ def get_network_metrics(
                 # Range Mode: All network I/O records with rates (with downsampling)
                 end_time = end_time or datetime.now()
                 duration = end_time - start_time
-                interval = calculate_group_interval(duration)
+                interval = calculate_group_interval_dynamic(duration)
                 
                 if interval == 0:
                     # Raw data with LAG window function
@@ -600,7 +552,7 @@ def get_disk_metrics(
                 # Range Mode: All disk usage records in time range (with downsampling)
                 end_time = end_time or datetime.now()
                 duration = end_time - start_time
-                interval = calculate_group_interval(duration)
+                interval = calculate_group_interval_dynamic(duration)
                 
                 if interval == 0:
                     # Raw data
@@ -670,7 +622,7 @@ def get_temperature_metrics(
                 # Range Mode: All temperature records in time range (with downsampling)
                 end_time = end_time or datetime.now()
                 duration = end_time - start_time
-                interval = calculate_group_interval(duration)
+                interval = calculate_group_interval_dynamic(duration)
                 
                 if interval == 0:
                     # Raw data
@@ -799,7 +751,7 @@ def get_disk_io_metrics(
                 # Range Mode: All disk I/O records with rates (with downsampling)
                 end_time = end_time or datetime.now()
                 duration = end_time - start_time
-                interval = calculate_group_interval(duration)
+                interval = calculate_group_interval_dynamic(duration)
                 
                 if interval == 0:
                     # Raw data with LAG window function
@@ -888,6 +840,177 @@ def get_disk_io_metrics(
                         'total_pages': 1
                     }
                 }
+            
+            return result
+
+
+def get_cpu_network_combined(
+    sysname: str,
+    iface: Optional[str] = None,
+    start_time: Optional[datetime] = None,
+    end_time: Optional[datetime] = None,
+    limit: int = 60
+) -> Dict[str, Any]:
+    """Get combined CPU average and Network rate data for dual-axis chart.
+    
+    Args:
+        sysname: System name
+        iface: Network interface filter (e.g., 'eth0'). If None, uses first available.
+        start_time: Start time for range query
+        end_time: End time for range query
+        limit: Max points for snapshot mode (default 60)
+    
+    Returns:
+        {
+            'cpu': [{ time, percent }],  # Average across all cores
+            'network': [{ time, send_rate, recv_rate }],  # Bytes/s rates
+            'interfaces': [str]  # Available interfaces
+        }
+    """
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            result = {'cpu': [], 'network': [], 'interfaces': []}
+            
+            # Get available interfaces
+            cur.execute("""
+                SELECT DISTINCT iface FROM net_io_counters
+                WHERE sysname = %s ORDER BY iface
+            """, (sysname,))
+            result['interfaces'] = [row['iface'] for row in cur.fetchall()]
+            
+            # Use first interface if none specified
+            target_iface = iface or (result['interfaces'][0] if result['interfaces'] else None)
+            
+            if start_time is None:
+                # Snapshot Mode: Latest N points
+                # CPU: Average percent across all cores per timestamp
+                cur.execute("""
+                    SELECT time, AVG(percent) as percent
+                    FROM cpu_percent
+                    WHERE sysname = %s
+                    GROUP BY time
+                    ORDER BY time DESC
+                    LIMIT %s
+                """, (sysname, limit))
+                cpu_rows = list(reversed(serialize_rows(cur.fetchall())))
+                result['cpu'] = cpu_rows
+                
+                # Network: Calculate rate from consecutive records
+                if target_iface:
+                    cur.execute("""
+                        WITH ranked AS (
+                            SELECT 
+                                time, bytes_sent, bytes_recv,
+                                LAG(bytes_sent) OVER (ORDER BY time) as prev_sent,
+                                LAG(bytes_recv) OVER (ORDER BY time) as prev_recv,
+                                LAG(time) OVER (ORDER BY time) as prev_time
+                            FROM net_io_counters
+                            WHERE sysname = %s AND iface = %s
+                            ORDER BY time DESC
+                            LIMIT %s
+                        )
+                        SELECT 
+                            time,
+                            CASE 
+                                WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
+                                    GREATEST(0, (bytes_sent - prev_sent) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
+                                ELSE 0
+                            END as send_rate,
+                            CASE 
+                                WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
+                                    GREATEST(0, (bytes_recv - prev_recv) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
+                                ELSE 0
+                            END as recv_rate
+                        FROM ranked
+                        WHERE prev_time IS NOT NULL
+                        ORDER BY time ASC
+                    """, (sysname, target_iface, limit + 1))
+                    result['network'] = serialize_rows(cur.fetchall())
+            else:
+                # Range Mode with downsampling
+                end_time = end_time or datetime.now()
+                duration = end_time - start_time
+                interval = calculate_group_interval_dynamic(duration, target_points=500)
+                
+                if interval == 0:
+                    # Raw CPU data (averaged across cores)
+                    cur.execute("""
+                        SELECT time, AVG(percent) as percent
+                        FROM cpu_percent
+                        WHERE sysname = %s AND time >= %s AND time <= %s
+                        GROUP BY time
+                        ORDER BY time ASC
+                    """, (sysname, start_time, end_time))
+                    result['cpu'] = serialize_rows(cur.fetchall())
+                    
+                    # Raw Network data with rate calculation
+                    if target_iface:
+                        cur.execute("""
+                            WITH ranked AS (
+                                SELECT 
+                                    time, bytes_sent, bytes_recv,
+                                    LAG(bytes_sent) OVER (ORDER BY time) as prev_sent,
+                                    LAG(bytes_recv) OVER (ORDER BY time) as prev_recv,
+                                    LAG(time) OVER (ORDER BY time) as prev_time
+                                FROM net_io_counters
+                                WHERE sysname = %s AND iface = %s AND time >= %s AND time <= %s
+                            )
+                            SELECT 
+                                time,
+                                CASE 
+                                    WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
+                                        GREATEST(0, (bytes_sent - prev_sent) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
+                                    ELSE 0
+                                END as send_rate,
+                                CASE 
+                                    WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
+                                        GREATEST(0, (bytes_recv - prev_recv) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
+                                    ELSE 0
+                                END as recv_rate
+                            FROM ranked
+                            WHERE prev_time IS NOT NULL
+                            ORDER BY time ASC
+                        """, (sysname, target_iface, start_time, end_time))
+                        result['network'] = serialize_rows(cur.fetchall())
+                else:
+                    # Aggregated CPU data
+                    cur.execute(f"""
+                        SELECT 
+                            FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time,
+                            AVG(percent) as percent
+                        FROM cpu_percent
+                        WHERE sysname = %s AND time >= %s AND time <= %s
+                        GROUP BY FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval})
+                        ORDER BY time ASC
+                    """, (sysname, start_time, end_time))
+                    result['cpu'] = serialize_rows(cur.fetchall())
+                    
+                    # Aggregated Network data (rate from max-min per bucket)
+                    if target_iface:
+                        cur.execute(f"""
+                            SELECT 
+                                time_bucket as time,
+                                CASE 
+                                    WHEN MAX(bytes_sent) >= MIN(bytes_sent) THEN
+                                        GREATEST(0, (MAX(bytes_sent) - MIN(bytes_sent)) / {interval})
+                                    ELSE 0
+                                END as send_rate,
+                                CASE 
+                                    WHEN MAX(bytes_recv) >= MIN(bytes_recv) THEN
+                                        GREATEST(0, (MAX(bytes_recv) - MIN(bytes_recv)) / {interval})
+                                    ELSE 0
+                                END as recv_rate
+                            FROM (
+                                SELECT 
+                                    FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time_bucket,
+                                    bytes_sent, bytes_recv
+                                FROM net_io_counters
+                                WHERE sysname = %s AND iface = %s AND time >= %s AND time <= %s
+                            ) grouped
+                            GROUP BY time_bucket
+                            ORDER BY time_bucket ASC
+                        """, (sysname, target_iface, start_time, end_time))
+                        result['network'] = serialize_rows(cur.fetchall())
             
             return result
 

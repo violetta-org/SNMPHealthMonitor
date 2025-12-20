@@ -3,7 +3,7 @@
  * Handles system status page (aggregated metrics)
  */
 import { BaseDashboardUI } from './base.js';
-import { initializeSystemCharts } from '../system-chart.js';
+import { initializeSystemCharts, createCpuNetworkChart, updateCpuNetworkChart } from '../system-chart.js';
 
 export class SystemStatusDashboard extends BaseDashboardUI {
     constructor(dataProcessor) {
@@ -12,12 +12,20 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
         // Initialize charts ONCE on page load (total RAM line will be set later when available)
         if (!this.isInitialized) {
-            this.charts = initializeSystemCharts(undefined); // { ramUsageChart, ramPercentChart, swapChart, dataManager }
+            this.charts = initializeSystemCharts(undefined);
+            // Initialize CPU+Network chart
+            const cpuNetContainer = document.getElementById('cpu-network-chart');
+            if (cpuNetContainer) {
+                this.cpuNetworkChart = createCpuNetworkChart(cpuNetContainer);
+            }
             this.isInitialized = true;
         }
 
         // Local data buffers mapped by series index
         this.ramAppUsedData = [];
+        
+        // CPU+Network data buffers
+        this.cpuNetworkData = { cpu: [], network: [] };
 
         // Flags
         this.totalRamMarkSet = false;
@@ -122,7 +130,11 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             if (!this.totalRamMarkSet && processedData.memory.total) {
                 this.totalRamBytes = processedData.memory.total;
                 this.totalRamGB = this.totalRamBytes / (1024 * 1024 * 1024);
-                this.charts.ramUsageChart.setOption({ yAxis: { min: 0, max: this.totalRamGB } });
+                if (this.charts?.ramUsageChart && typeof this.charts.ramUsageChart.updateOptions === 'function') {
+                    this.charts.ramUsageChart.updateOptions({
+                        yaxis: { min: 0, max: this.totalRamGB }
+                    }, false, true);
+                }
                 this.totalRamMarkSet = true;
             }
             
@@ -207,9 +219,74 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         } else {
             this.updateText('temperature-value', 'N/A');
         }
+
+        // CPU + Network combined chart - fetch separately
+        if (!this._cpuNetFetching && this.sysname) {
+            this.fetchCpuNetworkData();
+        }
     }
 
-    // Charts are synchronized via echarts.connect in initializeSystemCharts
+    /**
+     * Fetch CPU + Network combined data
+     */
+    async fetchCpuNetworkData() {
+        if (!this.sysname) return;
+        
+        this._cpuNetFetching = true;
+        try {
+            const url = `/api/cpunetwork/${this.sysname}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            
+            // Update chart
+            if (this.cpuNetworkChart) {
+                updateCpuNetworkChart(this.cpuNetworkChart, data.cpu, data.network);
+            }
+            
+            // Update summary values
+            this.updateCpuNetworkSummary(data.cpu, data.network);
+        } catch (err) {
+            console.warn('[SystemStatusDashboard] Failed to fetch CPU/Network data:', err);
+        } finally {
+            this._cpuNetFetching = false;
+        }
+    }
+
+
+    /**
+     * Update CPU/Network summary text values
+     */
+    updateCpuNetworkSummary(cpuData, networkData) {
+        const cpuAvgEl = document.getElementById('cpu-avg-value');
+        const uploadEl = document.getElementById('net-upload-value');
+        const downloadEl = document.getElementById('net-download-value');
+        
+        if (cpuAvgEl && cpuData && cpuData.length > 0) {
+            const lastCpu = cpuData[cpuData.length - 1];
+            cpuAvgEl.textContent = `${Number(lastCpu.percent || 0).toFixed(1)}%`;
+        }
+        
+        if (networkData && networkData.length > 0) {
+            const lastNet = networkData[networkData.length - 1];
+            const sendRate = Number(lastNet.send_rate || 0);
+            const recvRate = Number(lastNet.recv_rate || 0);
+            
+            if (uploadEl) uploadEl.textContent = this.formatNetworkRate(sendRate);
+            if (downloadEl) downloadEl.textContent = this.formatNetworkRate(recvRate);
+        }
+    }
+
+    /**
+     * Format network rate to human-readable string
+     */
+    formatNetworkRate(bytesPerSec) {
+        if (!Number.isFinite(bytesPerSec) || bytesPerSec < 0) return '0 B/s';
+        if (bytesPerSec < 1024) return `${bytesPerSec.toFixed(0)} B/s`;
+        if (bytesPerSec < 1024 * 1024) return `${(bytesPerSec / 1024).toFixed(1)} KB/s`;
+        if (bytesPerSec < 1024 * 1024 * 1024) return `${(bytesPerSec / (1024 * 1024)).toFixed(2)} MB/s`;
+        return `${(bytesPerSec / (1024 * 1024 * 1024)).toFixed(2)} GB/s`;
+    }
 
     attachWebSocketManager(wsManager, sysname, topic) {
         this.wsManager = wsManager;
@@ -223,11 +300,16 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         if (this.charts && this.charts.dataManager) {
             this.charts.dataManager.timeData = [];
         }
-        if (this.charts) {
-            this.charts.ramUsageChart.setOption({
-                xAxis: { data: [] },
-                series: [{ data: [] }]
-            });
+        if (this.charts && this.charts.ramUsageChart) {
+            // ApexCharts: clear series data
+            this.charts.ramUsageChart.updateSeries([{ name: 'Used', data: [] }], true);
+        }
+        if (this.cpuNetworkChart) {
+            this.cpuNetworkChart.updateSeries([
+                { name: 'CPU %', data: [] },
+                { name: 'Upload', data: [] },
+                { name: 'Download', data: [] }
+            ], true);
         }
         this._ramHistoryLoaded = false;
         this._percentHistoryLoaded = false;

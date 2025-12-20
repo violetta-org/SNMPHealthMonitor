@@ -11,6 +11,8 @@ from db.queries import (
     get_disk_metrics,
     get_disk_io_metrics,
     get_temperature_metrics,
+    get_cpu_network_combined,
+    get_device_info,
 )
 from websocket.websocket_manager import ws_manager
 from utils.logging import configure_logger
@@ -56,6 +58,7 @@ def get_topic_data(
                 start_time=start_time,
                 end_time=end_time
             )
+            data['device_info'] = get_device_info(sysname)
             return data
         elif topic == "disk":
             data = get_disk_metrics(
@@ -63,12 +66,22 @@ def get_topic_data(
                 start_time=start_time,
                 end_time=end_time
             )
+            data['device_info'] = get_device_info(sysname)
             return data
         elif topic == "diskio":
             data = get_disk_io_metrics(
                 sysname,
                 page=page,
                 per_page=per_page,
+                start_time=start_time,
+                end_time=end_time
+            )
+            data['device_info'] = get_device_info(sysname)
+            return data
+        elif topic == "cpunetwork":
+            data = get_cpu_network_combined(
+                sysname,
+                iface=None,  # Will use first available interface
                 start_time=start_time,
                 end_time=end_time
             )

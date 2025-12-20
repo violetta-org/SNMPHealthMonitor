@@ -1,106 +1,105 @@
 /**
- * SYSTEM MONITOR CHARTS - FINAL STABLE VERSION
+ * SYSTEM MONITOR CHARTS
  */
 
-// --- CONFIGURATION ---
-
-const getCommonGrid = () => ({
-    left: '50px',
-    right: '20px',
-    top: '40px',
-    bottom: '30px',
-    containLabel: true
-});
-
-const getCommonLegend = () => ({
-    top: 5,
-    right: 50,
-    textStyle: { color: '#ccc', fontSize: 11 },
-    icon: 'roundRect'
-});
-
-const getCommonToolbox = () => ({
-    feature: {
-        dataZoom: { yAxisIndex: 'none' },
-        restore: {},
-        saveAsImage: { title: 'Save', pixelRatio: 2 }
-    },
-    iconStyle: { borderColor: '#aaa' },
-    right: 10,
-    top: 5
-});
-
-// X-Axis Config: Uses Category + hideOverlap for stability
-const getTimeAxisConfig = () => ({
-    type: 'category', 
-    boundaryGap: false,
-    axisLabel: {
-        color: '#aaa',
-        fontSize: 10,
-        fontFamily: 'Consolas, monospace',
-        formatter: (value) => {
-            if (!value) return '';
-            try {
-                const date = new Date(value);
-                return `${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}:${date.getSeconds().toString().padStart(2,'0')}`;
-            } catch (e) { return value; }
-        },
-        hideOverlap: true, // Critical fix for label overlap
-        interval: 'auto'
-    },
-    axisLine: { lineStyle: { color: '#444' } },
-    splitLine: { 
-        show: true, 
-        lineStyle: { color: 'rgba(255, 255, 255, 0.05)', type: 'dashed' } 
+export function createRAMUsageChart(container, totalRAMBytes) {
+    if (!container) return null;
+    if (typeof ApexCharts === 'undefined') {
+        console.error('[SystemCharts] ApexCharts is not loaded. Make sure the CDN script is included.');
+        return null;
     }
-});
 
-const getValueAxisConfig = (scale = true, name = '', unit = '') => ({
-    type: 'value',
-    name: name,
-    nameTextStyle: { color: '#888', padding: [0, 0, 0, -20] },
-    scale: scale,
-    splitLine: { show: true, lineStyle: { color: 'rgba(255, 255, 255, 0.08)' } },
-    axisLabel: { color: '#aaa', fontSize: 11, fontFamily: 'Consolas, monospace', formatter: `{value} ${unit}` },
-    axisLine: { show: false }
-});
+    const totalRAMGB = Number.isFinite(totalRAMBytes) && totalRAMBytes > 0
+        ? totalRAMBytes / (1024 * 1024 * 1024)
+        : undefined;
 
-// --- CHART CREATION ---
-
-export function createRAMUsageChart(container) {
-    const existing = echarts.getInstanceByDom(container);
-    const chart = existing || echarts.init(container);
-    const option = {
-        backgroundColor: 'transparent',
-        tooltip: {
-            trigger: 'axis',
-            backgroundColor: 'rgba(22, 33, 62, 0.95)',
-            borderColor: '#00f2ff',
-            textStyle: { color: '#fff', fontFamily: 'Consolas' },
-            axisPointer: { type: 'cross', label: { backgroundColor: '#283b56' } }
-        },
-        grid: getCommonGrid(),
-        legend: getCommonLegend(),
-        xAxis: getTimeAxisConfig(),
-        yAxis: { 
-            ...getValueAxisConfig(true, '', 'GiB'),
-            min: 0,
-            splitLine: { show: true, lineStyle: { opacity: 0.1 } }
+    const options = {
+        chart: {
+            type: 'area',
+            height: 300,
+            animations: {
+                enabled: true,
+                easing: 'easeinout',
+                speed: 350
+            },
+            toolbar: { show: false },
+            zoom: { enabled: false },
+            background: 'transparent',
+            fontFamily: 'Consolas, monospace'
         },
         series: [
             {
-                name: 'App Used',
-                type: 'line',
-                smooth: true,
-                showSymbol: false,
-                lineStyle: { color: '#26a69a', width: 2 },
-                itemStyle: { color: '#26a69a' },
-                areaStyle: { opacity: 0.35, color: 'rgba(38,166,154,0.35)' },
+                name: 'Used',
                 data: []
             }
-        ]
+        ],
+        colors: ['#4dbd74'],
+        stroke: {
+            curve: 'smooth',
+            width: 2
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shade: 'dark',
+                type: 'vertical',
+                opacityFrom: 0.7,
+                opacityTo: 0.15,
+                stops: [0, 80, 100]
+            }
+        },
+        dataLabels: { enabled: false },
+        grid: {
+            show: true,
+            borderColor: '#333',
+            strokeDashArray: 3,
+            padding: { left: 20, right: 20, top: 10, bottom: 0 }
+        },
+        xaxis: {
+            type: 'datetime',
+            labels: {
+                datetimeUTC: false,
+                style: { colors: '#aaa', fontSize: '11px' },
+                datetimeFormatter: {
+                    hour: 'HH:mm:ss',
+                    minute: 'HH:mm:ss',
+                    second: 'HH:mm:ss'
+                }
+            },
+            axisBorder: { color: '#444' },
+            axisTicks: { color: '#444' },
+            tooltip: { enabled: false }
+        },
+        yaxis: {
+            min: 0,
+            max: Number.isFinite(totalRAMGB) ? totalRAMGB : undefined,
+            labels: {
+                style: { colors: '#aaa', fontSize: '12px' },
+                formatter: (v) => `${v.toFixed(1)} GiB`,
+                minWidth: 60,
+                offsetX: 0
+            },
+            forceNiceScale: true,
+            tickAmount: 5
+        },
+        tooltip: {
+            theme: 'dark',
+            x: { format: 'HH:mm:ss' },
+            y: {
+                formatter: (v) => `${v.toFixed(2)} GiB`
+            }
+        },
+        legend: { show: false }
     };
-    chart.setOption(option);
+
+    // Clean any previous instance attached to this container
+    if (container.__apexChart && typeof container.__apexChart.destroy === 'function') {
+        try { container.__apexChart.destroy(); } catch (e) { /* ignore */ }
+    }
+
+    const chart = new ApexCharts(container, options);
+    container.__apexChart = chart;
+    chart.render();
     return chart;
 }
 
@@ -220,37 +219,24 @@ export class ChartDataManager {
         };
     }
 
-    // Explicit mapping by chart DOM id to avoid dynamic keys
+    // ApexCharts adapter
     updateChart(chart, dataArrays) {
         if (!chart) return;
-        const chartId = chart.getDom().id;
 
         // Normalize arrays to current window length
         const len = this.timeData.length;
-        const norm = (arr) => {
-            let out = Array.isArray(arr) ? arr.slice() : [];
-            if (out.length > len) out = out.slice(out.length - len);
-            else if (out.length < len) {
-                const padVal = out.length ? out[0] : 0;
-                out = new Array(len - out.length).fill(padVal).concat(out);
-            }
-            return out;
-        };
-
-        // Base option with timeline
-        const option = {
-            xAxis: { data: this.timeData },
-            series: []
-        };
-
-        // Explicit per-chart mapping
-        if (chartId === 'memory-usage-chart') {
-            option.series = [
-                { data: norm(dataArrays[0]) }
-            ];
+        let out = Array.isArray(dataArrays?.[0]) ? dataArrays[0].slice() : [];
+        if (out.length > len) out = out.slice(out.length - len);
+        else if (out.length < len) {
+            const padVal = out.length ? out[0] : 0;
+            out = new Array(len - out.length).fill(padVal).concat(out);
         }
 
-        chart.setOption(option);
+        const points = this.timeData.map((t, i) => {
+            const ts = new Date(t).getTime();
+            return { x: Number.isFinite(ts) ? ts : Date.now(), y: out[i] };
+        });
+        chart.updateSeries([{ name: 'Used', data: points }], true);
         this.updateCount++;
     }
 
@@ -267,16 +253,208 @@ export class ChartDataManager {
     }
 }
 
-export function initializeSystemCharts(totalRAMBytes) {
-    const ramUsageChart = createRAMUsageChart(document.getElementById('memory-usage-chart'));
-    // Set MarkLine Total only when a valid positive total is provided
-    if (Number.isFinite(totalRAMBytes) && totalRAMBytes > 0) {
-        const totalRAMGB = (totalRAMBytes / (1024 * 1024 * 1024)).toFixed(2);
-        ramUsageChart.setOption({ yAxis: { min: 0, max: Number(totalRAMGB) } });
+/**
+ * Create CPU + Network dual Y-axis chart
+ */
+export function createCpuNetworkChart(container) {
+    if (!container) return null;
+    if (typeof ApexCharts === 'undefined') {
+        console.error('[SystemCharts] ApexCharts is not loaded.');
+        return null;
     }
 
+    const options = {
+        chart: {
+            type: 'line',
+            height: 350,
+            animations: {
+                enabled: true,
+                easing: 'easeinout',
+                speed: 350
+            },
+            toolbar: { show: false },
+            zoom: { enabled: false },
+            background: 'transparent',
+            fontFamily: 'Consolas, monospace'
+        },
+        series: [
+            { name: 'CPU %', type: 'area', data: [] },
+            { name: 'Upload', type: 'line', data: [] },
+            { name: 'Download', type: 'line', data: [] }
+        ],
+        colors: ['#39ff14', '#ff6b35', '#29b6f6'],
+        stroke: {
+            curve: 'smooth',
+            width: [3, 2, 2]
+        },
+        fill: {
+            type: ['gradient', 'solid', 'solid'],
+            gradient: {
+                shade: 'dark',
+                type: 'vertical',
+                opacityFrom: 0.5,
+                opacityTo: 0.1,
+                stops: [0, 80, 100]
+            }
+        },
+        dataLabels: { enabled: false },
+        grid: {
+            show: true,
+            borderColor: '#333',
+            strokeDashArray: 3,
+            padding: { left: 10, right: 10, top: 10, bottom: 0 }
+        },
+        xaxis: {
+            type: 'datetime',
+            labels: {
+                datetimeUTC: false,
+                style: { colors: '#aaa', fontSize: '11px' },
+                datetimeFormatter: {
+                    hour: 'HH:mm:ss',
+                    minute: 'HH:mm:ss',
+                    second: 'HH:mm:ss'
+                }
+            },
+            axisBorder: { color: '#444' },
+            axisTicks: { color: '#444' },
+            tooltip: { enabled: false }
+        },
+        yaxis: [
+            {
+                title: { text: 'CPU %', style: { color: '#39ff14', fontSize: '12px' } },
+                min: 0,
+                max: 100,
+                labels: {
+                    style: { colors: '#39ff14', fontSize: '11px' },
+                    formatter: (v) => `${v.toFixed(0)}%`
+                },
+                forceNiceScale: true,
+                tickAmount: 5
+            },
+            {
+                opposite: true,
+                title: { text: 'Network', style: { color: '#29b6f6', fontSize: '12px' } },
+                min: 0,
+                labels: {
+                    style: { colors: '#29b6f6', fontSize: '11px' },
+                    formatter: (v) => formatNetworkRate(v)
+                },
+                forceNiceScale: true,
+                tickAmount: 5
+            }
+        ],
+        tooltip: {
+            theme: 'dark',
+            shared: true,
+            x: { format: 'HH:mm:ss' },
+            y: {
+                formatter: (v, { seriesIndex }) => {
+                    if (seriesIndex === 0) return `${v.toFixed(1)}%`;
+                    return formatNetworkRate(v);
+                }
+            }
+        },
+        legend: {
+            show: true,
+            position: 'top',
+            horizontalAlign: 'right',
+            labels: { colors: '#ccc' }
+        }
+    };
+
+    if (container.__apexChart && typeof container.__apexChart.destroy === 'function') {
+        try { container.__apexChart.destroy(); } catch (e) { /* ignore */ }
+    }
+
+    const chart = new ApexCharts(container, options);
+    container.__apexChart = chart;
+    chart.render();
+    return chart;
+}
+
+/**
+ * Determine the best unit for network rate display based on max value
+ */
+let _networkUnit = 'KB/s';
+let _networkDivisor = 1024;
+
+function determineNetworkUnit(maxBytesPerSec) {
+    if (!Number.isFinite(maxBytesPerSec) || maxBytesPerSec <= 0) {
+        _networkUnit = 'KB/s';
+        _networkDivisor = 1024;
+    } else if (maxBytesPerSec >= 1024 * 1024 * 1024) {
+        _networkUnit = 'GB/s';
+        _networkDivisor = 1024 * 1024 * 1024;
+    } else if (maxBytesPerSec >= 1024 * 1024) {
+        _networkUnit = 'MB/s';
+        _networkDivisor = 1024 * 1024;
+    } else {
+        _networkUnit = 'KB/s';
+        _networkDivisor = 1024;
+    }
+}
+
+/**
+ * Format network rate using the determined unit
+ */
+function formatNetworkRate(bytesPerSec) {
+    if (!Number.isFinite(bytesPerSec) || bytesPerSec < 0) return `0 ${_networkUnit}`;
+    return `${(bytesPerSec / _networkDivisor).toFixed(1)} ${_networkUnit}`;
+}
+
+/**
+ * Update CPU + Network chart with new data
+ */
+export function updateCpuNetworkChart(chart, cpuData, networkData) {
+    if (!chart) return;
+    
+    // Determine max network rate to set consistent unit
+    let maxRate = 0;
+    (networkData || []).forEach(d => {
+        maxRate = Math.max(maxRate, Number(d.send_rate) || 0, Number(d.recv_rate) || 0);
+    });
+    determineNetworkUnit(maxRate);
+    
+    const cpuPoints = (cpuData || []).map(d => ({
+        x: new Date(d.time).getTime(),
+        y: Number(d.percent) || 0
+    }));
+    
+    const uploadPoints = (networkData || []).map(d => ({
+        x: new Date(d.time).getTime(),
+        y: Number(d.send_rate) || 0
+    }));
+    
+    const downloadPoints = (networkData || []).map(d => ({
+        x: new Date(d.time).getTime(),
+        y: Number(d.recv_rate) || 0
+    }));
+    
+    // Update Y-axis title with current unit
+    chart.updateOptions({
+        yaxis: [
+            chart.w.config.yaxis[0],
+            {
+                ...chart.w.config.yaxis[1],
+                title: { text: `Network (${_networkUnit})`, style: { color: '#29b6f6', fontSize: '12px' } }
+            }
+        ]
+    }, false, false);
+    
+    chart.updateSeries([
+        { name: 'CPU %', data: cpuPoints },
+        { name: 'Upload', data: uploadPoints },
+        { name: 'Download', data: downloadPoints }
+    ], true);
+}
+
+export function initializeSystemCharts(totalRAMBytes) {
+    const ramUsageChart = createRAMUsageChart(document.getElementById('memory-usage-chart'), totalRAMBytes);
+
     window.addEventListener('resize', () => {
-        ramUsageChart.resize();
+        if (ramUsageChart && typeof ramUsageChart.resize === 'function') {
+            try { ramUsageChart.resize(); } catch (e) { /* ignore */ }
+        }
     }, { passive: true });
 
     return {
