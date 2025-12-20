@@ -81,91 +81,24 @@ export function createRAMUsageChart(container) {
         },
         grid: getCommonGrid(),
         legend: getCommonLegend(),
-        // Minimalist: remove toolbox buttons
-        dataZoom: [
-            { type: 'slider', xAxisIndex: 0, bottom: 0, height: 18 },
-            { type: 'inside', xAxisIndex: 0 }
-        ],
         xAxis: getTimeAxisConfig(),
         yAxis: { 
-            ...getValueAxisConfig(true, '', 'GB'),
+            ...getValueAxisConfig(true, '', 'GiB'),
             min: 0,
             splitLine: { show: true, lineStyle: { opacity: 0.1 } }
         },
         series: [
             {
-                name: 'App Used', type: 'line', smooth: true,
+                name: 'App Used',
+                type: 'line',
+                smooth: true,
                 showSymbol: false,
                 lineStyle: { color: '#26a69a', width: 2 },
                 itemStyle: { color: '#26a69a' },
-                areaStyle: { opacity: 0.2, color: 'rgba(38,166,154,0.2)' },
+                areaStyle: { opacity: 0.35, color: 'rgba(38,166,154,0.35)' },
                 data: []
             }
         ]
-    };
-    chart.setOption(option);
-    return chart;
-}
-
-export function createRAMPercentChart(container) {
-    const existing = echarts.getInstanceByDom(container);
-    const chart = existing || echarts.init(container);
-    const option = {
-        backgroundColor: 'transparent',
-        tooltip: {
-            trigger: 'axis',
-            backgroundColor: 'rgba(22, 33, 62, 0.9)',
-            borderColor: '#ff2a6d',
-            textStyle: { color: '#fff', fontFamily: 'Consolas, monospace' },
-            formatter: '{b}<br/>{a}: {c}%'
-        },
-        grid: getCommonGrid(),
-        dataZoom: [
-            { type: 'slider', xAxisIndex: 0, bottom: 0, height: 18 },
-            { type: 'inside', xAxisIndex: 0 }
-        ],
-        xAxis: getTimeAxisConfig(),
-        yAxis: { ...getValueAxisConfig(false, '', '%'), max: 100 },
-        series: [{
-            name: 'RAM %', type: 'line', smooth: true, showSymbol: false,
-            itemStyle: { color: '#ff2a6d' },
-            areaStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: 'rgba(255, 42, 109, 0.5)' },
-                    { offset: 1, color: 'rgba(255, 42, 109, 0.0)' }
-                ])
-            },
-            data: []
-        }]
-    };
-    chart.setOption(option);
-    return chart;
-}
-
-export function createSwapChart(container) {
-    const existing = echarts.getInstanceByDom(container);
-    const chart = existing || echarts.init(container);
-    const option = {
-        backgroundColor: 'transparent',
-        tooltip: {
-            trigger: 'axis',
-            backgroundColor: 'rgba(22, 33, 62, 0.9)',
-            borderColor: '#bd00ff',
-            textStyle: { color: '#fff', fontFamily: 'Consolas, monospace' }
-        },
-        grid: getCommonGrid(),
-        dataZoom: [
-            { type: 'slider', xAxisIndex: 0, bottom: 0, height: 18 },
-            { type: 'inside', xAxisIndex: 0 }
-        ],
-        xAxis: getTimeAxisConfig(),
-        yAxis: getValueAxisConfig(true, '', 'GB'),
-        series: [{
-            name: 'Swap Used', type: 'bar',
-            itemStyle: { color: '#bd00ff' },
-            barWidth: '60%',
-            data: []
-        }]
     };
     chart.setOption(option);
     return chart;
@@ -261,7 +194,7 @@ export class ChartDataManager {
         return { timeData: this.timeData, series: aligned };
     }
 
-    addDataPoint(timestamp, ramUsed, ramCached, ramPercent, swapUsed) {
+    addDataPoint(timestamp, ramAppUsed, ramBuffers, ramCached, ramFree) {
         // Normalize timestamp to ISO string when possible
         let timeLabel = timestamp;
         try {
@@ -274,16 +207,16 @@ export class ChartDataManager {
         if (this.timeData.length > this.maxPoints) this.timeData.shift();
 
         // Strict numeric casting and NaN guards
-        const usedNum = Number.parseFloat(ramUsed);
+        const appUsedNum = Number.parseFloat(ramAppUsed);
+        const buffersNum = Number.parseFloat(ramBuffers);
         const cachedNum = Number.parseFloat(ramCached);
-        const percentNum = Number.parseFloat(ramPercent);
-        const swapNum = Number.parseFloat(swapUsed);
+        const freeNum = Number.parseFloat(ramFree);
 
         return {
-            ramUsed: this.toGB(Number.isFinite(usedNum) ? usedNum : 0),
+            ramAppUsed: this.toGB(Number.isFinite(appUsedNum) ? appUsedNum : 0),
+            ramBuffers: this.toGB(Number.isFinite(buffersNum) ? buffersNum : 0),
             ramCached: this.toGB(Number.isFinite(cachedNum) ? cachedNum : 0),
-            ramPercent: Number.isFinite(percentNum) ? Number(percentNum.toFixed(1)) : 0,
-            swapUsed: this.toGB(Number.isFinite(swapNum) ? swapNum : 0)
+            ramFree: this.toGB(Number.isFinite(freeNum) ? freeNum : 0)
         };
     }
 
@@ -312,11 +245,9 @@ export class ChartDataManager {
 
         // Explicit per-chart mapping
         if (chartId === 'memory-usage-chart') {
-            option.series = [ { data: norm(dataArrays[0]) } ];
-        } else if (chartId === 'memory-percent-chart') {
-            option.series = [ { data: norm(dataArrays[0]) } ];
-        } else if (chartId === 'swap-usage-chart') {
-            option.series = [ { data: norm(dataArrays[0]) } ];
+            option.series = [
+                { data: norm(dataArrays[0]) }
+            ];
         }
 
         chart.setOption(option);
@@ -344,25 +275,12 @@ export function initializeSystemCharts(totalRAMBytes) {
         ramUsageChart.setOption({ yAxis: { min: 0, max: Number(totalRAMGB) } });
     }
 
-    const ramPercentChart = createRAMPercentChart(document.getElementById('memory-percent-chart'));
-    const swapChart = createSwapChart(document.getElementById('swap-usage-chart'));
-
-    // Sync Crosshairs
-    ramUsageChart.group = 'sys_monitor';
-    ramPercentChart.group = 'sys_monitor';
-    swapChart.group = 'sys_monitor';
-    echarts.connect('sys_monitor');
-
     window.addEventListener('resize', () => {
         ramUsageChart.resize();
-        ramPercentChart.resize();
-        swapChart.resize();
     }, { passive: true });
 
     return {
         ramUsageChart,
-        ramPercentChart,
-        swapChart,
         dataManager: new ChartDataManager(3000, 2000)
     };
 }

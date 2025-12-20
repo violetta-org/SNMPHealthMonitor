@@ -88,27 +88,20 @@
 
             <!-- Memory Charts Section -->
             <section class="details-section">
-                <!-- Memory Percentage Line Chart -->
-                <div class="detail-card memory-chart-card">
-                    <h3 class="detail-title">Biểu đồ Phần trăm Bộ nhớ</h3>
-                    <div id="memory-percent-chart" style="width: 100%; height: 320px;"></div>
-                </div>
-
                 <!-- Memory Usage Single Area Chart -->
                 <div class="detail-card memory-chart-card">
                     <h3 class="detail-title">Biểu đồ Bộ nhớ (RAM)</h3>
                     <div id="memory-usage-chart" style="width: 100%; height: 400px;"></div>
-                    <div class="ram-metrics-row" style="display: flex; gap: 20px; padding: 10px 0; color: #aaa; font-family: monospace; font-size: 0.9em;">
-                        <div>Buffers: <span id="ram-buffers" style="color: #fff">---</span></div>
-                        <div>Cached: <span id="ram-cached" style="color: #fff">---</span></div>
-                        <div>Free: <span id="ram-free" style="color: #fff">---</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 4px;">
+                        <div id="mem-summary-text" style="color: #4dbd74; font-size: 1.2rem; font-weight: bold; font-family: monospace;">Memory: --% (-- / --)</div>
+                        <div id="swap-summary-text" style="color: #aaa; font-size: 1.2rem; font-family: monospace;">Swap: --% (-- / --)</div>
                     </div>
-                </div>
-
-                <!-- Swap Usage Line Chart -->
-                <div class="detail-card swap-chart-card">
-                    <h3 class="detail-title">Biểu đồ Swap</h3>
-                    <div id="swap-usage-chart" style="width: 100%; height: 320px;"></div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; font-family: monospace; font-size: 1rem; color: #ccc;">
+                        <div><span style="color: #26a69a">●</span> App Used: <span id="val-app-used">---</span></div>
+                        <div><span style="color: #ffa726">●</span> Buffers: <span id="val-buffers">---</span></div>
+                        <div><span style="color: #29b6f6">●</span> Cached: <span id="val-cached">---</span></div>
+                        <div><span style="color: #ef5350">●</span> Free: <span id="val-free">---</span></div>
+                    </div>
                 </div>
             </section>
 {% endblock %}

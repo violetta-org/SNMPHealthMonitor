@@ -18,8 +18,6 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
         // Local data buffers mapped by series index
         this.ramAppUsedData = [];
-        this.ramPercentData = [];
-        this.swapData = [];
 
         // Flags
         this.totalRamMarkSet = false;
@@ -33,6 +31,17 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         this._latestData = null;
 
         // Live-only mode (history disabled)
+    }
+
+    formatBytesIEC(bytes, decimals = 1) {
+        const n = Number(bytes || 0);
+        if (!Number.isFinite(n) || n <= 0) return '0 bytes';
+        const k = 1024;
+        const units = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB'];
+        const i = Math.min(units.length - 1, Math.floor(Math.log(n) / Math.log(k)));
+        if (i === 0) return `${Math.round(n)} bytes`;
+        const v = n / Math.pow(k, i);
+        return `${v.toFixed(decimals)} ${units[i]}`;
     }
 
     /**
@@ -124,37 +133,58 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             const free = Number(mem.free || 0);
             const buffers = Number(mem.buffers || 0);
             const cached = Number(mem.cached || 0);
+            const used_db = Number(mem.used || 0);
             const appUsedBytes = Math.max(0, total - free - buffers - cached);
             const formatted = this.charts.dataManager.addDataPoint(
                 timeLabel,
                 appUsedBytes,
-                0,
-                mem.percent !== undefined ? mem.percent : 0,
-                processedData.swap ? (processedData.swap.used || 0) : 0
+                buffers,
+                cached,
+                free
             );
 
-            this.ramAppUsedData.push(formatted.ramUsed);
-            this.ramPercentData.push(formatted.ramPercent);
-            this.swapData.push(formatted.swapUsed);
+            this.ramAppUsedData.push(formatted.ramAppUsed);
 
-            // Update RAM metrics legend row
-            const fmt = (v) => this.dataProcessor.formatBytes(v);
-            const bufEl = document.getElementById('ram-buffers');
-            const cacheEl = document.getElementById('ram-cached');
-            const freeEl = document.getElementById('ram-free');
+            // Update RAM metrics labels
+            const fmt = (v) => this.formatBytesIEC(v, 1);
+            const appEl = document.getElementById('val-app-used');
+            const bufEl = document.getElementById('val-buffers');
+            const cacheEl = document.getElementById('val-cached');
+            const freeEl = document.getElementById('val-free');
+            if (appEl) appEl.textContent = fmt(appUsedBytes);
             if (bufEl) bufEl.textContent = fmt(buffers);
             if (cacheEl) cacheEl.textContent = fmt(cached);
             if (freeEl) freeEl.textContent = fmt(free);
 
+            const memSummaryEl = document.getElementById('mem-summary-text');
+            if (memSummaryEl) {
+                const pct = total > 0 ? ((appUsedBytes / total) * 100).toFixed(1) : '0.0';
+                memSummaryEl.textContent = `Memory: ${pct}% (${this.formatBytesIEC(appUsedBytes, 1)} / ${this.formatBytesIEC(total, 1)})`;
+            }
+
+            const swapSummaryEl = document.getElementById('swap-summary-text');
+            if (swapSummaryEl) {
+                const swap = processedData.swap || {};
+                const swapTotal = Number(swap.total || 0);
+                const swapUsed = Number(swap.used || 0);
+                const swapPct = swapTotal > 0 ? ((swapUsed / swapTotal) * 100).toFixed(1) : '0.0';
+                swapSummaryEl.textContent = `Swap: ${swapPct}% (${this.formatBytesIEC(swapUsed, 0)} / ${this.formatBytesIEC(swapTotal, 1)})`;
+            }
+
             // One-time debug: prove numeric types after casting
             if (!this._debugLogged) {
-                console.log('DEBUG DATA TYPE:', typeof formatted.ramUsed, formatted.ramUsed, typeof formatted.ramPercent, formatted.ramPercent);
+                console.log(
+                    'DEBUG DATA TYPE:',
+                    typeof formatted.ramAppUsed,
+                    formatted.ramAppUsed,
+                    { total, free, buffers, cached, used_db, appUsedBytes }
+                );
                 this._debugLogged = true;
             }
 
-            this.charts.dataManager.updateChart(this.charts.ramUsageChart, { 0: this.ramAppUsedData });
-            this.charts.dataManager.updateChart(this.charts.ramPercentChart, { 0: this.ramPercentData });
-            this.charts.dataManager.updateChart(this.charts.swapChart, { 0: this.swapData });
+            this.charts.dataManager.updateChart(this.charts.ramUsageChart, {
+                0: this.ramAppUsedData
+            });
         }
         // Swap handled together with memory via dataManager
 
@@ -189,17 +219,15 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
     clearCharts() {
         // Reset buffers and time axis
-        this.ramUsedData = [];
-        this.ramCachedData = [];
-        this.ramPercentData = [];
-        this.swapData = [];
+        this.ramAppUsedData = [];
         if (this.charts && this.charts.dataManager) {
             this.charts.dataManager.timeData = [];
         }
         if (this.charts) {
-            this.charts.ramUsageChart.setOption({ xAxis: { data: [] }, series: [{ data: [] }, { data: [] }, {}] });
-            this.charts.ramPercentChart.setOption({ xAxis: { data: [] }, series: [{ data: [] }] });
-            this.charts.swapChart.setOption({ xAxis: { data: [] }, series: [{ data: [] }] });
+            this.charts.ramUsageChart.setOption({
+                xAxis: { data: [] },
+                series: [{ data: [] }]
+            });
         }
         this._ramHistoryLoaded = false;
         this._percentHistoryLoaded = false;
