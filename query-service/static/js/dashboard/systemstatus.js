@@ -230,11 +230,30 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
         // Load Averages
         if (processedData.load_avg) {
-            const cpuCount = processedData.cpu_percent ? processedData.cpu_percent.length : 1;
-            
-            this.updateGauge('load-1m', (processedData.load_avg.load_1m || 0) / cpuCount * 100);
-            this.updateGauge('load-5m', (processedData.load_avg.load_5m || 0) / cpuCount * 100);
-            this.updateGauge('load-15m', (processedData.load_avg.load_15m || 0) / cpuCount * 100);
+            // Show raw load averages (not percent). Fallback to 0 when missing.
+            const load1 = Number(processedData.load_avg.load_1m) || 0;
+            const load5 = Number(processedData.load_avg.load_5m) || 0;
+            const load15 = Number(processedData.load_avg.load_15m) || 0;
+
+            this.updateGauge('load-1m', load1);
+            this.updateGauge('load-5m', load5);
+            this.updateGauge('load-15m', load15);
+
+            // Also update textual values if present
+            const load1El = document.getElementById('load-1m-value');
+            const load5El = document.getElementById('load-5m-value');
+            const load15El = document.getElementById('load-15m-value');
+            if (load1El) load1El.textContent = load1;
+            if (load5El) load5El.textContent = load5;
+            if (load15El) load15El.textContent = load15;
+
+            // Force gauge value text to raw number (override default "%")
+            const val1 = document.querySelector('#load-1m-gauge .gauge-value');
+            const val5 = document.querySelector('#load-5m-gauge .gauge-value');
+            const val15 = document.querySelector('#load-15m-gauge .gauge-value');
+            if (val1) val1.textContent = load1;
+            if (val5) val5.textContent = load5;
+            if (val15) val15.textContent = load15;
         }
 
         // Temperature

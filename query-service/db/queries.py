@@ -4,82 +4,77 @@ from typing import List, Dict, Any, Optional
 from db.connection import get_db
 from utils.serialize import serialize_row, serialize_rows
 from utils.logging import configure_logger
+from datetime import datetime, timedelta, timezone
 
 logger = configure_logger(__name__)
 logger.setLevel(logging.CRITICAL)
 
+# ===============================
+# Canonical helpers
+# ===============================
+
+NON_LOOPBACK_IFACE_SQL = """
+iface NOT IN ('lo','lo0')
+AND iface NOT LIKE 'docker%%'
+AND iface NOT LIKE 'veth%%'
+AND iface NOT LIKE 'br-%%'
+AND iface NOT LIKE 'virbr%%'
+AND iface NOT LIKE 'wg%%'
+AND iface NOT LIKE 'zt%%'
+"""
+
+RATE_SQL = """
+CASE
+  WHEN prev_val IS NULL THEN NULL
+  WHEN curr_val < prev_val THEN NULL
+  WHEN dt_us <= 0 THEN NULL
+  ELSE (curr_val - prev_val) / (dt_us / 1e6)
+END
+"""
+
+
+
+def utcnow():
+    return datetime.now(timezone.utc)
+
 
 def calculate_group_interval_dynamic(duration: timedelta, target_points: int = 500) -> int:
-    """
-    Calculate a dynamic aggregation interval in seconds targeting ~target_points.
-    Returns 0 for raw data if total_seconds <= target_points.
-    """
     total_seconds = max(1, int(duration.total_seconds()))
     if total_seconds <= target_points:
         return 0
     return max(1, int(round(total_seconds / float(target_points))))
 
 
-def resolve_time_range(
-    start_time: Optional[datetime],
-    end_time: Optional[datetime] = None,
-    target_points: int = 500
-) -> tuple:
-    """
-    Helper to resolve time range and calculate interval.
-    
-    Args:
-        start_time: Start time (None for snapshot mode)
-        end_time: End time (defaults to now if start_time provided)
-        target_points: Target number of data points
-    
-    Returns:
-        (end_time, interval) tuple where interval=0 means raw data
-    """
+def resolve_time_range(start_time, end_time, target_points=500):
     if start_time is None:
         return None, 0
-    end_time = end_time or datetime.now()
-    duration = end_time - start_time
-    interval = calculate_group_interval_dynamic(duration, target_points)
+    end_time = end_time or utcnow()
+    interval = calculate_group_interval_dynamic(end_time - start_time, target_points)
     return end_time, interval
 
 
  
 
-
+# -----------------------------
+# Device info
+# -----------------------------
 def get_device_info(sysname: str) -> Dict[str, Any]:
-    """Get device information: online, last_seen, ip_address."""
-    try:
-        with get_db() as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    SELECT online, last_seen, ip_address
-                    FROM devices
-                    WHERE sysname = %s
-                """, (sysname,))
-                row = cur.fetchone()
-                if row:
-                    last_seen = row.get('last_seen')
-                    return {
-                        'online': bool(row.get('online', False)),
-                        'last_seen': last_seen.isoformat() if last_seen else None,
-                        'ip_address': row.get('ip_address')
-                    }
-                print(f"[DEBUG] get_device_info: Device {sysname} not found in database")
-                return {
-                    'online': False,
-                    'last_seen': None,
-                    'ip_address': None
-                }
-    except Exception as e:
-        print(f"[ERROR] get_device_info failed for {sysname}: {e}")
-        import traceback
-        traceback.print_exc()
-        return {
-            'online': False,
-            'last_seen': None,
-            'ip_address': None
-        }
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT online, last_seen, ip_address
+                FROM devices
+                WHERE sysname = %s
+            """, (sysname,))
+            row = cur.fetchone()
+            if not row:
+                return {'online': False, 'last_seen': None, 'ip_address': None}
+
+            return {
+                'online': bool(row['online']),
+                'last_seen': row['last_seen'].isoformat() if row['last_seen'] else None,
+                'ip_address': row['ip_address']
+            }
 
 
 def get_system_metrics(
@@ -118,7 +113,7 @@ def get_system_metrics(
                 result['load_avg'] = serialize_row(cur.fetchone())
             else:
                 # Range Mode: All load averages in time range (with downsampling)
-                end_time = end_time or datetime.now()
+                end_time = end_time or utcnow()
                 duration = end_time - start_time
                 interval = calculate_group_interval_dynamic(duration, target_points=500)
                 
@@ -134,7 +129,8 @@ def get_system_metrics(
                     # Aggregated data
                     cur.execute(f"""
                         SELECT 
-                            FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time,
+                            FROM_UNIXTIME(
+                            UNIX_TIMESTAMP(CONVERT_TZ(time,'+00:00','+00:00')) DIV {interval} * {interval}) as time,
                             AVG(load_1m) as load_1m,
                             AVG(load_5m) as load_5m,
                             AVG(load_15m) as load_15m
@@ -148,64 +144,49 @@ def get_system_metrics(
             return result
 
 
-def get_cpu_metrics(
-    sysname: str,
-    start_time: Optional[datetime] = None,
-    end_time: Optional[datetime] = None
-) -> Dict[str, Any]:
-    """Get CPU metrics per core.
-    
-    Mode:
-    - Snapshot (start_time=None): Latest CPU percent per core
-    - Range (start_time provided): All CPU percent records in time range (with downsampling if needed)
-    """
+# -----------------------------
+# CPU metrics (FIXED)
+# -----------------------------
+def get_cpu_metrics(sysname, start_time=None, end_time=None):
     with get_db() as conn:
         with conn.cursor() as cur:
-            result = {}
-            
             if start_time is None:
-                # Snapshot Mode: Latest CPU percent per core
                 cur.execute("""
-                        SELECT cpu, percent, time
-                        FROM (
-                            SELECT cpu, percent, time,
-                            ROW_NUMBER() OVER (PARTITION BY cpu ORDER BY time DESC) AS rn
-                            FROM cpu_percent
-                            WHERE sysname = %s
-                            ) ranked
-                        WHERE rn = 1
-                        ORDER BY cpu
-                    """, (sysname,))
-                result['cpu_percent'] = serialize_rows(cur.fetchall())
+                    SELECT cpu, percent, time
+                    FROM (
+                      SELECT cpu, percent, time,
+                             ROW_NUMBER() OVER (PARTITION BY cpu ORDER BY time DESC) rn
+                      FROM cpu_percent
+                      WHERE sysname = %s
+                    ) x WHERE rn = 1
+                    ORDER BY cpu
+                """, (sysname,))
+                return {'cpu_percent': serialize_rows(cur.fetchall())}
+
+            end_time, interval = resolve_time_range(start_time, end_time)
+
+            if interval == 0:
+                cur.execute("""
+                    SELECT cpu, time, percent
+                    FROM cpu_percent
+                    WHERE sysname=%s AND time BETWEEN %s AND %s
+                    ORDER BY time, cpu
+                """, (sysname, start_time, end_time))
             else:
-                # Range Mode: All CPU percent records in time range (with downsampling)
-                end_time = end_time or datetime.now()
-                duration = end_time - start_time
-                interval = calculate_group_interval_dynamic(duration)
-                
-                if interval == 0:
-                    # Raw data
-                    cur.execute("""
-                        SELECT cpu, percent, time
-                        FROM cpu_percent
-                        WHERE sysname = %s AND time >= %s AND time <= %s
-                        ORDER BY time ASC, cpu ASC
-                    """, (sysname, start_time, end_time))
-                else:
-                    # Aggregated data: AVG percent per core per time bucket
-                    cur.execute(f"""
-                        SELECT 
-                            cpu,
-                            FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time,
-                            AVG(percent) as percent
-                        FROM cpu_percent
-                        WHERE sysname = %s AND time >= %s AND time <= %s
-                        GROUP BY cpu, FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval})
-                        ORDER BY time ASC, cpu ASC
-                    """, (sysname, start_time, end_time))
-            result['cpu_percent'] = serialize_rows(cur.fetchall())
-            
-            return result
+                # FIX: CPU is GAUGE → AVG, not MAX
+                cur.execute(f"""
+                    SELECT
+                      cpu,
+                      FROM_UNIXTIME(UNIX_TIMESTAMP(time) DIV {interval} * {interval}) time,
+                      AVG(percent) AS percent
+                    FROM cpu_percent
+                    WHERE sysname=%s AND time BETWEEN %s AND %s
+                    GROUP BY cpu, time
+                    ORDER BY time, cpu
+                """, (sysname, start_time, end_time))
+
+            return {'cpu_percent': serialize_rows(cur.fetchall())}
+
 
 
 def get_memory_timeseries(
@@ -326,7 +307,7 @@ def get_memory_metrics(
                 result['swap'] = serialize_row(cur.fetchone())
             else:
                 # Range Mode: All memory records in time range (with downsampling)
-                end_time = end_time or datetime.now()
+                end_time = end_time or utcnow()
                 duration = end_time - start_time
                 interval = calculate_group_interval_dynamic(duration)
                 
@@ -388,130 +369,88 @@ def get_memory_metrics(
             return result
 
 
-def get_network_metrics(
-    sysname: str,
-    start_time: Optional[datetime] = None,
-    end_time: Optional[datetime] = None
-) -> Dict[str, Any]:
-    """Get network I/O metrics with calculated rates.
-    
-    Mode:
-    - Snapshot (start_time=None): Latest network I/O with rates calculated from previous record
-    - Range (start_time provided): All network I/O records with rates (with downsampling if needed)
-    """
+# -----------------------------
+# Network metrics (FIXED)
+# -----------------------------
+def get_network_metrics(sysname, start_time=None, end_time=None):
     with get_db() as conn:
         with conn.cursor() as cur:
-            result = {}
-            
-            if start_time is None:
-                # Snapshot Mode: Latest network I/O with rates from previous record
-                cur.execute("""
-                    WITH last2 AS (
-                        SELECT iface, time, bytes_sent, bytes_recv, if_admin_status, if_oper_status,
-                            ROW_NUMBER() OVER (PARTITION BY iface ORDER BY time DESC) AS rn
-                        FROM net_io_counters
-                            WHERE sysname = %s
-                    )
-                    SELECT 
-                        a.iface AS interface, a.time, a.bytes_sent, a.bytes_recv, 
-                        a.if_admin_status, a.if_oper_status,
-                        CASE 
-                            WHEN b.time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, b.time, a.time) > 0 THEN 
-                                GREATEST(0, (a.bytes_sent - b.bytes_sent) / (TIMESTAMPDIFF(MICROSECOND, b.time, a.time) / 1e6)) 
-                            ELSE NULL
-                        END AS send_bytes_s,
-                        CASE 
-                            WHEN b.time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, b.time, a.time) > 0 THEN 
-                                GREATEST(0, (a.bytes_recv - b.bytes_recv) / (TIMESTAMPDIFF(MICROSECOND, b.time, a.time) / 1e6)) 
-                            ELSE NULL
-                        END AS recv_bytes_s
-                    FROM last2 a
-                    LEFT JOIN last2 b ON a.iface = b.iface AND a.rn = 1 AND b.rn = 2
-                    WHERE a.rn = 1
-                    ORDER BY a.iface
-                    """, (sysname,))
-            else:
-                # Range Mode: All network I/O records with rates (with downsampling)
-                end_time = end_time or datetime.now()
-                duration = end_time - start_time
-                interval = calculate_group_interval_dynamic(duration)
-                
-                if interval == 0:
-                    # Raw data with LAG window function
-                    cur.execute("""
-                        WITH ranked AS (
-                            SELECT 
-                                iface AS interface,
-                                time,
-                                bytes_sent,
-                                bytes_recv,
-                                if_admin_status,
-                                if_oper_status,
-                                LAG(bytes_sent) OVER (PARTITION BY iface ORDER BY time) AS prev_bytes_sent,
-                                LAG(bytes_recv) OVER (PARTITION BY iface ORDER BY time) AS prev_bytes_recv,
-                                LAG(time) OVER (PARTITION BY iface ORDER BY time) AS prev_time
-                            FROM net_io_counters
-                            WHERE sysname = %s AND time >= %s AND time <= %s
-                        )
-                        SELECT 
-                            interface,
-                            time,
-                            bytes_sent,
-                            bytes_recv,
-                            if_admin_status,
-                            if_oper_status,
-                            CASE 
-                                WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN 
-                                    GREATEST(0, (bytes_sent - prev_bytes_sent) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6)) 
-                                ELSE NULL
-                            END AS send_bytes_s,
-                            CASE 
-                                WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN 
-                                    GREATEST(0, (bytes_recv - prev_bytes_recv) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6)) 
-                                ELSE NULL
-                            END AS recv_bytes_s
-                        FROM ranked
-                        ORDER BY time ASC, interface ASC
-                    """, (sysname, start_time, end_time))
-                else:
-                    # Aggregated data: Calculate average rate per bucket
-                    # For counters, we use (MAX - MIN) / interval to get rate per bucket
-                    cur.execute(f"""
-                        SELECT 
-                            interface,
-                            time_bucket as time,
-                            MAX(bytes_sent) as bytes_sent,
-                            MAX(bytes_recv) as bytes_recv,
-                            MAX(if_admin_status) as if_admin_status,
-                            MAX(if_oper_status) as if_oper_status,
-                            CASE 
-                                WHEN MIN(bytes_sent) IS NOT NULL AND MAX(bytes_sent) IS NOT NULL AND MAX(bytes_sent) >= MIN(bytes_sent) THEN
-                                    GREATEST(0, (MAX(bytes_sent) - MIN(bytes_sent)) / {interval})
-                                ELSE NULL
-                            END AS send_bytes_s,
-                            CASE 
-                                WHEN MIN(bytes_recv) IS NOT NULL AND MAX(bytes_recv) IS NOT NULL AND MAX(bytes_recv) >= MIN(bytes_recv) THEN
-                                    GREATEST(0, (MAX(bytes_recv) - MIN(bytes_recv)) / {interval})
-                                ELSE NULL
-                            END AS recv_bytes_s
-                        FROM (
-                            SELECT 
-                                iface AS interface,
-                                FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time_bucket,
-                                bytes_sent,
-                                bytes_recv,
-                                if_admin_status,
-                                if_oper_status
-                            FROM net_io_counters
-                            WHERE sysname = %s AND time >= %s AND time <= %s
-                        ) grouped
-                        GROUP BY interface, time_bucket
-                        ORDER BY time_bucket ASC, interface ASC
-                    """, (sysname, start_time, end_time))
 
-            # Fetch results for whichever query was executed above
-            result['net_io'] = serialize_rows(cur.fetchall())
-            return result
+            # SNAPSHOT MODE
+            if start_time is None:
+                cur.execute(f"""
+                    WITH ranked AS (
+                      SELECT
+                        iface,
+                        time,
+                        bytes_sent AS curr_val,
+                        LAG(bytes_sent) OVER (PARTITION BY iface ORDER BY time) prev_val,
+                        TIMESTAMPDIFF(
+                          MICROSECOND,
+                          LAG(time) OVER (PARTITION BY iface ORDER BY time),
+                          time
+                        ) dt_us,
+                        ROW_NUMBER() OVER (PARTITION BY iface ORDER BY time DESC) rn
+                      FROM net_io_counters
+                      WHERE sysname=%s AND {NON_LOOPBACK_IFACE_SQL}
+                    )
+                    SELECT
+                      iface AS interface,
+                      time,
+                      {RATE_SQL} AS send_bytes_s
+                    FROM ranked
+                    WHERE rn = 1
+                """, (sysname,))
+                return {'net_io': serialize_rows(cur.fetchall())}
+
+            # RANGE MODE
+            end_time, interval = resolve_time_range(start_time, end_time)
+
+            if interval == 0:
+                cur.execute(f"""
+                    WITH r AS (
+                      SELECT
+                        iface,
+                        time,
+                        bytes_sent curr_val,
+                        LAG(bytes_sent) OVER (PARTITION BY iface ORDER BY time) prev_val,
+                        TIMESTAMPDIFF(
+                          MICROSECOND,
+                          LAG(time) OVER (PARTITION BY iface ORDER BY time),
+                          time
+                        ) dt_us
+                      FROM net_io_counters
+                      WHERE sysname=%s AND time BETWEEN %s AND %s
+                        AND {NON_LOOPBACK_IFACE_SQL}
+                    )
+                    SELECT iface, time, {RATE_SQL} AS send_bytes_s
+                    FROM r
+                    ORDER BY time, iface
+                """, (sysname, start_time, end_time))
+            else:
+                # Prometheus-style: sum(rate per iface)
+                cur.execute(f"""
+                    SELECT bucket AS time,
+                           SUM(rate) AS send_bytes_s
+                    FROM (
+                      SELECT
+                        iface,
+                        FROM_UNIXTIME(UNIX_TIMESTAMP(time) DIV {interval} * {interval}) bucket,
+                        CASE
+                          WHEN MAX(bytes_sent) < MIN(bytes_sent) THEN NULL
+                          ELSE (MAX(bytes_sent) - MIN(bytes_sent)) / {interval}
+                        END AS rate
+                      FROM net_io_counters
+                      WHERE sysname=%s AND time BETWEEN %s AND %s
+                        AND {NON_LOOPBACK_IFACE_SQL}
+                      GROUP BY iface, bucket
+                    ) x
+                    GROUP BY bucket
+                    ORDER BY bucket
+                """, (sysname, start_time, end_time))
+
+            return {'net_io': serialize_rows(cur.fetchall())}
+
 
 
 def get_disk_metrics(
@@ -550,7 +489,7 @@ def get_disk_metrics(
                 result['disk_usage'] = serialize_rows(rows)
             else:
                 # Range Mode: All disk usage records in time range (with downsampling)
-                end_time = end_time or datetime.now()
+                end_time = end_time or utcnow()
                 duration = end_time - start_time
                 interval = calculate_group_interval_dynamic(duration)
                 
@@ -621,7 +560,7 @@ def get_temperature_metrics(
                 result['temperature'] = serialize_row(row) if row else None
             else:
                 # Range Mode: All temperature records in time range (with downsampling)
-                end_time = end_time or datetime.now()
+                end_time = end_time or utcnow()
                 duration = end_time - start_time
                 interval = calculate_group_interval_dynamic(duration)
                 
@@ -652,553 +591,358 @@ def get_temperature_metrics(
             return result
 
 
+# -----------------------------
+# Disk IO metrics (FIXED)
+# -----------------------------
 def get_disk_io_metrics(
     sysname: str,
     start_time: Optional[datetime] = None,
     end_time: Optional[datetime] = None,
     page: int = 1,
     per_page: int = 10
-) -> Dict[str, Any]:
-    """Get disk I/O metrics with calculated speeds.
-    
-    Mode:
-    - Snapshot (start_time=None): Latest disk I/O per disk with rates from previous record (paginated)
-    - Range (start_time provided): All disk I/O records with rates (with downsampling if needed)
-    
-    Note: Pagination only applies in Snapshot Mode.
-    """
+):
     offset = (page - 1) * per_page
-    
+
     with get_db() as conn:
         with conn.cursor() as cur:
-            result = {}
-            
+
+            # SNAPSHOT MODE
             if start_time is None:
-                # Snapshot Mode: Latest disk I/O with rates
                 cur.execute("""
-                    WITH last2 AS (
-                        SELECT disk, time, read_bytes, write_bytes,
-                            ROW_NUMBER() OVER (PARTITION BY disk ORDER BY time DESC) AS rn
-                        FROM disk_io_counters
-                        WHERE sysname = %s
-                    ),
-                    active_disks AS (
-                        SELECT 
-                            a.disk,
-                            a.time,
-                            a.read_bytes,
-                            a.write_bytes,
-                            CASE 
-                                WHEN b.time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, b.time, a.time) > 0 THEN
-                                    GREATEST(0, (a.read_bytes - b.read_bytes) / 
-                                        (TIMESTAMPDIFF(MICROSECOND, b.time, a.time) / 1e6))
-                                ELSE NULL
-                            END AS read_bytes_s,
-                            CASE 
-                                WHEN b.time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, b.time, a.time) > 0 THEN
-                                    GREATEST(0, (a.write_bytes - b.write_bytes) / 
-                                        (TIMESTAMPDIFF(MICROSECOND, b.time, a.time) / 1e6))
-                                ELSE NULL
-                            END AS write_bytes_s
-                        FROM last2 a
-                        LEFT JOIN last2 b ON a.disk = b.disk AND a.rn = 1 AND b.rn = 2
-                        WHERE a.rn = 1
-                    ),
-                    filtered_disks AS (
-                        SELECT 
-                            disk,
-                            time,
-                            read_bytes,
-                            write_bytes,
-                            read_bytes_s,
-                            write_bytes_s,
-                            COUNT(*) OVER() as total_count
-                        FROM active_disks
-                        WHERE 
-                            disk NOT LIKE 'loop%%' 
-                            AND disk NOT LIKE 'sr%%'
-                            AND disk NOT LIKE 'ram%%'
-                            AND disk NOT LIKE 'zram%%'
-                    )
-                    SELECT 
+                WITH ranked AS (
+                    SELECT
                         disk,
                         time,
                         read_bytes,
                         write_bytes,
-                        read_bytes_s,
-                        write_bytes_s,
-                        total_count
-                    FROM filtered_disks
-                    ORDER BY COALESCE(read_bytes_s, 0) + COALESCE(write_bytes_s, 0) DESC, disk
-                    LIMIT %s OFFSET %s
-                    """, (sysname, per_page, offset))
-            else:
-                # Range Mode: All disk I/O records with rates (with downsampling)
-                end_time = end_time or datetime.now()
-                duration = end_time - start_time
-                interval = calculate_group_interval_dynamic(duration)
-                
-                if interval == 0:
-                    # Raw data with LAG window function
-                    cur.execute("""
-                        WITH ranked AS (
-                            SELECT 
-                                disk,
-                                time,
-                                read_bytes,
-                                write_bytes,
-                                LAG(read_bytes) OVER (PARTITION BY disk ORDER BY time) AS prev_read_bytes,
-                                LAG(write_bytes) OVER (PARTITION BY disk ORDER BY time) AS prev_write_bytes,
-                                LAG(time) OVER (PARTITION BY disk ORDER BY time) AS prev_time
-                            FROM disk_io_counters
-                            WHERE sysname = %s 
-                              AND time >= %s AND time <= %s
-                              AND disk NOT LIKE 'loop%%' 
-                              AND disk NOT LIKE 'sr%%'
-                              AND disk NOT LIKE 'ram%%'
-                              AND disk NOT LIKE 'zram%%'
-                        )
-                        SELECT 
-                            disk,
-                            time,
-                            read_bytes,
-                            write_bytes,
-                            CASE 
-                                WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                    GREATEST(0, (read_bytes - prev_read_bytes) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
-                                ELSE NULL
-                            END AS read_bytes_s,
-                            CASE 
-                                WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                    GREATEST(0, (write_bytes - prev_write_bytes) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
-                                ELSE NULL
-                            END AS write_bytes_s
-                        FROM ranked
-                        ORDER BY time ASC, disk ASC
-                    """, (sysname, start_time, end_time))
-                else:
-                    # Aggregated data: Calculate average rate per bucket
-                    # For counters, we use (MAX - MIN) / interval to get rate per bucket
-                    cur.execute(f"""
-                        SELECT 
-                            disk,
-                            time_bucket as time,
-                            MAX(read_bytes) as read_bytes,
-                            MAX(write_bytes) as write_bytes,
-                            CASE 
-                                WHEN MIN(read_bytes) IS NOT NULL AND MAX(read_bytes) IS NOT NULL AND MAX(read_bytes) >= MIN(read_bytes) THEN
-                                    GREATEST(0, (MAX(read_bytes) - MIN(read_bytes)) / {interval})
-                                ELSE NULL
-                            END AS read_bytes_s,
-                            CASE 
-                                WHEN MIN(write_bytes) IS NOT NULL AND MAX(write_bytes) IS NOT NULL AND MAX(write_bytes) >= MIN(write_bytes) THEN
-                                    GREATEST(0, (MAX(write_bytes) - MIN(write_bytes)) / {interval})
-                                ELSE NULL
-                            END AS write_bytes_s
-                        FROM (
-                            SELECT 
-                                disk,
-                                FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time_bucket,
-                                read_bytes,
-                                write_bytes
-                            FROM disk_io_counters
-                            WHERE sysname = %s 
-                              AND time >= %s AND time <= %s
-                              AND disk NOT LIKE 'loop%%' 
-                              AND disk NOT LIKE 'sr%%'
-                              AND disk NOT LIKE 'ram%%'
-                              AND disk NOT LIKE 'zram%%'
-                        ) grouped
-                        GROUP BY disk, time_bucket
-                        ORDER BY time_bucket ASC, disk ASC
-                    """, (sysname, start_time, end_time))
+                        LAG(read_bytes) OVER (PARTITION BY disk ORDER BY time) prev_read,
+                        LAG(write_bytes) OVER (PARTITION BY disk ORDER BY time) prev_write,
+                        LAG(time) OVER (PARTITION BY disk ORDER BY time) prev_time,
+                        ROW_NUMBER() OVER (PARTITION BY disk ORDER BY time DESC) rn
+                    FROM disk_io_counters
+                    WHERE sysname = %s
+                      AND disk NOT REGEXP '[0-9]+$'
+                      AND disk NOT LIKE '%%p[0-9]%%'
+                ),
+                latest AS (
+                    SELECT *, COUNT(*) OVER() AS total_count
+                    FROM ranked
+                    WHERE rn = 1
+                )
+                SELECT
+                    disk,
+                    time,
+                    CASE
+                      WHEN prev_read IS NULL
+                       OR read_bytes < prev_read
+                       OR TIMESTAMPDIFF(MICROSECOND, prev_time, time) <= 0
+                      THEN NULL
+                      ELSE (read_bytes - prev_read) /
+                           (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6)
+                    END AS read_bytes_s,
+                    CASE
+                      WHEN prev_write IS NULL
+                       OR write_bytes < prev_write
+                       OR TIMESTAMPDIFF(MICROSECOND, prev_time, time) <= 0
+                      THEN NULL
+                      ELSE (write_bytes - prev_write) /
+                           (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6)
+                    END AS write_bytes_s,
+                    total_count
+                FROM latest
+                ORDER BY (COALESCE(read_bytes_s,0)+COALESCE(write_bytes_s,0)) DESC
+                LIMIT %s OFFSET %s
+                """, (sysname, per_page, offset))
 
-            # Single fetchall for all modes
-            rows = serialize_rows(cur.fetchall())
-
-            if start_time is None:
-                # Snapshot mode
+                rows = serialize_rows(cur.fetchall())
                 total = rows[0]['total_count'] if rows else 0
-
-                # Remove total_count from each row
                 for r in rows:
                     r.pop('total_count', None)
 
-                result['disk_io'] = {
-                    'data': rows,
-                    'pagination': {
-                        'page': page,
-                        'per_page': per_page,
-                        'total': total,
-                        'total_pages': (total + per_page - 1) // per_page if per_page else 1
-                    }
-                }
-            else:
-                # Range mode (no pagination)
-                result['disk_io'] = {
-                    'data': rows,
-                    'pagination': {
-                        'page': 1,
-                        'per_page': len(rows),
-                        'total': len(rows),
-                        'total_pages': 1
+                return {
+                    "disk_io": {
+                        "data": rows,
+                        "pagination": {
+                            "page": page,
+                            "per_page": per_page,
+                            "total": total,
+                            "total_pages": (total + per_page - 1) // per_page
+                        }
                     }
                 }
 
-            return result
+            # RANGE MODE
+            end_time, interval = resolve_time_range(start_time, end_time)
+            if interval == 0:
+                cur.execute("""
+                    WITH r AS (
+                    SELECT
+                        disk,
+                        time,
+                        read_bytes,
+                        write_bytes,
+                        LAG(read_bytes) OVER (PARTITION BY disk ORDER BY time) prev_read,
+                        LAG(write_bytes) OVER (PARTITION BY disk ORDER BY time) prev_write,
+                        TIMESTAMPDIFF(
+                        MICROSECOND,
+                        LAG(time) OVER (PARTITION BY disk ORDER BY time),
+                        time
+                        ) dt_us
+                    FROM disk_io_counters
+                    WHERE sysname=%s
+                        AND time BETWEEN %s AND %s
+                        AND disk NOT REGEXP '[0-9]+$'
+                        AND disk NOT LIKE '%%p[0-9]%%'
+                    )
+                    SELECT
+                    disk,
+                    time,
+                    CASE
+                        WHEN prev_read IS NULL OR read_bytes < prev_read OR dt_us <= 0 THEN NULL
+                        ELSE (read_bytes - prev_read) / (dt_us / 1e6)
+                    END read_bytes_s,
+                    CASE
+                        WHEN prev_write IS NULL OR write_bytes < prev_write OR dt_us <= 0 THEN NULL
+                        ELSE (write_bytes - prev_write) / (dt_us / 1e6)
+                    END write_bytes_s
+                    FROM r
+                    ORDER BY time, disk
+                """, (sysname, start_time, end_time))
+            else:
+                cur.execute(f"""
+                    SELECT
+                        disk,
+                        bucket AS time,
+                        CASE
+                        WHEN MAX(read_bytes) < MIN(read_bytes)
+                        THEN NULL
+                        ELSE (MAX(read_bytes) - MIN(read_bytes)) / {interval}
+                        END AS read_bytes_s,
+                        CASE
+                        WHEN MAX(write_bytes) < MIN(write_bytes)
+                        THEN NULL
+                        ELSE (MAX(write_bytes) - MIN(write_bytes)) / {interval}
+                        END AS write_bytes_s
+                    FROM (
+                        SELECT
+                            disk,
+                            FROM_UNIXTIME(UNIX_TIMESTAMP(time) DIV {interval} * {interval}) bucket,
+                            read_bytes,
+                            write_bytes
+                        FROM disk_io_counters
+                        WHERE sysname = %s
+                        AND time BETWEEN %s AND %s
+                        AND disk NOT REGEXP '[0-9]+$'
+                        AND disk NOT LIKE '%%p[0-9]%%'
+                    ) t
+                    GROUP BY disk, bucket
+                    ORDER BY bucket, disk
+                """, (sysname, start_time, end_time))
+
+            rows = serialize_rows(cur.fetchall())
+            return {
+                "disk_io": {
+                    "data": rows,
+                    "pagination": {
+                        "page": 1,
+                        "per_page": len(rows),
+                        "total": len(rows),
+                        "total_pages": 1
+                    }
+                }
+            }
+
+
+# -----------------------------
+# CPU + Network combined
+# -----------------------------
 def get_cpu_network_combined(
-    sysname: str,
-    iface: Optional[str] = None,
-    start_time: Optional[datetime] = None,
-    end_time: Optional[datetime] = None,
-    limit: int = 60
-) -> Dict[str, Any]:
-    """Get combined CPU average and Network rate data for dual-axis chart.
-    
-    Args:
-        sysname: System name
-        iface: Network interface filter (e.g., 'eth0'). If None, uses first available.
-        start_time: Start time for range query
-        end_time: End time for range query
-        limit: Max points for snapshot mode (default 60)
-    
-    Returns:
-        {
-            'cpu': [{ time, percent }],  # Average across all cores
-            'network': [{ time, send_rate, recv_rate }],  # Bytes/s rates
-            'interfaces': [str]  # Available interfaces
-        }
-    """
+    sysname,
+    iface=None,
+    start_time=None,
+    end_time=None,
+    limit=60
+):
     with get_db() as conn:
         with conn.cursor() as cur:
-            result = {'cpu': [], 'network': [], 'interfaces': []}
-            
-            # Get available interfaces (exclude loopback and virtual bridges)
-            cur.execute(
-                """
-                SELECT DISTINCT iface FROM net_io_counters
-                WHERE sysname = %s
-                  AND iface NOT IN ('lo','lo0')
-                  AND iface NOT LIKE 'Loopback%%'
-                  AND iface NOT LIKE 'docker%%'
-                  AND iface NOT LIKE 'veth%%'
-                  AND iface NOT LIKE 'br-%%'
-                  AND iface NOT LIKE 'virbr%%'
-                  AND iface NOT LIKE 'zt%%'
-                  AND iface NOT LIKE 'wg%%'
+            result = {
+                'cpu': [],
+                'network': [],
+                'interfaces': []
+            }
+
+            # ----------------------------------
+            # List non-loopback interfaces
+            # ----------------------------------
+            cur.execute(f"""
+                SELECT DISTINCT iface
+                FROM net_io_counters
+                WHERE sysname=%s AND {NON_LOOPBACK_IFACE_SQL}
                 ORDER BY iface
-                """,
-                (sysname,),
-            )
-            result['interfaces'] = [row['iface'] for row in cur.fetchall()]
-            
-            # Use first non-loopback interface if none specified
+            """, (sysname,))
+            result['interfaces'] = [r['iface'] for r in cur.fetchall()]
             target_iface = iface or (result['interfaces'][0] if result['interfaces'] else None)
-            
+
+            # =====================================================
+            # SNAPSHOT MODE
+            # =====================================================
             if start_time is None:
-                # Snapshot Mode: Latest N points
-                # CPU: Average percent across all cores per timestamp
+                # -----------------
+                # CPU (AVG over cores per timestamp)
+                # -----------------
                 cur.execute("""
-                    SELECT time, AVG(percent) as percent
+                    SELECT time, AVG(percent) AS percent
                     FROM cpu_percent
-                    WHERE sysname = %s
+                    WHERE sysname=%s
                     GROUP BY time
                     ORDER BY time DESC
                     LIMIT %s
                 """, (sysname, limit))
-                cpu_rows = list(reversed(serialize_rows(cur.fetchall())))
-                result['cpu'] = cpu_rows
-                
-                # Network: Calculate rate from consecutive records
+                result['cpu'] = list(reversed(serialize_rows(cur.fetchall())))
+
+                # -----------------
+                # Network (single iface, rate via LAG)
+                # -----------------
                 if target_iface:
-                    cur.execute("""
-                        WITH ranked AS (
-                            SELECT 
-                                time, bytes_sent, bytes_recv,
-                                LAG(bytes_sent) OVER (ORDER BY time) as prev_sent,
-                                LAG(bytes_recv) OVER (ORDER BY time) as prev_recv,
-                                LAG(time) OVER (ORDER BY time) as prev_time
-                            FROM net_io_counters
-                            WHERE sysname = %s AND iface = %s
-                            ORDER BY time DESC
-                            LIMIT %s
-                        )
-                        SELECT 
+                    cur.execute(f"""
+                        WITH r AS (
+                          SELECT
                             time,
-                            CASE 
-                                WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                    GREATEST(0, (bytes_sent - prev_sent) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
-                                ELSE 0
-                            END as send_rate,
-                            CASE 
-                                WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                    GREATEST(0, (bytes_recv - prev_recv) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
-                                ELSE 0
-                            END as recv_rate
-                        FROM ranked
-                        WHERE prev_time IS NOT NULL
-                        ORDER BY time ASC
-                    """, (sysname, target_iface, limit + 1))
-                    result['network'] = serialize_rows(cur.fetchall())
-                else:
-                    # Aggregate across all non-loopback interfaces
-                    cur.execute("""
-                        WITH ranked AS (
-                            SELECT 
-                                iface,
-                                time,
-                                bytes_sent,
-                                bytes_recv,
-                                LAG(bytes_sent) OVER (PARTITION BY iface ORDER BY time) as prev_sent,
-                                LAG(bytes_recv) OVER (PARTITION BY iface ORDER BY time) as prev_recv,
-                                LAG(time) OVER (PARTITION BY iface ORDER BY time) as prev_time
-                            FROM net_io_counters
-                            WHERE sysname = %s
-                              AND iface NOT IN ('lo','lo0')
-                              AND iface NOT LIKE 'Loopback%%'
-                              AND iface NOT LIKE 'docker%%'
-                              AND iface NOT LIKE 'veth%%'
-                              AND iface NOT LIKE 'br-%%'
-                              AND iface NOT LIKE 'virbr%%'
-                              AND iface NOT LIKE 'zt%%'
-                              AND iface NOT LIKE 'wg%%'
-                        ), rates AS (
-                            SELECT 
-                                time,
-                                CASE 
-                                    WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                        GREATEST(0, (bytes_sent - prev_sent) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
-                                    ELSE 0
-                                END as send_rate,
-                                CASE 
-                                    WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                        GREATEST(0, (bytes_recv - prev_recv) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
-                                    ELSE 0
-                                END as recv_rate
-                            FROM ranked
-                            WHERE prev_time IS NOT NULL
+                            bytes_sent AS curr_val,
+                            LAG(bytes_sent) OVER (ORDER BY time) AS prev_val,
+                            TIMESTAMPDIFF(
+                              MICROSECOND,
+                              LAG(time) OVER (ORDER BY time),
+                              time
+                            ) AS dt_us
+                          FROM net_io_counters
+                          WHERE sysname=%s
+                            AND iface=%s
+                            AND {NON_LOOPBACK_IFACE_SQL}
                         )
-                        SELECT time, SUM(send_rate) as send_rate, SUM(recv_rate) as recv_rate
-                        FROM rates
-                        GROUP BY time
+                        SELECT
+                          time,
+                          CASE
+                            WHEN prev_val IS NULL
+                              OR curr_val < prev_val
+                              OR dt_us <= 0
+                            THEN NULL
+                            ELSE (curr_val - prev_val) / (dt_us / 1e6)
+                          END AS send_rate
+                        FROM r
                         ORDER BY time DESC
                         LIMIT %s
-                    """, (sysname, limit))
+                    """, (sysname, target_iface, limit))
                     result['network'] = list(reversed(serialize_rows(cur.fetchall())))
+
+                return result
+
+            # =====================================================
+            # RANGE MODE
+            # =====================================================
+            end_time, interval = resolve_time_range(start_time, end_time)
+
+            # -----------------
+            # CPU
+            # -----------------
+            if interval == 0:
+                cur.execute("""
+                    SELECT time, AVG(percent) AS percent
+                    FROM cpu_percent
+                    WHERE sysname=%s
+                      AND time BETWEEN %s AND %s
+                    GROUP BY time
+                    ORDER BY time
+                """, (sysname, start_time, end_time))
             else:
-                # Range Mode with downsampling
-                end_time = end_time or datetime.now()
-                duration = end_time - start_time
-                interval = calculate_group_interval_dynamic(duration, target_points=500)
-                
-                if interval == 0:
-                    # Raw CPU data (averaged across cores)
-                    cur.execute("""
-                        SELECT time, AVG(percent) as percent
-                        FROM cpu_percent
-                        WHERE sysname = %s AND time >= %s AND time <= %s
-                        GROUP BY time
-                        ORDER BY time ASC
-                    """, (sysname, start_time, end_time))
-                    result['cpu'] = serialize_rows(cur.fetchall())
-                    
-                    # Raw Network data with rate calculation
-                    if target_iface:
-                        cur.execute("""
-                            WITH ranked AS (
-                                SELECT 
-                                    time, bytes_sent, bytes_recv,
-                                    LAG(bytes_sent) OVER (ORDER BY time) as prev_sent,
-                                    LAG(bytes_recv) OVER (ORDER BY time) as prev_recv,
-                                    LAG(time) OVER (ORDER BY time) as prev_time
-                                FROM net_io_counters
-                                WHERE sysname = %s AND iface = %s AND time >= %s AND time <= %s
-                            )
-                            SELECT 
-                                time,
-                                CASE 
-                                    WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                        GREATEST(0, (bytes_sent - prev_sent) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
-                                    ELSE 0
-                                END as send_rate,
-                                CASE 
-                                    WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                        GREATEST(0, (bytes_recv - prev_recv) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
-                                    ELSE 0
-                                END as recv_rate
-                            FROM ranked
-                            WHERE prev_time IS NOT NULL
-                            ORDER BY time ASC
-                        """, (sysname, target_iface, start_time, end_time))
-                        result['network'] = serialize_rows(cur.fetchall())
-                    else:
-                        # Aggregate across all non-loopback interfaces
-                        cur.execute("""
-                            WITH ranked AS (
-                                SELECT 
-                                    iface,
-                                    time,
-                                    bytes_sent,
-                                    bytes_recv,
-                                    LAG(bytes_sent) OVER (PARTITION BY iface ORDER BY time) as prev_sent,
-                                    LAG(bytes_recv) OVER (PARTITION BY iface ORDER BY time) as prev_recv,
-                                    LAG(time) OVER (PARTITION BY iface ORDER BY time) as prev_time
-                                FROM net_io_counters
-                                WHERE sysname = %s 
-                                  AND time >= %s AND time <= %s
-                                  AND iface NOT IN ('lo','lo0')
-                                  AND iface NOT LIKE 'Loopback%%'
-                                  AND iface NOT LIKE 'docker%%'
-                                  AND iface NOT LIKE 'veth%%'
-                                  AND iface NOT LIKE 'br-%%'
-                                  AND iface NOT LIKE 'virbr%%'
-                                  AND iface NOT LIKE 'zt%%'
-                                  AND iface NOT LIKE 'wg%%'
-                            ), rates AS (
-                                SELECT 
-                                    time,
-                                    CASE 
-                                        WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                            GREATEST(0, (bytes_sent - prev_sent) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
-                                        ELSE 0
-                                    END as send_rate,
-                                    CASE 
-                                        WHEN prev_time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, prev_time, time) > 0 THEN
-                                            GREATEST(0, (bytes_recv - prev_recv) / (TIMESTAMPDIFF(MICROSECOND, prev_time, time) / 1e6))
-                                        ELSE 0
-                                    END as recv_rate
-                                FROM ranked
-                                WHERE prev_time IS NOT NULL
-                            )
-                            SELECT time, SUM(send_rate) as send_rate, SUM(recv_rate) as recv_rate
-                            FROM rates
-                            GROUP BY time
-                            ORDER BY time ASC
-                        """, (sysname, start_time, end_time))
-                        result['network'] = serialize_rows(cur.fetchall())
-                else:
-                    # Aggregated CPU data
-                    cur.execute(f"""
-                        SELECT 
-                            FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time,
-                            AVG(percent) as percent
-                        FROM cpu_percent
-                        WHERE sysname = %s AND time >= %s AND time <= %s
-                        GROUP BY FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval})
-                        ORDER BY time ASC
-                    """, (sysname, start_time, end_time))
-                    result['cpu'] = serialize_rows(cur.fetchall())
-                    
-                    # Aggregated Network data (rate from max-min per bucket)
-                    if target_iface:
-                        cur.execute(f"""
-                            SELECT 
-                                time_bucket as time,
-                                CASE 
-                                    WHEN MAX(bytes_sent) >= MIN(bytes_sent) THEN
-                                        GREATEST(0, (MAX(bytes_sent) - MIN(bytes_sent)) / {interval})
-                                    ELSE 0
-                                END as send_rate,
-                                CASE 
-                                    WHEN MAX(bytes_recv) >= MIN(bytes_recv) THEN
-                                        GREATEST(0, (MAX(bytes_recv) - MIN(bytes_recv)) / {interval})
-                                    ELSE 0
-                                END as recv_rate
-                            FROM (
-                                SELECT 
-                                    FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time_bucket,
-                                    bytes_sent, bytes_recv
-                                FROM net_io_counters
-                                WHERE sysname = %s AND iface = %s AND time >= %s AND time <= %s
-                            ) grouped
-                            GROUP BY time_bucket
-                            ORDER BY time_bucket ASC
-                        """, (sysname, target_iface, start_time, end_time))
-                        result['network'] = serialize_rows(cur.fetchall())
-                    else:
-                        # Aggregate across all non-loopback interfaces per bucket
-                        cur.execute(f"""
-                            SELECT 
-                                time_bucket as time,
-                                SUM(send_delta) / {interval} as send_rate,
-                                SUM(recv_delta) / {interval} as recv_rate
-                            FROM (
-                                SELECT 
-                                    iface,
-                                    FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval}) as time_bucket,
-                                    GREATEST(0, MAX(bytes_sent) - MIN(bytes_sent)) as send_delta,
-                                    GREATEST(0, MAX(bytes_recv) - MIN(bytes_recv)) as recv_delta
-                                FROM net_io_counters
-                                WHERE sysname = %s AND time >= %s AND time <= %s
-                                  AND iface NOT IN ('lo','lo0')
-                                  AND iface NOT LIKE 'Loopback%%'
-                                  AND iface NOT LIKE 'docker%%'
-                                  AND iface NOT LIKE 'veth%%'
-                                  AND iface NOT LIKE 'br-%%'
-                                  AND iface NOT LIKE 'virbr%%'
-                                  AND iface NOT LIKE 'zt%%'
-                                  AND iface NOT LIKE 'wg%%'
-                                GROUP BY iface, FROM_UNIXTIME((UNIX_TIMESTAMP(time) DIV {interval}) * {interval})
-                            ) per_iface
-                            GROUP BY time_bucket
-                            ORDER BY time_bucket ASC
-                        """, (sysname, start_time, end_time))
-                        result['network'] = serialize_rows(cur.fetchall())
-            
+                cur.execute(f"""
+                    SELECT
+                      FROM_UNIXTIME(
+                        UNIX_TIMESTAMP(time) DIV {interval} * {interval}
+                      ) AS time,
+                      AVG(percent) AS percent
+                    FROM cpu_percent
+                    WHERE sysname=%s
+                      AND time BETWEEN %s AND %s
+                    GROUP BY time
+                    ORDER BY time
+                """, (sysname, start_time, end_time))
+
+            result['cpu'] = serialize_rows(cur.fetchall())
+
+            # -----------------
+            # Network (Prometheus-style sum(rate))
+            # -----------------
+            if interval == 0:
+                cur.execute(f"""
+                    WITH r AS (
+                      SELECT
+                        iface,
+                        time,
+                        bytes_sent AS curr_val,
+                        LAG(bytes_sent) OVER (PARTITION BY iface ORDER BY time) AS prev_val,
+                        TIMESTAMPDIFF(
+                          MICROSECOND,
+                          LAG(time) OVER (PARTITION BY iface ORDER BY time),
+                          time
+                        ) AS dt_us
+                      FROM net_io_counters
+                      WHERE sysname=%s
+                        AND time BETWEEN %s AND %s
+                        AND {NON_LOOPBACK_IFACE_SQL}
+                    )
+                    SELECT
+                      time,
+                      SUM(
+                        CASE
+                          WHEN prev_val IS NULL
+                            OR curr_val < prev_val
+                            OR dt_us <= 0
+                          THEN NULL
+                          ELSE (curr_val - prev_val) / (dt_us / 1e6)
+                        END
+                      ) AS send_rate
+                    FROM r
+                    GROUP BY time
+                    ORDER BY time
+                """, (sysname, start_time, end_time))
+            else:
+                cur.execute(f"""
+                    SELECT
+                      bucket AS time,
+                      SUM(delta / {interval}) AS send_rate
+                    FROM (
+                      SELECT
+                        iface,
+                        FROM_UNIXTIME(
+                          UNIX_TIMESTAMP(time) DIV {interval} * {interval}
+                        ) AS bucket,
+                        CASE
+                          WHEN MAX(bytes_sent) < MIN(bytes_sent)
+                          THEN NULL
+                          ELSE MAX(bytes_sent) - MIN(bytes_sent)
+                        END AS delta
+                      FROM net_io_counters
+                      WHERE sysname=%s
+                        AND time BETWEEN %s AND %s
+                        AND {NON_LOOPBACK_IFACE_SQL}
+                      GROUP BY iface, bucket
+                    ) x
+                    GROUP BY bucket
+                    ORDER BY bucket
+                """, (sysname, start_time, end_time))
+
+            result['network'] = serialize_rows(cur.fetchall())
             return result
 
-
-def get_status_metrics(
-    sysname: str,
-    start_time: Optional[datetime] = None,
-    end_time: Optional[datetime] = None
-) -> Dict[str, Any]:
-    """Aggregate minimal status metrics without disk usage.
-    
-    This is the main aggregator function that:
-    1. Fetches device_info once (optimized)
-    2. Calls individual metric functions
-    3. Returns combined dictionary
-    
-    Mode:
-    - Snapshot (start_time=None): Latest metrics for dashboard
-    - Range (start_time provided): Historical metrics for charts (with automatic downsampling)
-    """
-    print(f"[DEBUG] get_status_metrics: Aggregating status for {sysname}, start_time={start_time}, end_time={end_time}")
-    
-    try:
-        status: Dict[str, Any] = {}
-        
-        # Fetch device_info once at aggregation level (optimized)
-        status['device_info'] = get_device_info(sysname)
-        
-        # Fetch individual metrics
-        system_part = get_system_metrics(sysname, start_time=start_time, end_time=end_time)
-        memory_part = get_memory_metrics(sysname, start_time=start_time, end_time=end_time)
-        cpu_part = get_cpu_metrics(sysname, start_time=start_time, end_time=end_time)
-        temperature_part = get_temperature_metrics(sysname, start_time=start_time, end_time=end_time)
-        memory_history = get_memory_history(sysname, start_time=start_time, end_time=end_time)
-        memory_percent_history = get_memory_percent_history(sysname, start_time=start_time, end_time=end_time)
-        cpu_network_part = get_cpu_network_combined(sysname, start_time=start_time, end_time=end_time)
-
-        # Merge parts (keys are distinct: system_info, load_avg, memory, swap, cpu_percent, temperature, cpu, network)
-        status.update(system_part or {})
-        status.update(memory_part or {})
-        status.update(cpu_part or {})
-        status.update(cpu_network_part or {})
-        status['memory_history'] = memory_history
-        status['memory_percent_history'] = memory_percent_history
-
-        # Merge temperature (overwrite device_info if exists, but that's fine)
-        if temperature_part.get('temperature'):
-            status['temperature'] = temperature_part['temperature']
-        
-        print(f"[DEBUG] get_status_metrics: Aggregation complete with keys={list(status.keys())}")
-        #print the whole data to check if null
-        logger.debug(status)
-        return status
-    except Exception as e:
-        print(f"[DEBUG] get_status_metrics: Error during aggregation: {e}")
-        import traceback
-        traceback.print_exc()
-        return {}
+# -----------------------------
+# Status aggregator
+# -----------------------------
+def get_status_metrics(sysname, start_time=None, end_time=None):
+    return {
+        'device_info': get_device_info(sysname),
+        **get_system_metrics(sysname, start_time, end_time),
+        **get_cpu_metrics(sysname, start_time, end_time),
+        **get_network_metrics(sysname, start_time, end_time),
+        **get_cpu_network_combined(sysname, None, start_time, end_time),
+    }

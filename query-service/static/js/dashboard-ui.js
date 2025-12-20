@@ -67,14 +67,20 @@ export class DashboardUI {
             this.updateText('swap-free', this.dataProcessor.formatBytes(processedData.swap.free));
         }
 
-        // Update Load Averages
+        // Update Load Averages (show raw values, not percent)
         if (processedData.load_avg) {
-            // Load average cần normalize - giả sử max là số CPU cores
-            const cpuCount = processedData.cpu_percent ? processedData.cpu_percent.length : 1;
-            
-            this.updateGauge('load-1m', (processedData.load_avg.load_1m || 0) / cpuCount * 100);
-            this.updateGauge('load-5m', (processedData.load_avg.load_5m || 0) / cpuCount * 100);
-            this.updateGauge('load-15m', (processedData.load_avg.load_15m || 0) / cpuCount * 100);
+            const load1 = Number(processedData.load_avg.load_1m) || 0;
+            const load5 = Number(processedData.load_avg.load_5m) || 0;
+            const load15 = Number(processedData.load_avg.load_15m) || 0;
+
+            this.updateGauge('load-1m', load1);
+            this.updateGauge('load-5m', load5);
+            this.updateGauge('load-15m', load15);
+
+            // If textual values exist, update them too
+            this.updateText('load-1m-value', load1);
+            this.updateText('load-5m-value', load5);
+            this.updateText('load-15m-value', load15);
         }
     }
 
@@ -361,19 +367,18 @@ export class DashboardUI {
         }
 
         if (processedData.load_avg) {
-            // Load averages - display as percentage (assuming max load = 10 for 100% display)
-            // Or normalize by CPU count if available, otherwise use raw value * 10
-            const load1m = processedData.load_avg.load_1m || 0;
-            const load5m = processedData.load_avg.load_5m || 0;
-            const load15m = processedData.load_avg.load_15m || 0;
-            
-            // Scale to percentage (assuming max load of 10 = 100%)
-            // If load > 10, cap at 100%
-            this.updateGauge('load-1m', Math.min(load1m * 10, 100));
-            this.updateGauge('load-5m', Math.min(load5m * 10, 100));
-            this.updateGauge('load-15m', Math.min(load15m * 10, 100));
-            
-            console.log(`[DashboardUI] Load averages - 1m: ${load1m}, 5m: ${load5m}, 15m: ${load15m}`);
+            // Show raw load averages (no percent scaling)
+            const load1m = Number(processedData.load_avg.load_1m) || 0;
+            const load5m = Number(processedData.load_avg.load_5m) || 0;
+            const load15m = Number(processedData.load_avg.load_15m) || 0;
+
+            this.updateGauge('load-1m', load1m);
+            this.updateGauge('load-5m', load5m);
+            this.updateGauge('load-15m', load15m);
+
+            this.updateText('load-1m-value', load1m);
+            this.updateText('load-5m-value', load5m);
+            this.updateText('load-15m-value', load15m);
         } else {
             console.warn('[DashboardUI] No load_avg data in processedData');
         }
