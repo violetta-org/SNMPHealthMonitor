@@ -380,24 +380,39 @@ def get_network_metrics(sysname, start_time=None, end_time=None):
             if start_time is None:
                 cur.execute(f"""
                     WITH ranked AS (
-                      SELECT
+                    SELECT
                         iface,
                         time,
                         bytes_sent AS curr_val,
+                        bytes_recv,
+                        if_admin_status,
+                        if_oper_status,
                         LAG(bytes_sent) OVER (PARTITION BY iface ORDER BY time) prev_val,
+                        LAG(bytes_recv) OVER (PARTITION BY iface ORDER BY time) prev_recv,
                         TIMESTAMPDIFF(
-                          MICROSECOND,
-                          LAG(time) OVER (PARTITION BY iface ORDER BY time),
-                          time
+                        MICROSECOND,
+                        LAG(time) OVER (PARTITION BY iface ORDER BY time),
+                        time
                         ) dt_us,
                         ROW_NUMBER() OVER (PARTITION BY iface ORDER BY time DESC) rn
-                      FROM net_io_counters
-                      WHERE sysname=%s AND {NON_LOOPBACK_IFACE_SQL}
+                    FROM net_io_counters
+                    WHERE sysname=%s AND {NON_LOOPBACK_IFACE_SQL}
                     )
                     SELECT
-                      iface AS interface,
-                      time,
-                      {RATE_SQL} AS send_bytes_s
+                    iface AS interface,
+                    time,
+                    curr_val AS bytes_sent,
+                    bytes_recv,
+                    if_admin_status,
+                    if_oper_status,
+                    {RATE_SQL} AS send_bytes_s,
+                    CASE
+                        WHEN prev_recv IS NULL
+                        OR bytes_recv < prev_recv
+                        OR dt_us <= 0
+                        THEN NULL
+                        ELSE (bytes_recv - prev_recv) / (dt_us / 1e6)
+                    END AS recv_bytes_s
                     FROM ranked
                     WHERE rn = 1
                 """, (sysname,))
@@ -632,6 +647,8 @@ def get_disk_io_metrics(
                 SELECT
                     disk,
                     time,
+                    read_bytes,
+                    write_bytes,
                     CASE
                       WHEN prev_read IS NULL
                        OR read_bytes < prev_read
@@ -697,6 +714,8 @@ def get_disk_io_metrics(
                     SELECT
                     disk,
                     time,
+                    read_bytes,
+                    write_bytes,
                     CASE
                         WHEN prev_read IS NULL OR read_bytes < prev_read OR dt_us <= 0 THEN NULL
                         ELSE (read_bytes - prev_read) / (dt_us / 1e6)
@@ -944,5 +963,7 @@ def get_status_metrics(sysname, start_time=None, end_time=None):
         **get_system_metrics(sysname, start_time, end_time),
         **get_cpu_metrics(sysname, start_time, end_time),
         **get_network_metrics(sysname, start_time, end_time),
+        **get_memory_metrics(sysname, start_time, end_time),
+        **get_temperature_metrics(sysname, start_time, end_time),
         **get_cpu_network_combined(sysname, None, start_time, end_time),
     }
