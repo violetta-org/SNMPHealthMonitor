@@ -5,17 +5,6 @@
 {% block header_title %}System Status Dashboard{% endblock %}
 
 {% block content %}
-            <!-- Controls Bar -->
-            <section class="controls-bar" style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-                <label for="time-range">Time Range</label>
-                <select id="time-range">
-                    <option value="live" selected>Live (15m)</option>
-                    <option value="1h">1 Hour</option>
-                    <option value="6h">6 Hours</option>
-                    <option value="24h">24 Hours</option>
-                    <option value="7d">7 Days</option>
-                </select>
-            </section>
             <!-- System Info Card -->
             <section class="info-card">
                 <h2 class="card-title">System Information</h2>
@@ -47,17 +36,6 @@
             <section class="metrics-section">
                 <h2 class="section-title">System Metrics</h2>
                 <div class="gauges-grid">
-                    <!-- CPU Overall Gauge -->
-                    <div class="gauge-card">
-                        <svg id="cpu-gauge" class="gauge" viewBox="0 0 120 120">
-                            <circle class="gauge-background" cx="60" cy="60" r="45" fill="none" stroke="#3a4d5f" stroke-width="8"/>
-                            <circle class="gauge-progress" cx="60" cy="60" r="45" fill="none" stroke="#00bcd4" stroke-width="8" 
-                                    stroke-dasharray="283" stroke-dashoffset="283" transform="rotate(-90 60 60)" stroke-linecap="round"/>
-                            <text x="60" y="55" text-anchor="middle" class="gauge-value" id="cpu-value">0%</text>
-                            <text x="60" y="70" text-anchor="middle" class="gauge-sublabel">CPU</text>
-                        </svg>
-                        <div class="gauge-info" id="cpu-count">-</div>
-                    </div>
                     <!-- Load Average 1m -->
                     <div class="gauge-card">
                         <svg id="load-1m-gauge" class="gauge" viewBox="0 0 120 120">
@@ -116,10 +94,15 @@
                     <div id="memory-percent-chart" style="width: 100%; height: 320px;"></div>
                 </div>
 
-                <!-- Memory Usage Stacked Area Chart -->
+                <!-- Memory Usage Single Area Chart -->
                 <div class="detail-card memory-chart-card">
                     <h3 class="detail-title">Biểu đồ Bộ nhớ (RAM)</h3>
                     <div id="memory-usage-chart" style="width: 100%; height: 400px;"></div>
+                    <div class="ram-metrics-row" style="display: flex; gap: 20px; padding: 10px 0; color: #aaa; font-family: monospace; font-size: 0.9em;">
+                        <div>Buffers: <span id="ram-buffers" style="color: #fff">---</span></div>
+                        <div>Cached: <span id="ram-cached" style="color: #fff">---</span></div>
+                        <div>Free: <span id="ram-free" style="color: #fff">---</span></div>
+                    </div>
                 </div>
 
                 <!-- Swap Usage Line Chart -->
@@ -130,4 +113,6 @@
             </section>
 {% endblock %}
 
-{% block extra_scripts %}{% endblock %}
+{% block extra_scripts %}
+{{ super() }}
+{% endblock %}

@@ -7,6 +7,15 @@ import { BaseDashboardUI } from './base.js';
 export class NetworkDashboard extends BaseDashboardUI {
     constructor(dataProcessor) {
         super(dataProcessor);
+        this.wsManager = null;
+        this.sysname =  null;
+        this.topic = null;
+    }
+
+    attachWebSocketManager(wsManager, sysname, topic) {
+        this.wsManager = wsManager;
+        this.sysname = sysname;
+        this.topic = topic;
     }
 
     /**

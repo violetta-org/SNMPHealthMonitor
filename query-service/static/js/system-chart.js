@@ -81,42 +81,25 @@ export function createRAMUsageChart(container) {
         },
         grid: getCommonGrid(),
         legend: getCommonLegend(),
-        toolbox: getCommonToolbox(),
+        // Minimalist: remove toolbox buttons
         dataZoom: [
             { type: 'slider', xAxisIndex: 0, bottom: 0, height: 18 },
             { type: 'inside', xAxisIndex: 0 }
         ],
         xAxis: getTimeAxisConfig(),
-        yAxis: { ...getValueAxisConfig(true, '', 'GB') },
+        yAxis: { 
+            ...getValueAxisConfig(true, '', 'GB'),
+            min: 0,
+            splitLine: { show: true, lineStyle: { opacity: 0.1 } }
+        },
         series: [
-            // Series 0: Used
             {
-                name: 'Used', type: 'line', smooth: false, stack: 'mem',
+                name: 'App Used', type: 'line', smooth: true,
                 showSymbol: false,
-                lineStyle: { color: '#00aaff', width: 2 },
-                itemStyle: { color: '#00aaff' },
-                areaStyle: { opacity: 0.3 },
+                lineStyle: { color: '#26a69a', width: 2 },
+                itemStyle: { color: '#26a69a' },
+                areaStyle: { opacity: 0.2, color: 'rgba(38,166,154,0.2)' },
                 data: []
-            },
-            // Series 1: Cached
-            {
-                name: 'Cached', type: 'line', smooth: false, stack: 'mem',
-                showSymbol: false,
-                lineStyle: { color: '#00c67a', width: 2 },
-                itemStyle: { color: '#00c67a' },
-                areaStyle: { opacity: 0.3 },
-                data: []
-            },
-            // Series 2: MarkLine Total
-            {
-                name: 'Total Limit', type: 'line',
-                markLine: {
-                    symbol: 'none',
-                    label: { show: true, position: 'insideEndTop', formatter: 'Total: {c}GB' },
-                    lineStyle: { color: '#ff2a6d', type: 'dashed', opacity: 0.6 },
-                    data: [] 
-                },
-                data: [] 
             }
         ]
     };
@@ -329,11 +312,7 @@ export class ChartDataManager {
 
         // Explicit per-chart mapping
         if (chartId === 'memory-usage-chart') {
-            option.series = [
-                { data: norm(dataArrays[0]) },
-                { data: norm(dataArrays[1]) },
-                {} // Preserve existing markLine config on series[2]
-            ];
+            option.series = [ { data: norm(dataArrays[0]) } ];
         } else if (chartId === 'memory-percent-chart') {
             option.series = [ { data: norm(dataArrays[0]) } ];
         } else if (chartId === 'swap-usage-chart') {
@@ -362,10 +341,7 @@ export function initializeSystemCharts(totalRAMBytes) {
     // Set MarkLine Total only when a valid positive total is provided
     if (Number.isFinite(totalRAMBytes) && totalRAMBytes > 0) {
         const totalRAMGB = (totalRAMBytes / (1024 * 1024 * 1024)).toFixed(2);
-        ramUsageChart.setOption({ 
-            yAxis: { min: 0, max: Number(totalRAMGB) },
-            series: [{}, {}, { markLine: { data: [{ yAxis: totalRAMGB }] } }] 
-        });
+        ramUsageChart.setOption({ yAxis: { min: 0, max: Number(totalRAMGB) } });
     }
 
     const ramPercentChart = createRAMPercentChart(document.getElementById('memory-percent-chart'));

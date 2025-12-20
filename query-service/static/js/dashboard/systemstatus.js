@@ -17,8 +17,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         }
 
         // Local data buffers mapped by series index
-        this.ramUsedData = [];
-        this.ramCachedData = [];
+        this.ramAppUsedData = [];
         this.ramPercentData = [];
         this.swapData = [];
 
@@ -33,11 +32,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         this._pendingFrame = false;
         this._latestData = null;
 
-        // Hybrid time range state
-        this.currentRange = 'live'; // 'live' | '1h' | '6h' | '24h' | '7d' | 'custom'
-        this.acceptStreaming = true;
-        this.sysname = null;
-        this.wsManager = null;
+        // Live-only mode (history disabled)
     }
 
     /**
@@ -47,14 +42,6 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         // Header elements
         this.registerElement('connection-status', '#connection-status');
         this.registerElement('last-update-time', '#last-update-time');
-        // Time range selector
-        const rangeEl = document.getElementById('time-range');
-        if (rangeEl) {
-            rangeEl.addEventListener('change', (e) => {
-                const val = e.target.value;
-                this.setTimeRange(val);
-            });
-        }
         
         // System info
         this.registerElement('sysname', '#sysname');
@@ -62,9 +49,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         this.registerElement('sys-uptime', '#sys-uptime');
         
         // CPU
-        this.registerElement('cpu-gauge', '#cpu-gauge');
-        this.registerElement('cpu-value', '#cpu-value');
-        this.registerElement('cpu-count', '#cpu-count');
+        // Focus on CPU cores only (no overall gauge)
         
         // Load averages
         this.registerElement('load-1m-gauge', '#load-1m-gauge');
@@ -120,75 +105,46 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         // CPU cores individually
         if (processedData.cpu_percent && processedData.cpu_percent.length > 0) {
             this.updateCPUCores(processedData.cpu_percent);
-            
-            // Also update average CPU gauge
-            const avgCpu = processedData.cpu_percent.reduce((sum, cpu) => sum + (cpu.percent || 0), 0) / processedData.cpu_percent.length;
-            this.updateGauge('cpu', avgCpu);
-            this.updateText('cpu-count', processedData.cpu_percent.length + ' cores');
         }
 
         // Memory
         if (processedData.memory) {
-            // Set Total RAM markLine once when total becomes available
+            // Set fixed RAM scale once when total becomes available
             if (!this.totalRamMarkSet && processedData.memory.total) {
                 this.totalRamBytes = processedData.memory.total;
                 this.totalRamGB = this.totalRamBytes / (1024 * 1024 * 1024);
-                const totalGB = this.totalRamGB.toFixed(2);
-                this.charts.ramUsageChart.setOption({ 
-                    yAxis: { min: 0, max: this.totalRamGB },
-                    series: [{}, {}, { markLine: { data: [{ yAxis: totalGB }] } }] 
-                });
+                this.charts.ramUsageChart.setOption({ yAxis: { min: 0, max: this.totalRamGB } });
                 this.totalRamMarkSet = true;
             }
-
-            // Bulk-load initial history once (1000+ points OK)
-            if (!this._ramHistoryLoaded && processedData.memory_history && processedData.memory_history.length > 0) {
-                const toISO = (t) => new Date(t).toISOString();
-                const timeLabelsISO = processedData.memory_history.map(p => toISO(p.time));
-                const usedGB = processedData.memory_history.map(p => this.charts.dataManager.toGB(p.used || 0));
-                const cachedGB = processedData.memory_history.map(p => this.charts.dataManager.toGB(p.cached || 0));
-
-                const bulkResult = this.charts.dataManager.bulkLoad(timeLabelsISO, {
-                    0: usedGB,
-                    1: cachedGB
-                });
-
-                // Adopt aligned series to local buffers
-                this.ramUsedData = bulkResult.series[0] || [];
-                this.ramCachedData = bulkResult.series[1] || [];
-
-                // For percent, align to manager.timeData by mapping from percent history
-                if (processedData.memory_percent_history && processedData.memory_percent_history.length > 0) {
-                    const pMap = new Map(processedData.memory_percent_history.map(pt => [toISO(pt.time), Number((pt.percent || 0).toFixed(1))]));
-                    this.ramPercentData = this.charts.dataManager.timeData.map(t => pMap.get(t) ?? 0);
-                    this._percentHistoryLoaded = true;
-                }
-
-                // Draw initial state
-                this.charts.dataManager.updateChart(this.charts.ramUsageChart, { 0: this.ramUsedData, 1: this.ramCachedData });
-                this.charts.dataManager.updateChart(this.charts.ramPercentChart, { 0: this.ramPercentData });
-
-                this._ramHistoryLoaded = true;
-            }
-
-            // Stream update (append only)
-            if (!this.acceptStreaming) {
-                // In historical mode: ignore real-time appends
-                return;
-            }
+            
+            // Live-only streaming update
             const timeLabel = processedData.memory.time ? new Date(processedData.memory.time).toISOString() : new Date().toISOString();
+            const mem = processedData.memory;
+            const total = Number(mem.total || 0);
+            const free = Number(mem.free || 0);
+            const buffers = Number(mem.buffers || 0);
+            const cached = Number(mem.cached || 0);
+            const appUsedBytes = Math.max(0, total - free - buffers - cached);
             const formatted = this.charts.dataManager.addDataPoint(
                 timeLabel,
-                processedData.memory.used || 0,
-                processedData.memory.cached || 0,
-                processedData.memory.percent !== undefined ? processedData.memory.percent : 0,
+                appUsedBytes,
+                0,
+                mem.percent !== undefined ? mem.percent : 0,
                 processedData.swap ? (processedData.swap.used || 0) : 0
             );
 
-            this.ramUsedData.push(formatted.ramUsed);
-            this.ramCachedData.push(formatted.ramCached);
+            this.ramAppUsedData.push(formatted.ramUsed);
             this.ramPercentData.push(formatted.ramPercent);
             this.swapData.push(formatted.swapUsed);
+
+            // Update RAM metrics legend row
+            const fmt = (v) => this.dataProcessor.formatBytes(v);
+            const bufEl = document.getElementById('ram-buffers');
+            const cacheEl = document.getElementById('ram-cached');
+            const freeEl = document.getElementById('ram-free');
+            if (bufEl) bufEl.textContent = fmt(buffers);
+            if (cacheEl) cacheEl.textContent = fmt(cached);
+            if (freeEl) freeEl.textContent = fmt(free);
 
             // One-time debug: prove numeric types after casting
             if (!this._debugLogged) {
@@ -196,7 +152,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
                 this._debugLogged = true;
             }
 
-            this.charts.dataManager.updateChart(this.charts.ramUsageChart, { 0: this.ramUsedData, 1: this.ramCachedData });
+            this.charts.dataManager.updateChart(this.charts.ramUsageChart, { 0: this.ramAppUsedData });
             this.charts.dataManager.updateChart(this.charts.ramPercentChart, { 0: this.ramPercentData });
             this.charts.dataManager.updateChart(this.charts.swapChart, { 0: this.swapData });
         }
