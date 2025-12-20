@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import os
 import logging
 from typing import List, Dict, Any, Optional
 from db.connection import get_db
@@ -682,6 +681,44 @@ def get_disk_io_metrics(
                             ROW_NUMBER() OVER (PARTITION BY disk ORDER BY time DESC) AS rn
                         FROM disk_io_counters
                         WHERE sysname = %s
+                    ),
+                    active_disks AS (
+                        SELECT 
+                            a.disk,
+                            a.time,
+                            a.read_bytes,
+                            a.write_bytes,
+                            CASE 
+                                WHEN b.time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, b.time, a.time) > 0 THEN
+                                    GREATEST(0, (a.read_bytes - b.read_bytes) / 
+                                        (TIMESTAMPDIFF(MICROSECOND, b.time, a.time) / 1e6))
+                                ELSE NULL
+                            END AS read_bytes_s,
+                            CASE 
+                                WHEN b.time IS NOT NULL AND TIMESTAMPDIFF(MICROSECOND, b.time, a.time) > 0 THEN
+                                    GREATEST(0, (a.write_bytes - b.write_bytes) / 
+                                        (TIMESTAMPDIFF(MICROSECOND, b.time, a.time) / 1e6))
+                                ELSE NULL
+                            END AS write_bytes_s
+                        FROM last2 a
+                        LEFT JOIN last2 b ON a.disk = b.disk AND a.rn = 1 AND b.rn = 2
+                        WHERE a.rn = 1
+                    ),
+                    filtered_disks AS (
+                        SELECT 
+                            disk,
+                            time,
+                            read_bytes,
+                            write_bytes,
+                            read_bytes_s,
+                            write_bytes_s,
+                            COUNT(*) OVER() as total_count
+                        FROM active_disks
+                        WHERE 
+                            disk NOT LIKE 'loop%%' 
+                            AND disk NOT LIKE 'sr%%'
+                            AND disk NOT LIKE 'ram%%'
+                            AND disk NOT LIKE 'zram%%'
                     )
                     SELECT 
                         disk,
@@ -778,18 +815,37 @@ def get_disk_io_metrics(
 
             # Single fetchall for all modes
             rows = serialize_rows(cur.fetchall())
-            result['disk_io'] = {
-                'data': rows,
-                'pagination': {
-                    'page': page,
-                    'per_page': per_page,
-                    'total': len(rows),
-                    'total_pages': 1
+
+            if start_time is None:
+                # Snapshot mode
+                total = rows[0]['total_count'] if rows else 0
+
+                # Remove total_count from each row
+                for r in rows:
+                    r.pop('total_count', None)
+
+                result['disk_io'] = {
+                    'data': rows,
+                    'pagination': {
+                        'page': page,
+                        'per_page': per_page,
+                        'total': total,
+                        'total_pages': (total + per_page - 1) // per_page if per_page else 1
+                    }
                 }
-            }
+            else:
+                # Range mode (no pagination)
+                result['disk_io'] = {
+                    'data': rows,
+                    'pagination': {
+                        'page': 1,
+                        'per_page': len(rows),
+                        'total': len(rows),
+                        'total_pages': 1
+                    }
+                }
+
             return result
-
-
 def get_cpu_network_combined(
     sysname: str,
     iface: Optional[str] = None,
