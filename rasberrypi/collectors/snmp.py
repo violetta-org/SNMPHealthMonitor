@@ -112,12 +112,12 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
         if not name or not oid:
             continue
 
-        print(f"[DEBUG] Processing {name} (OID: {oid}, method: {method})")
+        # print(f"[DEBUG] Processing {name} (OID: {oid}, method: {method})")
 
         try:
             #GETNEXT
             if method == 'walk':
-                print(f"[DEBUG] Walking OID {oid}")
+                # print(f"[DEBUG] Walking OID {oid}")
                 
                 # đảm bảo base_oid kết thúc với dấu chấm để khớp với prefix
                 base_oid = oid if oid.endswith('.') else oid + '.'
@@ -144,7 +144,7 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
                         # Check if we're still walking the expected OID tree
                         full_oid_str = str(full_oid)
                         if not full_oid_str.startswith(base_oid):
-                            print(f"[DEBUG] Beyond subtree for {name}: {full_oid_str}")
+                            # print(f"[DEBUG] Beyond subtree for {name}: {full_oid_str}")
                             stop_walk = True
                             break
                         
@@ -165,7 +165,7 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
                                     ts=ts,
                                 ).to_dict()
                             )
-                            print(f"[DEBUG] Walked {name}[{idx}] = {v}")
+                            # print(f"[DEBUG] Walked {name}[{idx}] = {v}")
                         except ValueError as e:
                             print(f"[DEBUG] Error creating metric {name}[{idx}]: {e}")
                             # Discard metric if ts is invalid
@@ -174,7 +174,7 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
                     if stop_walk:
                         break
             else:
-                print(f"[DEBUG] Getting OID {oid}")
+                # print(f"[DEBUG] Getting OID {oid}")
                 #GET
                 error_indication, error_status, error_index, var_binds = await get_cmd(
                     engine,
@@ -209,7 +209,7 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
                                     ts=ts,
                                 ).to_dict()
                             )
-                            print(f"[DEBUG] Got {name} = {v}")
+                            # print(f"[DEBUG] Got {name} = {v}")
                         except ValueError as e:
                             print(f"[DEBUG] Error creating metric {name}: {e}")
                             # Discard metric if ts is invalid
@@ -217,7 +217,7 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
             print(f"[DEBUG] Exception processing {name}: {e}")
             # Skip this metric on exception
 
-    print(f"[DEBUG] Collected {len(metrics)} metrics total")
+    # print(f"[DEBUG] Collected {len(metrics)} metrics total")
     return metrics
 
 

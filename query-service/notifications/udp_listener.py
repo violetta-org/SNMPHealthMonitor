@@ -50,7 +50,7 @@ class UDPNotificationListener:
             
             while self.running:
                 try:
-                    data, addr = self.sock.recvfrom(4096)
+                    data, addr = self.sock.recvfrom(65535)
                     message = json.loads(data.decode('utf-8'))
                     
                     if message.get('event') == 'new_data':

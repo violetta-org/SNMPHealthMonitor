@@ -2,10 +2,6 @@ from flask import Flask
 from flask_socketio import SocketIO
 import time
 from typing import Optional
-import logging
-from utils.logging import configure_logger
-
-logger = configure_logger(__name__)
 
 from config import API_HOST, API_PORT
 from notifications.udp_listener import UDPNotificationListener
@@ -20,17 +16,17 @@ def on_new_data(message: dict):
     """When new data arrives, stream it to all subscribed clients."""
     event = message.get('event')
     if event != 'new_data':
-        logger.error(f"[QueryService] Invalid event: {event}")
+        print(f"[QueryService] Invalid event: {event}")
         return
     
     sysname = message.get('sysname')
     metric_count = message.get('metric_count', 0)
     
     if not sysname:
-        logger.error(f"[QueryService] Invalid notification message: missing sysname")
+        print(f"[QueryService] Invalid notification message: missing sysname")
         return
     
-    logger.info(f"[QueryService] New data notification for {sysname}, metric_count: {metric_count}")
+    print(f"[QueryService] New data notification for {sysname}, metric_count: {metric_count}")
     
     # Check which topics have active subscriptions
     try:
@@ -38,10 +34,10 @@ def on_new_data(message: dict):
 
         # Only stream to topics that have subscribers
         for topic in active_topics:
-            logger.info(f"[QueryService] Streaming {topic} to subscribers")
+            print(f"[QueryService] Streaming {topic} to subscribers")
             stream_topic_data(sysname, topic)
     except Exception as e:
-        logger.error(f"[QueryService] Error scheduling streaming tasks: {e}")
+        print(f"[QueryService] Error scheduling streaming tasks: {e}")
 
 
 # Flask app & Socket.IO setup
@@ -61,11 +57,11 @@ register_socketio_events(socketio, ws_manager, get_topic_data)
 
 
 if __name__ == "__main__":
-    logger.info("[Main] Starting Flask + Socket.IO app")
+    print("[Main] Starting Flask + Socket.IO app")
     notify_listener = UDPNotificationListener(callback=on_new_data)
     notify_listener.start()
     try:
         socketio.run(app, host=API_HOST, port=API_PORT, debug=False)
     finally:
         notify_listener.stop()
-        logger.info("[Main] Flask app shutdown")
+        print("[Main] Flask app shutdown")
