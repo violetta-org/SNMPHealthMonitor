@@ -25,12 +25,12 @@ export function createRAMUsageChart(container, totalRAMBytes) {
         },
         series: [{ name: 'Used', data: [] }],
         colors: ['#4dbd74'], // Màu xanh lá đặc trưng cho RAM
-        
+
         stroke: {
             curve: 'smooth',
             width: 2
         },
-        
+
         fill: {
             type: 'gradient',
             gradient: {
@@ -41,18 +41,16 @@ export function createRAMUsageChart(container, totalRAMBytes) {
                 stops: [0, 100]
             }
         },
-        
+
         dataLabels: { enabled: false },
-        
-        // QUAN TRỌNG: Sửa padding lại về chuẩn
+
         grid: {
             show: true,
             borderColor: '#333',
             strokeDashArray: 3,
-            // Xóa dòng left: 70 đi, để mặc định hoặc chỉ padding nhỏ
-            padding: { left: 10, right: 10, top: 10, bottom: 0 } 
+            padding: { left: 10, right: 10, top: 10, bottom: 0 } // Sát sàn
         },
-        
+
         xaxis: {
             type: 'datetime',
             labels: {
@@ -64,26 +62,26 @@ export function createRAMUsageChart(container, totalRAMBytes) {
             axisTicks: { color: '#444' },
             tooltip: { enabled: false }
         },
-        
+
         yaxis: {
             min: 0,
-            max: maxRAM, // Sử dụng số đã làm tròn (ví dụ 4)
-            tickAmount: 4, // Chia thành 4 khoảng (0, 1, 2, 3, 4) rất đẹp
+            max: maxRAM,
+            forceNiceScale: false, // Tắt auto-rounding để ép chính xác 0
+            tickAmount: 4,
             labels: {
                 show: true,
-                style: { 
-                    colors: '#4dbd74', // Đổi màu chữ sang xanh lá cho đồng bộ và rõ
+                style: {
+                    colors: '#4dbd74',
                     fontSize: '11px',
                     fontFamily: 'Consolas, monospace'
                 },
-                formatter: (v) => `${v.toFixed(0)} GB`, // Chỉ hiện số nguyên: "1 GB" thay vì "1.23 GB"
-                offsetX: 0 
+                formatter: (v) => `${v.toFixed(1)} GB`,
+                offsetX: 0
             },
-            // Đảm bảo hiển thị trục dọc rõ ràng
-            axisBorder: { show: true, color: '#4dbd74', width: 1 }, 
-            axisTicks: { show: true, color: '#4dbd74' }
+            axisBorder: { show: false },  // Bỏ vạch border
+            axisTicks: { show: false }    // Bỏ vạch ticks, chỉ giữ số
         },
-        
+
         tooltip: {
             theme: 'dark',
             x: { format: 'HH:mm:ss' },
@@ -95,7 +93,7 @@ export function createRAMUsageChart(container, totalRAMBytes) {
     };
 
     if (container.__apexChart) {
-        try { container.__apexChart.destroy(); } catch (e) {}
+        try { container.__apexChart.destroy(); } catch (e) { }
     }
 
     const chart = new ApexCharts(container, options);
@@ -117,10 +115,10 @@ export class ChartDataManager {
         if (typeof window !== 'undefined' && window.requestAnimationFrame) {
             this.__perf = { frames: 0, last: performance.now(), rafId: null };
             this.__perfRunning = true;
-            const loop = () => { 
-                if (!this.__perfRunning) return; 
-                this.__perf.frames++; 
-                this.__perf.rafId = window.requestAnimationFrame(loop); 
+            const loop = () => {
+                if (!this.__perfRunning) return;
+                this.__perf.frames++;
+                this.__perf.rafId = window.requestAnimationFrame(loop);
             };
             this.__perf.rafId = window.requestAnimationFrame(loop);
             this.perfInterval = setInterval(() => {
@@ -255,48 +253,47 @@ export class ChartDataManager {
 }
 
 /**
- * Create CPU + Network dual Y-axis chart
+ * Create CPU + Network dual Y-axis chart with stacked areas
  */
 export function createCpuNetworkChart(container) {
     if (!container) return null;
-    if (typeof ApexCharts === 'undefined') {
-        return null;
-    }
+    if (typeof ApexCharts === 'undefined') return null;
 
     const options = {
         chart: {
-            type: 'line', // Quan trọng: Toàn bộ biểu đồ là dạng đường kẻ
+            type: 'line',
             height: 350,
+            stacked: false,  // Disabled - we manually stack network areas
             animations: { enabled: true, easing: 'linear', speed: 300 },
             toolbar: { show: false },
             zoom: { enabled: false },
             background: 'transparent',
             fontFamily: 'Consolas, monospace'
         },
-        series: [
-            // SỬA Ở ĐÂY: Đổi type từ 'area' thành 'line'
-            { name: 'CPU %', type: 'line', data: [] }, 
-            { name: 'Throughput', type: 'line', data: [] }
-        ],
-        colors: ['#FF0000', '#29b6f6'], // Đỏ tươi và Xanh dương
-        
+
+        // Explicit colors: CPU (Red), Network interfaces (Teal, Blue, Orange, Purple)
+        colors: ['#FF4560', '#00E396', '#008FFB', '#FEB019', '#775DD0'],
+
         stroke: {
             curve: 'smooth',
-            width: [3, 2], // CPU dày 3px cho rõ, Network 2px
+            width: 2
         },
-        
-        // SỬA Ở ĐÂY: Loại bỏ hoàn toàn opacity, để Solid 100%
+
         fill: {
             type: 'solid',
-            opacity: 1 
+            // Index 0 (CPU line) = 1.0 solid, others (network areas) = 0.6 semi-transparent
+            opacity: [1, 0.6, 0.6, 0.6, 0.6]
         },
 
         dataLabels: { enabled: false },
+
         grid: {
             show: true,
             borderColor: '#333',
             strokeDashArray: 3,
+            padding: { bottom: 0 }  // Fix floating line at bottom
         },
+
         xaxis: {
             type: 'datetime',
             labels: {
@@ -307,48 +304,56 @@ export function createCpuNetworkChart(container) {
             axisTicks: { color: '#444' },
             tooltip: { enabled: false }
         },
+
         yaxis: [
             {
-                seriesName: 'CPU %',
+                // RIGHT Y-axis: CPU (Fixed 0-100%)
+                seriesName: 'CPU',
+                opposite: true,
                 min: 0,
-                max: 100, // LƯU Ý: Nếu muốn đường đỏ "nhảy múa" mạnh như đường xanh, hãy xóa dòng này đi!
+                max: 100,
                 labels: {
-                    style: { colors: '#FF0000', fontSize: '11px' },
+                    style: { colors: '#FF4560', fontSize: '11px' },
                     formatter: (v) => `${v.toFixed(0)}%`
                 },
-                title: { text: 'CPU %', style: { color: '#FF0000' } }
+                title: { text: 'CPU %', style: { color: '#FF4560' } }
             },
             {
-                seriesName: 'Throughput',
-                opposite: true,
-                min: 0, // Để tự động max, giúp đường xanh dao động rõ
+                // LEFT Y-axis: Network (Auto-scale)
+                seriesName: 'Network',
+                min: 0,
                 labels: {
-                    style: { colors: '#29b6f6', fontSize: '11px' },
+                    style: { colors: '#00E396', fontSize: '11px' },
                     formatter: (v) => formatNetworkRate(v)
                 },
-                title: { text: 'Throughput', style: { color: '#29b6f6' } }
+                title: { text: 'Throughput', style: { color: '#00E396' } }
             }
         ],
-        tooltip: {
-            theme: 'dark',
-            shared: true,
-            x: { format: 'HH:mm:ss' },
-            y: {
-                formatter: (v, { seriesIndex }) => {
-                    if (seriesIndex === 0) return `${v.toFixed(1)}%`;
-                    return formatNetworkRate(v);
-                }
-            }
-        },
+
         legend: {
             show: true,
             position: 'top',
+            horizontalAlign: 'left',
             labels: { colors: '#ccc' }
+        },
+
+        tooltip: {
+            theme: 'dark',
+            shared: true,
+            intersect: false,
+            x: { format: 'HH:mm:ss' },
+            y: {
+                formatter: (v, { seriesIndex, w }) => {
+                    const seriesName = w.config.series[seriesIndex]?.name || '';
+                    if (seriesName === 'CPU') return `${v.toFixed(1)}%`;
+                    return formatNetworkRate(v);
+                }
+            }
         }
     };
 
     if (container.__apexChart) {
-        try { container.__apexChart.destroy(); } catch (e) {}
+        try { container.__apexChart.destroy(); } catch (e) { }
     }
 
     const chart = new ApexCharts(container, options);
@@ -389,79 +394,103 @@ function formatNetworkRate(bytesPerSec) {
 
 /**
  * Update CPU + Network chart with new data
- * - Network is shown as a single Throughput line (send + recv)
- * - Optional autoZoomCpu toggles dynamic CPU Y-axis range
+ * - CPU is a line overlay (0-100% fixed)
+ * - Network interfaces are stacked areas (auto-scale)
  */
-export function updateCpuNetworkChart(chart, cpuData, networkData, autoZoomCpu = false) {
+export function updateCpuNetworkChart(chart, cpuData, networkData) {
     if (!chart) return;
 
-    // CPU points (0-100%)
+    const series = [];
+    let maxRate = 0;
+
+    // 1. Add CPU Series FIRST (gets color index 0 = Red #FF4560)
+    // CPU is completely independent - uses right Y-axis (0-100%)
     const cpuPoints = (cpuData || []).map(d => ({
         x: new Date(d.time).getTime(),
         y: Number(d.percent) || 0
     }));
 
-    // Throughput = send_rate + recv_rate
-    let maxRate = 0;
-    const throughputPoints = (networkData || []).map(d => {
-        const send = Number(d.send_rate) || 0;
-        const recv = Number(d.recv_rate) || 0;
-        const total = send + recv;
-        if (total > maxRate) maxRate = total;
-        return {
-            x: new Date(d.time).getTime(),
-            y: total
-        };
+    series.push({
+        name: 'CPU',
+        type: 'line',
+        data: cpuPoints
+        // No group needed - stacked: false at chart level
     });
-    determineNetworkUnit(maxRate);
 
-    // CPU Y-axis range: default 0-100, optionally auto-zoom
-    let cpuMin = 0;
-    let cpuMax = 100;
-    if (autoZoomCpu && cpuPoints.length > 0) {
-        const values = cpuPoints.map(p => p.y);
-        let localMin = Math.min(...values);
-        let localMax = Math.max(...values);
+    // 2. Build Network Interface data and MANUALLY STACK them
+    // Since stacked: false at chart level, we calculate cumulative Y values ourselves
+    const networkInterfaces = [];
 
-        if (localMin === localMax) {
-            const pad = Math.max(5, localMax * 0.2);
-            localMin = Math.max(0, localMin - pad);
-            localMax = Math.min(100, localMax + pad);
-        } else {
-            const span = localMax - localMin;
-            const pad = Math.max(5, span * 0.2);
-            localMin = Math.max(0, localMin - pad);
-            localMax = Math.min(100, localMax + pad);
+    if (networkData && typeof networkData === 'object') {
+        for (const [iface, data] of Object.entries(networkData)) {
+            if (!Array.isArray(data)) continue;
+
+            const points = data.map(d => {
+                const send = Number(d.send_rate) || 0;
+                const recv = Number(d.recv_rate) || 0;
+                return {
+                    x: new Date(d.time).getTime(),
+                    y: send + recv
+                };
+            });
+
+            networkInterfaces.push({ name: iface, data: points });
         }
-
-        cpuMin = localMin;
-        cpuMax = localMax;
     }
 
-    const currentYaxes = chart.w.config.yaxis || [];
+    // Stack network interfaces manually: each layer = previous cumulative + current
+    // First interface stays as-is, second interface Y = first.Y + second.Y, etc.
+    const cumulativeByTime = new Map();  // timestamp -> cumulative total
 
-    // Update Y-axes: CPU % and Throughput (with unit)
+    for (const iface of networkInterfaces) {
+        const stackedPoints = iface.data.map(point => {
+            const prev = cumulativeByTime.get(point.x) || 0;
+            const newY = prev + point.y;
+            cumulativeByTime.set(point.x, newY);
+            if (newY > maxRate) maxRate = newY;
+            return { x: point.x, y: newY };
+        });
+
+        series.push({
+            name: iface.name,
+            type: 'area',
+            data: stackedPoints
+        });
+    }
+
+    // Determine unit (B/s, KB/s, MB/s)
+    determineNetworkUnit(maxRate);
+
+    // Update Y-axes with new unit label - PRESERVE formatters
     chart.updateOptions({
         yaxis: [
             {
-                ...(currentYaxes[0] || {}),
-                min: cpuMin,
-                max: cpuMax
+                // CPU Axis (Right) - Fixed 0-100%
+                seriesName: 'CPU',
+                opposite: true,
+                min: 0,
+                max: 100,
+                labels: {
+                    style: { colors: '#FF4560', fontSize: '11px' },
+                    formatter: (v) => `${Math.round(v)}%`
+                },
+                title: { text: 'CPU %', style: { color: '#FF4560' } }
             },
             {
-                ...(currentYaxes[1] || {}),
-                title: {
-                    text: `Throughput (${_networkUnit})`,
-                    style: { color: '#29b6f6', fontSize: '12px' }
-                }
+                // Network Axis (Left) - Auto scale with dynamic unit
+                seriesName: 'Network',
+                min: 0,
+                labels: {
+                    style: { colors: '#00E396', fontSize: '11px' },
+                    formatter: (v) => formatNetworkRate(v)
+                },
+                title: { text: `Throughput (${_networkUnit})`, style: { color: '#00E396' } }
             }
         ]
     }, false, false);
 
-    chart.updateSeries([
-        { name: 'CPU %', data: cpuPoints },
-        { name: 'Throughput', data: throughputPoints }
-    ], true);
+    // Update series data
+    chart.updateSeries(series, true);
 }
 
 export function initializeSystemCharts(totalRAMBytes) {

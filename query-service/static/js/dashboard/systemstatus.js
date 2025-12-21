@@ -9,7 +9,6 @@ export class SystemStatusDashboard extends BaseDashboardUI {
     constructor(dataProcessor) {
         super(dataProcessor);
         this.cpuCoresInitialized = false;
-        this.autoZoomCpu = false;
 
         // Initialize charts ONCE on page load (total RAM line will be set later when available)
         if (!this.isInitialized) {
@@ -24,7 +23,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
         // Local data buffers mapped by series index
         this.ramAppUsedData = [];
-        
+
         // CPU+Network data buffers
         this.cpuNetworkData = { cpu: [], network: [] };
 
@@ -60,15 +59,15 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         // Header elements
         this.registerElement('connection-status', '#connection-status');
         this.registerElement('last-update-time', '#last-update-time');
-        
+
         // System info
         this.registerElement('sysname', '#sysname');
         this.registerElement('sys-location', '#sys-location');
         this.registerElement('sys-uptime', '#sys-uptime');
-        
+
         // CPU
         // Focus on CPU cores only (no overall gauge)
-        
+
         // Load averages
         this.registerElement('load-1m-gauge', '#load-1m-gauge');
         this.registerElement('load-1m-value', '#load-1m-value');
@@ -76,21 +75,13 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         this.registerElement('load-5m-value', '#load-5m-value');
         this.registerElement('load-15m-gauge', '#load-15m-gauge');
         this.registerElement('load-15m-value', '#load-15m-value');
-        
+
         // Temperature
         this.registerElement('temperature-gauge', '#temperature-gauge');
         this.registerElement('temperature-value', '#temperature-value');
         this.registerElement('temperature-info', '#temperature-info');
 
-        const cpuZoomBtn = document.getElementById('cpu-autozoom-toggle');
-        if (cpuZoomBtn) {
-            cpuZoomBtn.addEventListener('click', () => {
-                this.autoZoomCpu = !this.autoZoomCpu;
-                cpuZoomBtn.textContent = this.autoZoomCpu
-                    ? 'Auto-zoom CPU Y-axis: On'
-                    : 'Auto-zoom CPU Y-axis: Off';
-            });
-        }
+
     }
 
     /**
@@ -115,14 +106,14 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         this._lastFlush = now;
 
         console.log('[SystemStatusDashboard] Updating system status UI', processedData);
-        
+
         // Update device info (online status, last_seen, ip_address)
         if (processedData.device_info) {
             this.updateDeviceStatus(processedData.device_info);
             this.updateLastUpdateTime(processedData.device_info);
             this.updateServerIP(processedData.device_info);
         }
-        
+
         // System info
         if (processedData.system_info) {
             this.updateText('sysname', processedData.system_info.sysname || 'N/A');
@@ -140,32 +131,28 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             // Set fixed RAM scale once when total becomes available
             if (!this.totalRamMarkSet && processedData.memory.total) {
                 this.totalRamBytes = processedData.memory.total;
-                this.totalRamGB = this.totalRamBytes / (1024 * 1024 * 1024);
+                // Round UP to nearest integer for clean Y-axis ticks (e.g. 3.8GB -> 4GB)
+                this.totalRamGB = Math.ceil(this.totalRamBytes / (1024 * 1024 * 1024));
+
                 if (this.charts?.ramUsageChart && typeof this.charts.ramUsageChart.updateOptions === 'function') {
-                    const ycfg = this.charts.ramUsageChart.w?.config?.yaxis;
-                    if (Array.isArray(ycfg)) {
-                        const base = ycfg[0] || {};
-                        this.charts.ramUsageChart.updateOptions({
-                            yaxis: [{
-                                ...base,
-                                min: 0,
-                                max: this.totalRamGB
-                            }]
-                        }, false, true);
-                    } else {
-                        const base = ycfg || {};
-                        this.charts.ramUsageChart.updateOptions({
-                            yaxis: {
-                                ...base,
-                                min: 0,
-                                max: this.totalRamGB
+                    this.charts.ramUsageChart.updateOptions({
+                        yaxis: {
+                            min: 0,
+                            max: this.totalRamGB,
+                            // tickAmount: removed to let ApexCharts auto-calculate even intervals
+                            forceNiceScale: false,
+                            axisBorder: { show: false },
+                            axisTicks: { show: false },
+                            labels: {
+                                style: { colors: '#4dbd74', fontSize: '11px' },
+                                formatter: (v) => `${v.toFixed(1)} GB`
                             }
-                        }, false, true);
-                    }
+                        }
+                    }, false, true);
                 }
                 this.totalRamMarkSet = true;
             }
-            
+
             // Live-only streaming update
             const timeLabel = processedData.memory.time ? new Date(processedData.memory.time).toISOString() : new Date().toISOString();
             const mem = processedData.memory;
@@ -269,7 +256,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
         // Update CPU + Network combined chart
         if (this.cpuNetworkChart && processedData.cpu && processedData.network) {
-            updateCpuNetworkChart(this.cpuNetworkChart, processedData.cpu, processedData.network, this.autoZoomCpu);
+            updateCpuNetworkChart(this.cpuNetworkChart, processedData.cpu, processedData.network);
             this.updateCpuNetworkSummary(processedData.cpu, processedData.network);
         }
     }
@@ -283,20 +270,26 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         const cpuAvgEl = document.getElementById('cpu-avg-value');
         const uploadEl = document.getElementById('net-upload-value');
         const downloadEl = document.getElementById('net-download-value');
-        
+
         if (cpuAvgEl && cpuData && cpuData.length > 0) {
             const lastCpu = cpuData[cpuData.length - 1];
             cpuAvgEl.textContent = `${Number(lastCpu.percent || 0).toFixed(1)}%`;
         }
-        
-        if (networkData && networkData.length > 0) {
-            const lastNet = networkData[networkData.length - 1];
-            const sendRate = Number(lastNet.send_rate || 0);
-            const recvRate = Number(lastNet.recv_rate || 0);
-            
-            if (uploadEl) uploadEl.textContent = this.formatNetworkRate(sendRate);
-            if (downloadEl) downloadEl.textContent = this.formatNetworkRate(recvRate);
+
+        // Sum all network interfaces
+        let totalSend = 0, totalRecv = 0;
+        if (networkData && typeof networkData === 'object') {
+            for (const [iface, data] of Object.entries(networkData)) {
+                if (Array.isArray(data) && data.length > 0) {
+                    const last = data[data.length - 1];
+                    totalSend += Number(last.send_rate || 0);
+                    totalRecv += Number(last.recv_rate || 0);
+                }
+            }
         }
+
+        if (uploadEl) uploadEl.textContent = this.formatNetworkRate(totalSend);
+        if (downloadEl) downloadEl.textContent = this.formatNetworkRate(totalRecv);
     }
 
     /**
@@ -392,15 +385,15 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         // Check if we need to re-initialize (first time or core count changed)
         const currentCoreCount = container.children.length;
         const newCoreCount = cpuData.length;
-        
+
         if (!this.cpuCoresInitialized || currentCoreCount !== newCoreCount) {
             container.innerHTML = '';
-            
+
             cpuData.forEach((cpu, index) => {
                 const coreCard = this.createCPUCoreGauge(index);
                 container.appendChild(coreCard);
             });
-            
+
             this.cpuCoresInitialized = true;
             console.log(`[SystemStatusDashboard] Initialized ${cpuData.length} CPU core gauges`);
         }
@@ -408,10 +401,10 @@ export class SystemStatusDashboard extends BaseDashboardUI {
         cpuData.forEach((cpu, index) => {
             const percent = cpu.percent || 0;
             const gaugeId = `cpu-core-${index}`;
-            
+
             const gaugeElement = document.getElementById(`${gaugeId}-gauge`);
             const valueElement = document.getElementById(`${gaugeId}-value`);
-            
+
             if (gaugeElement && valueElement) {
                 const progressCircle = gaugeElement.querySelector('.gauge-progress');
                 if (progressCircle) {
@@ -419,7 +412,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
                     const offset = circumference - (percent / 100) * circumference;
                     progressCircle.style.strokeDashoffset = offset;
                 }
-                
+
                 valueElement.textContent = Math.round(percent) + '%';
             }
         });
@@ -431,9 +424,9 @@ export class SystemStatusDashboard extends BaseDashboardUI {
     createCPUCoreGauge(coreIndex) {
         const card = document.createElement('div');
         card.className = 'cpu-core-card';
-        
+
         const gaugeId = `cpu-core-${coreIndex}`;
-        
+
         card.innerHTML = `
             <svg id="${gaugeId}-gauge" class="cpu-core-gauge" viewBox="0 0 120 120">
                 <circle class="gauge-background" cx="60" cy="60" r="45" fill="none" stroke="#3a4d5f" stroke-width="8"/>
@@ -444,7 +437,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             </svg>
             <div class="gauge-info">CPU ${coreIndex}</div>
         `;
-        
+
         return card;
     }
 }

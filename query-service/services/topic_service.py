@@ -13,6 +13,7 @@ from db.queries import (
     get_temperature_metrics,
     get_cpu_network_combined,
     get_device_info,
+    get_cpu_avg_history,
 )
 from websocket.websocket_manager import ws_manager
 from utils.logging import configure_logger
@@ -51,6 +52,7 @@ def get_topic_data(
                 start_time=start_time,
                 end_time=end_time
             )
+            data['device_info'] = get_device_info(sysname)
             return data
         elif topic == "network":
             data = get_network_metrics(
@@ -115,4 +117,8 @@ def stream_topic_data(
         logger.error(f"[TopicService] Error streaming {topic}: {e}", exc_info=True)
         import traceback
         traceback.print_exc()
+
+def get_cpu_history_service(sysname: str, start_time: datetime, end_time: datetime) -> list:
+    """Service wrapper for fetching CPU history (AVG)."""
+    return get_cpu_avg_history(sysname, start_time, end_time)
 

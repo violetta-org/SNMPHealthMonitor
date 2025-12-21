@@ -11,13 +11,15 @@ import { SystemStatusDashboard } from './dashboard/systemstatus.js';
 import { NetworkDashboard } from './dashboard/network.js';
 import { DiskDashboard } from './dashboard/disk.js';
 import { DiskIODashboard } from './dashboard/diskio.js';
+import { HistoryDashboard } from './dashboard/history.js';
 
 // Dashboard factory - maps topic to dashboard class
 const DASHBOARD_CLASSES = {
     'systemstatus': SystemStatusDashboard,
     'network': NetworkDashboard,
     'disk': DiskDashboard,
-    'diskio': DiskIODashboard
+    'diskio': DiskIODashboard,
+    'history': HistoryDashboard
 };
 
 export class Dashboard {
@@ -25,11 +27,11 @@ export class Dashboard {
         console.log(`[Dashboard] Initializing dashboard for ${sysname}, topic: ${topic}`);
         this.sysname = sysname;
         this.topic = topic || 'systemstatus';
-        
+
         // Initialize modules
         this.wsManager = new WebSocketManager(sysname, this.topic);
         this.dataProcessor = new DataProcessor();
-        
+
         // Get appropriate dashboard UI class for this topic
         const DashboardClass = DASHBOARD_CLASSES[this.topic];
         if (!DashboardClass) {
@@ -38,21 +40,25 @@ export class Dashboard {
         } else {
             this.uiUpdater = new DashboardClass(this.dataProcessor);
         }
-        
+
         // Register UI elements (topic-specific)
         this.uiUpdater.registerElements();
-        
+
         // ATTACH THE WEBSOCKET MANAGER TO THE UI UPDATER
         // This allows the UI updater to query historical data
         if (typeof this.uiUpdater.attachWebSocketManager === 'function') {
             this.uiUpdater.attachWebSocketManager(this.wsManager, this.sysname, this.topic);
         }
-        
+
         // Setup WebSocket event handlers
         this.setupWebSocketHandlers();
-        
-        // Connect WebSocket
-        this.wsManager.connect();
+
+        // Connect WebSocket (except for history page which uses API)
+        if (this.topic !== 'history') {
+            this.wsManager.connect();
+        } else {
+            console.log('[Dashboard] History page: Skipping WebSocket connection (using HTTP API)');
+        }
     }
 
     /**
@@ -60,7 +66,7 @@ export class Dashboard {
      */
     setupWebSocketHandlers() {
         console.log('[Dashboard] Setting up WebSocket handlers');
-        
+
         // Handle connection
         this.wsManager.on('connected', () => {
             console.log(`[Dashboard] WebSocket connected to ${this.sysname}/${this.topic}`);
@@ -68,14 +74,14 @@ export class Dashboard {
             // this.uiUpdater.updateConnectionStatus(true);
             this.uiUpdater.hideError();
         });
-        
+
         // Handle disconnection
         this.wsManager.on('disconnected', () => {
             console.log('[Dashboard] WebSocket disconnected');
             // Tạm thời không update WebSocket status
             // this.uiUpdater.updateConnectionStatus(false);
         });
-        
+
         // Handle errors
         this.wsManager.on('error', (error) => {
             console.error('[Dashboard] WebSocket error:', error);
@@ -84,7 +90,7 @@ export class Dashboard {
                 this.wsManager.connect();
             });
         });
-        
+
         // Handle reconnect failed
         this.wsManager.on('reconnect_failed', () => {
             console.error('[Dashboard] Reconnection failed');
@@ -93,7 +99,7 @@ export class Dashboard {
                 this.wsManager.connect();
             });
         });
-        
+
         // Handle incoming messages
         this.wsManager.on('message', (message) => {
             this.handleMessage(message);
@@ -106,19 +112,19 @@ export class Dashboard {
     handleMessage(message) {
         console.log('[Dashboard] Handling message:', message.type, 'topic:', message.topic, 'expected:', this.topic);
         console.log('[Dashboard] Message data:', message.data);
-        
+
         if (message.type === 'data' && message.topic === this.topic) {
             try {
                 // Process data
                 console.log(`[Dashboard] Processing ${this.topic} data...`);
                 const processedData = this.dataProcessor.process(this.topic, message.data);
                 console.log(`[Dashboard] Processed data:`, processedData);
-                
+
                 if (processedData) {
                     // Update UI using topic-specific dashboard's update method
                     console.log(`[Dashboard] Updating UI for topic: ${this.topic}`);
                     this.uiUpdater.update(processedData);
-                    
+
                     this.uiUpdater.hideError();
                 } else {
                     console.warn('[Dashboard] Failed to process data');
@@ -152,11 +158,11 @@ export class Dashboard {
 // Initialize dashboard when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     console.log('[Dashboard] DOM loaded, initializing dashboard');
-    
+
     // Get sysname and topic from data attributes (injected by server)
     let sysname = document.body.dataset.sysname;
     let topic = document.body.dataset.topic;
-    
+
     if (!sysname || !topic) {
         // Fallback: Parse from URL path
         const pathParts = window.location.pathname.split('/').filter(p => p);
@@ -170,18 +176,18 @@ document.addEventListener('DOMContentLoaded', () => {
         sysname = sysname || 'default';
         topic = topic || 'systemstatus';
     }
-    
+
     console.log(`[Dashboard] Initializing: sysname=${sysname}, topic=${topic}`);
-    
+
     // Update server name in header
     const serverNameElement = document.getElementById('server-name');
     if (serverNameElement) {
         serverNameElement.textContent = sysname;
     }
-    
+
     // Initialize dashboard
     window.dashboard = new Dashboard(sysname, topic);
-    
+
     // Cleanup on page unload - đảm bảo WebSocket được đóng đúng cách
     window.addEventListener('beforeunload', () => {
         console.log('[Dashboard] Page unloading, cleaning up...');

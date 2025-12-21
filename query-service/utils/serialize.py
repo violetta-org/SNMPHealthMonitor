@@ -1,6 +1,5 @@
 from datetime import datetime
-from typing import Dict, Any, List
-
+from typing import Dict, Any, List, Union
 
 def serialize_row(row: Dict[str, Any] | None) -> Dict[str, Any] | None:
     """
@@ -28,3 +27,17 @@ def serialize_rows(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Convert datetime objects in multiple rows to ISO format strings."""
     return [serialize_row(row) for row in rows]
 
+
+def normalize_list(val: Union[List, Dict, None]) -> List:
+    """
+    Normalize a value to a list.
+    - If None, returns empty list [].
+    - If dict, returns list containing that dict [val].
+    - If list, returns the list.
+    Used for consistent frontend data consumption (ApexCharts expects arrays/time-series).
+    """
+    if val is None:
+        return []
+    if isinstance(val, dict):
+        return [val]
+    return val

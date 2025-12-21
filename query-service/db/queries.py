@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 from db.connection import get_db
 from utils.serialize import serialize_row, serialize_rows
 from utils.logging import configure_logger
-from datetime import datetime, timedelta, timezone
+
 
 logger = configure_logger(__name__)
 logger.setLevel(logging.CRITICAL)
@@ -21,6 +21,7 @@ AND iface NOT LIKE 'br-%%'
 AND iface NOT LIKE 'virbr%%'
 AND iface NOT LIKE 'wg%%'
 AND iface NOT LIKE 'zt%%'
+AND (iface LIKE 'e%%' OR iface LIKE 'w%%')
 """
 
 RATE_SQL = """
@@ -34,8 +35,8 @@ END
 
 
 
-def utcnow():
-    return datetime.now(timezone.utc)
+def local_now():
+    return datetime.now()
 
 
 def calculate_group_interval_dynamic(duration: timedelta, target_points: int = 500) -> int:
@@ -48,7 +49,7 @@ def calculate_group_interval_dynamic(duration: timedelta, target_points: int = 5
 def resolve_time_range(start_time, end_time, target_points=500):
     if start_time is None:
         return None, 0
-    end_time = end_time or utcnow()
+    end_time = end_time or local_now()
     interval = calculate_group_interval_dynamic(end_time - start_time, target_points)
     return end_time, interval
 
@@ -113,7 +114,7 @@ def get_system_metrics(
                 result['load_avg'] = serialize_row(cur.fetchone())
             else:
                 # Range Mode: All load averages in time range (with downsampling)
-                end_time = end_time or utcnow()
+                end_time = end_time or local_now()
                 duration = end_time - start_time
                 interval = calculate_group_interval_dynamic(duration, target_points=500)
                 
@@ -186,6 +187,22 @@ def get_cpu_metrics(sysname, start_time=None, end_time=None):
                 """, (sysname, start_time, end_time))
 
             return {'cpu_percent': serialize_rows(cur.fetchall())}
+
+
+def get_cpu_avg_history(sysname: str, start_time: datetime, end_time: datetime) -> List[Dict[str, Any]]:
+    """Fetch averaged CPU usage over time (across all cores)."""
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT time, AVG(percent) AS percent
+                FROM cpu_percent
+                WHERE sysname = %s
+                  AND time BETWEEN %s AND %s
+                GROUP BY time
+                ORDER BY time
+            """, (sysname, start_time, end_time))
+            return serialize_rows(cur.fetchall())
+
 
 
 
@@ -307,7 +324,7 @@ def get_memory_metrics(
                 result['swap'] = serialize_row(cur.fetchone())
             else:
                 # Range Mode: All memory records in time range (with downsampling)
-                end_time = end_time or utcnow()
+                end_time = end_time or local_now()
                 duration = end_time - start_time
                 interval = calculate_group_interval_dynamic(duration)
                 
@@ -446,7 +463,8 @@ def get_network_metrics(sysname, start_time=None, end_time=None):
                 # Prometheus-style: sum(rate per iface)
                 cur.execute(f"""
                     SELECT bucket AS time,
-                           SUM(rate) AS send_bytes_s
+                           SUM(send_rate) AS send_bytes_s,
+                           SUM(recv_rate) AS recv_bytes_s
                     FROM (
                       SELECT
                         iface,
@@ -454,7 +472,11 @@ def get_network_metrics(sysname, start_time=None, end_time=None):
                         CASE
                           WHEN MAX(bytes_sent) < MIN(bytes_sent) THEN NULL
                           ELSE (MAX(bytes_sent) - MIN(bytes_sent)) / {interval}
-                        END AS rate
+                        END AS send_rate,
+                        CASE
+                          WHEN MAX(bytes_recv) < MIN(bytes_recv) THEN NULL
+                          ELSE (MAX(bytes_recv) - MIN(bytes_recv)) / {interval}
+                        END AS recv_rate
                       FROM net_io_counters
                       WHERE sysname=%s AND time BETWEEN %s AND %s
                         AND {NON_LOOPBACK_IFACE_SQL}
@@ -504,7 +526,7 @@ def get_disk_metrics(
                 result['disk_usage'] = serialize_rows(rows)
             else:
                 # Range Mode: All disk usage records in time range (with downsampling)
-                end_time = end_time or utcnow()
+                end_time = end_time or local_now()
                 duration = end_time - start_time
                 interval = calculate_group_interval_dynamic(duration)
                 
@@ -575,7 +597,7 @@ def get_temperature_metrics(
                 result['temperature'] = serialize_row(row) if row else None
             else:
                 # Range Mode: All temperature records in time range (with downsampling)
-                end_time = end_time or utcnow()
+                end_time = end_time or local_now()
                 duration = end_time - start_time
                 interval = calculate_group_interval_dynamic(duration)
                 
@@ -636,8 +658,12 @@ def get_disk_io_metrics(
                         ROW_NUMBER() OVER (PARTITION BY disk ORDER BY time DESC) rn
                     FROM disk_io_counters
                     WHERE sysname = %s
-                      AND disk NOT REGEXP '[0-9]+$'
-                      AND disk NOT LIKE '%%p[0-9]%%'
+                      AND (
+                            disk NOT REGEXP '[0-9]+$'  -- Giữ logic cũ cho ổ USB (sda, sdb...)
+                        OR 
+                        disk LIKE 'mmcblk%%'       -- Cho phép thẻ nhớ (mmcblk0)
+                      )
+                      AND disk NOT LIKE '%%p[0-9]%%' -- Vẫn chặn partition (loại bỏ mmcblk0p1, mmcblk0p2...)
                 ),
                 latest AS (
                     SELECT *, COUNT(*) OVER() AS total_count
@@ -786,7 +812,7 @@ def get_cpu_network_combined(
         with conn.cursor() as cur:
             result = {
                 'cpu': [],
-                'network': [],
+                'network': {},  # Changed to dict for per-interface data
                 'interfaces': []
             }
 
@@ -800,7 +826,6 @@ def get_cpu_network_combined(
                 ORDER BY iface
             """, (sysname,))
             result['interfaces'] = [r['iface'] for r in cur.fetchall()]
-            target_iface = iface or (result['interfaces'][0] if result['interfaces'] else None)
 
             # =====================================================
             # SNAPSHOT MODE
@@ -820,15 +845,17 @@ def get_cpu_network_combined(
                 result['cpu'] = list(reversed(serialize_rows(cur.fetchall())))
 
                 # -----------------
-                # Network (single iface, rate via LAG)
+                # Network (per-interface, rate via LAG)
                 # -----------------
-                if target_iface:
+                for iface in result['interfaces']:
                     cur.execute(f"""
                         WITH r AS (
                           SELECT
                             time,
-                            bytes_sent AS curr_val,
-                            LAG(bytes_sent) OVER (ORDER BY time) AS prev_val,
+                            bytes_sent AS curr_sent,
+                            bytes_recv AS curr_recv,
+                            LAG(bytes_sent) OVER (ORDER BY time) AS prev_sent,
+                            LAG(bytes_recv) OVER (ORDER BY time) AS prev_recv,
                             TIMESTAMPDIFF(
                               MICROSECOND,
                               LAG(time) OVER (ORDER BY time),
@@ -842,17 +869,24 @@ def get_cpu_network_combined(
                         SELECT
                           time,
                           CASE
-                            WHEN prev_val IS NULL
-                              OR curr_val < prev_val
+                            WHEN prev_sent IS NULL
+                              OR curr_sent < prev_sent
                               OR dt_us <= 0
                             THEN NULL
-                            ELSE (curr_val - prev_val) / (dt_us / 1e6)
-                          END AS send_rate
+                            ELSE (curr_sent - prev_sent) / (dt_us / 1e6)
+                          END AS send_rate,
+                          CASE
+                            WHEN prev_recv IS NULL
+                              OR curr_recv < prev_recv
+                              OR dt_us <= 0
+                            THEN NULL
+                            ELSE (curr_recv - prev_recv) / (dt_us / 1e6)
+                          END AS recv_rate
                         FROM r
                         ORDER BY time DESC
                         LIMIT %s
-                    """, (sysname, target_iface, limit))
-                    result['network'] = list(reversed(serialize_rows(cur.fetchall())))
+                    """, (sysname, iface, limit))
+                    result['network'][iface] = list(reversed(serialize_rows(cur.fetchall())))
 
                 return result
 
@@ -898,8 +932,10 @@ def get_cpu_network_combined(
                       SELECT
                         iface,
                         time,
-                        bytes_sent AS curr_val,
-                        LAG(bytes_sent) OVER (PARTITION BY iface ORDER BY time) AS prev_val,
+                        bytes_sent AS curr_sent,
+                        bytes_recv AS curr_recv,
+                        LAG(bytes_sent) OVER (PARTITION BY iface ORDER BY time) AS prev_sent,
+                        LAG(bytes_recv) OVER (PARTITION BY iface ORDER BY time) AS prev_recv,
                         TIMESTAMPDIFF(
                           MICROSECOND,
                           LAG(time) OVER (PARTITION BY iface ORDER BY time),
@@ -914,13 +950,22 @@ def get_cpu_network_combined(
                       time,
                       SUM(
                         CASE
-                          WHEN prev_val IS NULL
-                            OR curr_val < prev_val
+                          WHEN prev_sent IS NULL
+                            OR curr_sent < prev_sent
                             OR dt_us <= 0
                           THEN NULL
-                          ELSE (curr_val - prev_val) / (dt_us / 1e6)
+                          ELSE (curr_sent - prev_sent) / (dt_us / 1e6)
                         END
-                      ) AS send_rate
+                      ) AS send_rate,
+                      SUM(
+                        CASE
+                          WHEN prev_recv IS NULL
+                            OR curr_recv < prev_recv
+                            OR dt_us <= 0
+                          THEN NULL
+                          ELSE (curr_recv - prev_recv) / (dt_us / 1e6)
+                        END
+                      ) AS recv_rate
                     FROM r
                     GROUP BY time
                     ORDER BY time
@@ -929,7 +974,8 @@ def get_cpu_network_combined(
                 cur.execute(f"""
                     SELECT
                       bucket AS time,
-                      SUM(delta / {interval}) AS send_rate
+                      SUM(delta_sent / {interval}) AS send_rate,
+                      SUM(delta_recv / {interval}) AS recv_rate
                     FROM (
                       SELECT
                         iface,
@@ -940,7 +986,12 @@ def get_cpu_network_combined(
                           WHEN MAX(bytes_sent) < MIN(bytes_sent)
                           THEN NULL
                           ELSE MAX(bytes_sent) - MIN(bytes_sent)
-                        END AS delta
+                        END AS delta_sent,
+                        CASE
+                          WHEN MAX(bytes_recv) < MIN(bytes_recv)
+                          THEN NULL
+                          ELSE MAX(bytes_recv) - MIN(bytes_recv)
+                        END AS delta_recv
                       FROM net_io_counters
                       WHERE sysname=%s
                         AND time BETWEEN %s AND %s

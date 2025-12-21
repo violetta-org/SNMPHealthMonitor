@@ -1,3 +1,4 @@
+
 /**
  * Base Dashboard UI Module
  * Common functionality for all dashboard pages
@@ -9,6 +10,29 @@ export class BaseDashboardUI {
         this.elements = new Map();
         this.dataProcessor = dataProcessor || new DataProcessor();
         this.lastUpdateTime = null;
+
+        // Auto-initialize text formatting if DOM is ready, or wait
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.init());
+        } else {
+            this.init();
+        }
+    }
+
+    init() {
+        console.log('[BaseDashboardUI] init() called');
+        // Initial format of timestamp from server (raw ISO -> Readable)
+        const lastUpdateEl = document.getElementById('last-update-time');
+        console.log('[BaseDashboardUI] Found element:', lastUpdateEl ? 'Yes' : 'No', 'Content:', lastUpdateEl ? lastUpdateEl.textContent : 'null');
+
+        if (lastUpdateEl) {
+            const rawText = lastUpdateEl.textContent.trim();
+            if (rawText && rawText !== '-' && rawText !== 'N/A') {
+                console.log('[BaseDashboardUI] Formatting raw timestamp:', rawText);
+                // Treat content as partial ISO or full ISO
+                this.updateLastUpdateTime({ last_seen: rawText });
+            }
+        }
     }
 
     /**
@@ -41,14 +65,14 @@ export class BaseDashboardUI {
     updateGauge(id, percent) {
         const gaugeElement = this.elements.get(id + '-gauge');
         const valueElement = this.elements.get(id + '-value');
-        
+
         if (!gaugeElement) {
             console.warn(`[BaseDashboardUI] Gauge not found: ${id}-gauge`);
             return;
         }
 
         const clampedPercent = Math.min(Math.max(percent, 0), 100);
-        
+
         // Find the progress circle
         const progressCircle = gaugeElement.querySelector('.gauge-progress');
         if (progressCircle) {
@@ -56,12 +80,12 @@ export class BaseDashboardUI {
             const offset = circumference - (clampedPercent / 100) * circumference;
             progressCircle.style.strokeDashoffset = offset;
         }
-        
+
         // Update value text
         if (valueElement) {
             valueElement.textContent = Math.round(clampedPercent) + '%';
         }
-        
+
         console.log(`[BaseDashboardUI] Updated gauge ${id}: ${clampedPercent.toFixed(1)}%`);
     }
 
@@ -79,17 +103,17 @@ export class BaseDashboardUI {
      * Update last update timestamp from device last_seen
      */
     updateLastUpdateTime(deviceInfo) {
-        const lastUpdateElement = this.elements.get('last-update-time');
+        const lastUpdateElement = this.elements.get('last-update-time') || document.getElementById('last-update-time');
         if (lastUpdateElement) {
             if (deviceInfo && deviceInfo.last_seen) {
                 try {
                     const lastSeenDate = new Date(deviceInfo.last_seen);
-                    const timeString = lastSeenDate.toLocaleTimeString('en-US', { 
-                        hour: '2-digit', 
-                        minute: '2-digit', 
-                        second: '2-digit',
-                        hour12: false 
-                    });
+
+                    // Manual formatting to match server-side YYYY-MM-DD HH:MM:SS
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const timeString = `${lastSeenDate.getFullYear()}-${pad(lastSeenDate.getMonth() + 1)}-${pad(lastSeenDate.getDate())} ` +
+                        `${pad(lastSeenDate.getHours())}:${pad(lastSeenDate.getMinutes())}:${pad(lastSeenDate.getSeconds())}`;
+
                     lastUpdateElement.textContent = timeString;
                     this.lastUpdateTime = lastSeenDate;
                 } catch (e) {
@@ -138,14 +162,14 @@ export class BaseDashboardUI {
 
         const toast = document.createElement('div');
         toast.className = 'toast ' + type;
-        
+
         const icons = {
             error: '❌',
             success: '✅',
             warning: '⚠️',
             info: 'ℹ️'
         };
-        
+
         const titles = {
             error: 'Error',
             success: 'Success',
@@ -221,7 +245,7 @@ export class BaseDashboardUI {
                     id: 'close',
                     label: 'Close',
                     type: 'secondary',
-                    callback: () => {}
+                    callback: () => { }
                 }
             ]
         });
