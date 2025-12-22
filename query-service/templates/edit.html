@@ -249,7 +249,7 @@
           setStatus('Conflict detected. The file has changed on disk.', false);
           const conf = confirm('File has changed on disk. Overwrite with your version?');
           if (conf) {
-            return fetch("{{ url_for('api.save') }}", {
+            return fetch("{{ url_for('api.api_save') }}", {
               method: 'POST', headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ path: relPath, content: editor.getValue(), mtime: data.current_mtime, force: true })
             }).then(async (r2) => {

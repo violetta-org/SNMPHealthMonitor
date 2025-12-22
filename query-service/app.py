@@ -89,15 +89,32 @@ clients = {}
 # Đăng ký Socket.IO event handlers
 register_socketio_events(socketio, ws_manager, get_topic_data, clients)
 
+import os
 
+# When debug=True, the reloader spawns a child process.
+# We want to avoid starting the UDP listener in the main process (reloader parent)
+# because the child process will also try to bind the same port, causing "Address already in use".
+debug_mode = True
 
+# Check if we are in the reloader process (WERKZEUG_RUN_MAIN is set in the child)
+# If debug is False, WERKZEUG_RUN_MAIN is never set, so we assume valid to start.
+# If debug is True, we only start if we are in the child process (WERKZEUG_RUN_MAIN == 'true').
+is_reloader_child = os.environ.get("WERKZEUG_RUN_MAIN") == "true"
 
-if __name__ == "__main__":
-    print("[Main] Starting Flask + Socket.IO app")
+should_start = True
+if debug_mode and not is_reloader_child:
+    should_start = False
+    print("[Main] Reloader parent: Skipping UDP listener start to avoid port conflict")
+
+notify_listener = None
+if should_start:
+    print("[Main] Starting UDP Listener")
     notify_listener = UDPNotificationListener(callback=on_new_data)
     notify_listener.start()
-    try:
-        socketio.run(app, host=API_HOST, port=API_PORT, debug=False, allow_unsafe_werkzeug=True)
-    finally:
+
+try:
+    socketio.run(app, host=API_HOST, port=API_PORT, debug=debug_mode, allow_unsafe_werkzeug=True)
+finally:
+    if notify_listener:
         notify_listener.stop()
-        print("[Main] Flask app shutdown")
+    print("[Main] Flask app shutdown")

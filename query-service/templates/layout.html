@@ -1,52 +1,66 @@
 <!doctype html>
 <html lang="vi">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Web Shell</title>
-    <style>
-      html, body { height: 100%; }
-      body {
-        margin: 0;
-        display: flex;
-        min-height: 100vh;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      }
-      nav {
-        width: 200px;
-        background: #111;
-        color: #fff;
-        padding: 16px;
-        box-sizing: border-box;
-      }
-      nav a {
-        display: block;
-        color: #fff;
-        text-decoration: none;
-        padding: 8px 0;
-      }
-      nav a:hover { text-decoration: underline; }
-      main {
-        flex-grow: 1;
-        box-sizing: border-box;
-        padding: 0;
-        overflow: auto;
-        background: #000; /* Terminal page will look good by default; other pages can override */
-      }
-    </style>
-    {% block head_scripts %}{% endblock %}
-  </head>
-  <body>
-    <nav>
-      <h3 style="margin-top:0;">Menu</h3>
-      <a href="{{ url_for('web.index') }}">Terminal</a>
-      <a href="{{ url_for('web.files') }}">File Manager</a>
-      <a href="{{ url_for('web.trash') }}">Trash</a>
-      <a href="{{ url_for('web.system') }}">System Manager</a>
-      <a href="{{ url_for('web.logout') }}">Logout</a>
-    </nav>
-    <main>
-      {% block content %}{% endblock %}
-    </main>
-  </body>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web Shell</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    }
+
+    nav {
+      width: 200px;
+      background: #111;
+      color: #fff;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    nav a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 0;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      flex-grow: 1;
+      box-sizing: border-box;
+      padding: 0;
+      overflow: auto;
+      background: #000;
+      /* Terminal page will look good by default; other pages can override */
+    }
+  </style>
+  {% block head_scripts %}{% endblock %}
+</head>
+
+<body>
+  <nav>
+    <h3 style="margin-top:0;">Menu</h3>
+    <a href="{{ url_for('web.index') }}">Terminal</a>
+    <a href="{{ url_for('web.files') }}">File Manager</a>
+    <a href="{{ url_for('web.trash') }}">Trash</a>
+    <a href="{{ url_for('web.system') }}">System Manager</a>
+    <a href="{{ url_for('web.logout') }}">Logout</a>
+  </nav>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+
 </html>
