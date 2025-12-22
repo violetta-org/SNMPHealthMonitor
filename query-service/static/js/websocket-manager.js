@@ -51,8 +51,11 @@ export class WebSocketManager {
         console.log('[WebSocketManager] Connecting to Socket.IO on same origin...');
 
         try {
-            // Kết nối đến cùng host/port với đường dẫn mặc định
-            this.socket = window.io();
+            // Connect with enforced websocket transport to avoid polling CPU spikes
+            this.socket = window.io({
+                transports: ['websocket'],
+                upgrade: false
+            });
 
             this.socket.on('connect', () => {
                 this.isConnected = true;

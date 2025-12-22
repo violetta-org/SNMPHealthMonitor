@@ -19,6 +19,7 @@ from flask import request, session  # Ensure session is imported
 from services.file_service import HOME_DIRECTORY, TRASH_DIRECTORY, BACKUP_DIRECTORY, MAX_EDIT_SIZE, BACKUP_RETENTION, create_backup_if_needed, move_to_trash
 from utils.security import _is_safe_path, secure_filename_unicode
 from extensions import limiter
+from services.audit_service import log_action, get_recent_logs
 
 @api_bp.route("/data/<sysname>/<topic>")
 def get_topic_data_api(sysname: str, topic: str):
@@ -217,6 +218,52 @@ def history_export_pdf(sysname: str):
         return jsonify({"error": str(e)}), 500
 
 
+@api_bp.route("/logs")
+def get_audit_logs():
+    if not session.get('user_id'):
+        return jsonify({"error": "unauthorized"}), 401
+    
+    try:
+        page = request.args.get('page', 1, type=int)
+        limit = request.args.get('limit', 20, type=int)
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        action = request.args.get('action')
+        user_id = request.args.get('user_id', type=int)
+        target = request.args.get('target')
+
+        result = get_recent_logs(
+            page=page, 
+            per_page=limit,
+            start_date=start_date,
+            end_date=end_date,
+            action=action,
+            user_id=user_id,
+            target=target
+        )
+        
+        data = []
+        for log in result['items']:
+            data.append({
+                "id": log.id,
+                "user": log.user.username if log.user else "Unknown",
+                "action": log.action,
+                "target": log.target,
+                "details": log.details,
+                "ip_address": log.ip_address,
+                "timestamp": log.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            })
+            
+        return jsonify({
+            "logs": data,
+            "total": result['total'],
+            "pages": result['pages'],
+            "current_page": result['current_page']
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ==========================================
 # FILE MANAGER API ENDPOINTS
 # ==========================================
@@ -298,6 +345,15 @@ def api_upload_chunk():
             # Append to existing
             with open(dest_path, 'ab') as f:
                 f.write(file.read())
+            
+        if chunk_index == total_chunks - 1:
+            log_action(
+                user_id=session.get('user_id'),
+                action="UPLOAD_FILE",
+                target=safe_filename,
+                details=f"Uploaded to {path or '/'}",
+                ip_address=request.remote_addr
+            )
             
         return {"ok": True, "chunk_index": chunk_index, "final_filename": safe_filename}
     except Exception as e:
@@ -446,6 +502,16 @@ def api_save():
         return {"error":"not found"}, 404
     if not os.path.isfile(abs_path):
         return {"error":"not a file"}, 400
+    
+    # Log SAVE action
+    log_action(
+        user_id=session.get('user_id'),
+        action="SAVE_FILE",
+        target=rel_path,
+        details=f"Modified file size {len(content)} bytes",
+        ip_address=request.remote_addr
+    )
+
     # allow saving any type; still enforce size limit below
     encoded = content.encode('utf-8', errors='replace')
     if len(encoded) > MAX_EDIT_SIZE:
@@ -552,6 +618,14 @@ def api_delete_batch():
                         pass
                 except Exception:
                     pass
+        if moved > 0 or removed > 0:
+            log_action(
+                user_id=session.get('user_id'),
+                action="DELETE_BATCH",
+                target=f"{len(paths)} items",
+                details=f"Moved: {moved}, Removed: {removed}, Permanent: {permanent}",
+                ip_address=request.remote_addr
+            )
         return {"ok": True, "moved": moved, "removed": removed, "permanent": permanent}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -574,6 +648,14 @@ def api_trash_empty():
                     deleted += 1
                 except Exception:
                     pass
+        if deleted > 0:
+            log_action(
+                user_id=session.get('user_id'),
+                action="EMPTY_TRASH",
+                target="Trash",
+                details=f"Deleted {deleted} items",
+                ip_address=request.remote_addr
+            )
         return {"ok": True, "deleted": deleted}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -726,6 +808,13 @@ def api_delete():
                 json.dump(items, f, ensure_ascii=False)
         except Exception:
             pass
+        log_action(
+            user_id=session.get('user_id'),
+            action="DELETE_FILE",
+            target=rel_path,
+            details=f"Permanent: {permanent}",
+            ip_address=request.remote_addr
+        )
         return {"ok": True, "permanent": False}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -770,6 +859,13 @@ def api_restore():
                 json.dump(entries, f, ensure_ascii=False)
         except Exception:
             pass
+        log_action(
+            user_id=session.get('user_id'),
+            action="RESTORE_FILE",
+            target=trash_rel,
+            details=f"Restored to {final_dest}",
+            ip_address=request.remote_addr
+        )
         return {"ok": True, "restored_to": final_dest}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -809,6 +905,13 @@ def api_delete_permanent():
                 json.dump(entries, f, ensure_ascii=False)
         except Exception:
             pass
+        log_action(
+            user_id=session.get('user_id'),
+            action="DELETE_PERMANENT",
+            target=trash_rel,
+            details="Deleted from trash",
+            ip_address=request.remote_addr
+        )
         return {"ok": True}
     except Exception as e:
         return {"error": str(e)}, 500

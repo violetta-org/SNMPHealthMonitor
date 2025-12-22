@@ -115,16 +115,39 @@ def _insert_memory(cur, sysname: str, metrics_by_name: Dict[str, Tuple[Any, int]
     buffers = metrics_by_name.get("memory.buffers", (None, ts))[0]
     cached = metrics_by_name.get("memory.cached", (None, ts))[0]
     shared = metrics_by_name.get("memory.shared", (None, ts))[0]
-
+    free_mem = metrics_by_name.get("memory.free", (None, ts))[0]
+    
+    # Get swap.free for normalization
+    swap_free = metrics_by_name.get("swap.free", (None, ts))[0]
+    
+    # CRITICAL: Normalize free when it includes Swap
+    # Formula: memFree (Physical) = memTotalFree (SNMP) - memSwapFree (SNMP)
+    if total is not None and free_mem is not None and swap_free is not None:
+        if free_mem > total:
+            # Free includes swap, normalize to RAM-only
+            free_mem = free_mem - swap_free
+    
     # Calculate derived fields
     used = None
-    free = available  # Use available as free
+    free = free_mem if free_mem is not None else available # Fallback if free missing
     percent = None
 
-    if total is not None and available is not None:
-        used = total - available
-        if total > 0:
-            percent = (used / total) * 100
+    if total is not None:
+        # Standard calculation: used = total - free - buffers - cached
+        # Now free is normalized to RAM-only, so calculation is correct
+        if free_mem is not None:
+            _buf = buffers if buffers is not None else 0
+            _cache = cached if cached is not None else 0
+            used = total - free_mem - _buf - _cache
+        elif available is not None:
+            # Fallback if raw 'free' is missing: used = total - available
+            used = total - available
+            
+        # Sanity check
+        if used is not None:
+            used = max(0, used)
+            if total > 0:
+                percent = (used / total) * 100
 
     vals = {
         "total": total,

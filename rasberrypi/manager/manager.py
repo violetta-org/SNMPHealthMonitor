@@ -31,7 +31,7 @@ from db_service.db_config import get_connection
 from db_service.db_writer import upsert_device, write_metrics_batch
 
 
-def _notify_new_data(sysname: str, metric_count: int):
+def _notify_new_data(sysname: str, metric_count: int, ip_address: str, metrics: list):
     """Send UDP notification to query service (fire-and-forget)."""
     try:
         timestamp = time.time()
@@ -39,7 +39,9 @@ def _notify_new_data(sysname: str, metric_count: int):
             'event': 'new_data',
             'sysname': sysname,
             'metric_count': metric_count,
-            'timestamp': timestamp
+            'timestamp': timestamp,
+            'ip_address': ip_address,
+            'metrics': metrics
         }).encode('utf-8')
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -81,6 +83,9 @@ def main():
                     continue
                 
                 valid_metrics = [m for m in metrics if m.get('ts') is not None]
+                # log valid metrics to file
+                # with open('valid_metrics.json', 'w') as f:
+                #     json.dump(valid_metrics, f, indent=4)
                 
                 if valid_metrics:
                     conn = get_connection()
@@ -88,7 +93,7 @@ def main():
                         upsert_device(conn, sysname=sysname, ip_address=snmp_agent)
                         write_metrics_batch(conn, sysname, valid_metrics)
                         conn.commit()
-                        _notify_new_data(sysname, len(valid_metrics))
+                        _notify_new_data(sysname, len(valid_metrics), snmp_agent, valid_metrics)
                     except Exception:
                         conn.rollback()
                     finally:

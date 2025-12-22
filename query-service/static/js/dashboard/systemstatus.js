@@ -53,6 +53,17 @@ export class SystemStatusDashboard extends BaseDashboardUI {
     }
 
     /**
+     * Format memory total - round UP to nearest GB like Linux free command
+     */
+    formatMemoryTotal(bytes) {
+        const n = Number(bytes || 0);
+        if (!Number.isFinite(n) || n <= 0) return '0 GB';
+        const gb = n / (1024 * 1024 * 1024);
+        // Round UP to nearest integer GB (e.g., 3.8 GB -> 4 GB)
+        return `${Math.ceil(gb)} GB`;
+    }
+
+    /**
      * Register UI elements for systemstatus page
      */
     registerElements() {
@@ -157,11 +168,17 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             const timeLabel = processedData.memory.time ? new Date(processedData.memory.time).toISOString() : new Date().toISOString();
             const mem = processedData.memory;
             const total = Number(mem.total || 0);
+
+            // IMPORTANT: Use database's pre-calculated 'used' instead of calculating from 'free'
+            // Reason: SNMP's memTotalFree includes both RAM free + Swap free, making calculation incorrect
+            // Database already handles this by using 'available' when 'free' is invalid
+            const appUsedBytes = Number(mem.used || 0);
+
+            // For display purposes, still extract individual components
             const free = Number(mem.free || 0);
             const buffers = Number(mem.buffers || 0);
             const cached = Number(mem.cached || 0);
-            const used_db = Number(mem.used || 0);
-            const appUsedBytes = Math.max(0, total - free - buffers - cached);
+
             const formatted = this.charts.dataManager.addDataPoint(
                 timeLabel,
                 appUsedBytes,
@@ -185,8 +202,11 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
             const memSummaryEl = document.getElementById('mem-summary-text');
             if (memSummaryEl) {
-                const pct = total > 0 ? ((appUsedBytes / total) * 100).toFixed(1) : '0.0';
-                memSummaryEl.textContent = `Memory: ${pct}% (${this.formatBytesIEC(appUsedBytes, 1)} / ${this.formatBytesIEC(total, 1)})`;
+                // Use database's pre-calculated percent or calculate from used
+                const pct = mem.percent !== undefined && mem.percent !== null
+                    ? Number(mem.percent).toFixed(1)
+                    : (total > 0 ? ((appUsedBytes / total) * 100).toFixed(1) : '0.0');
+                memSummaryEl.textContent = `Memory: ${pct}% (${this.formatBytesIEC(appUsedBytes, 1)} / ${this.formatMemoryTotal(total)})`;
             }
 
             const swapSummaryEl = document.getElementById('swap-summary-text');
@@ -195,7 +215,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
                 const swapTotal = Number(swap.total || 0);
                 const swapUsed = Number(swap.used || 0);
                 const swapPct = swapTotal > 0 ? ((swapUsed / swapTotal) * 100).toFixed(1) : '0.0';
-                swapSummaryEl.textContent = `Swap: ${swapPct}% (${this.formatBytesIEC(swapUsed, 0)} / ${this.formatBytesIEC(swapTotal, 1)})`;
+                swapSummaryEl.textContent = `Swap: ${swapPct}% (${this.formatBytesIEC(swapUsed, 0)} / ${this.formatMemoryTotal(swapTotal)})`;
             }
 
             // // One-time debug: prove numeric types after casting

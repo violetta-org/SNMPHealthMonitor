@@ -112,6 +112,17 @@ def system():
         return redirect(url_for('web.login'))
     return render_template('system.html')
 
+@web_bp.route('/logs-view')
+def logs_view():
+    if not session.get('user_id'):
+        return redirect(url_for('web.login'))
+    
+    # Pass user list for filter dropdown
+    users = User.query.with_entities(User.id, User.username).all()
+    users_list = [{"id": u.id, "username": u.username} for u in users]
+    
+    return render_template('audit.html', sysname="raspi-pbl", topic="audit", users=users_list)
+
 @limiter.limit("30 per minute")
 @web_bp.route('/files', methods=['GET', 'POST'])
 @web_bp.route('/files/<path:req_path>', methods=['GET', 'POST'])

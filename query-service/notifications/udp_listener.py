@@ -4,6 +4,7 @@ import threading
 from typing import Callable
 from config import NOTIFY_PORT
 from utils.logging import configure_logger
+import time
 
 class UDPNotificationListener:
     def __init__(self, port: int = NOTIFY_PORT, callback: Callable = None):
@@ -62,6 +63,7 @@ class UDPNotificationListener:
                             self.callback(message)
                 except socket.timeout:
                     # Timeout is expected, continue to check self.running
+                    time.sleep(0.01) # Yield CPU
                     continue
                 except OSError as e:
                     # Socket closed or error - break loop

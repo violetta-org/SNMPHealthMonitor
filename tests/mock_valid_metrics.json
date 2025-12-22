@@ -1,0 +1,113 @@
+[
+    {
+        "name": "sys.uptime.seconds",
+        "value": 123456,
+        "labels": {
+            "sysname": "raspi-vm",
+            "location": "Lab 1"
+        },
+        "ts": 1703240000
+    },
+    {
+        "name": "load.1m",
+        "value": 0.5,
+        "labels": {},
+        "ts": 1703240000
+    },
+    {
+        "name": "load.5m",
+        "value": 0.8,
+        "labels": {},
+        "ts": 1703240000
+    },
+    {
+        "name": "load.15m",
+        "value": 1.1,
+        "labels": {},
+        "ts": 1703240000
+    },
+    {
+        "name": "cpu.core.percent",
+        "value": 45.5,
+        "labels": {
+            "core": "0"
+        },
+        "ts": 1703240000
+    },
+    {
+        "name": "cpu.core.percent",
+        "value": 20.0,
+        "labels": {
+            "core": "1"
+        },
+        "ts": 1703240000
+    },
+    {
+        "name": "memory.total",
+        "value": 8000000000,
+        "labels": {},
+        "ts": 1703240000
+    },
+    {
+        "name": "memory.used",
+        "value": 4000000000,
+        "labels": {},
+        "ts": 1703240000
+    },
+    {
+        "name": "swap.total",
+        "value": 2000000000,
+        "labels": {},
+        "ts": 1703240000
+    },
+    {
+        "name": "swap.used",
+        "value": 100000000,
+        "labels": {},
+        "ts": 1703240000
+    },
+    {
+        "name": "network.interface.bytes_recv",
+        "value": 102400,
+        "labels": {
+            "device": "eth0",
+            "sysname": "raspi-vm"
+        },
+        "ts": 1703240000
+    },
+    {
+        "name": "network.interface.bytes_sent",
+        "value": 204800,
+        "labels": {
+            "device": "eth0",
+            "sysname": "raspi-vm"
+        },
+        "ts": 1703240000
+    },
+    {
+        "name": "disk.usage.total_kb",
+        "value": 1000000,
+        "labels": {
+            "mount": "/",
+            "device": "/dev/sda1"
+        },
+        "ts": 1703240000
+    },
+    {
+        "name": "disk.usage.used_kb",
+        "value": 600000,
+        "labels": {
+            "mount": "/",
+            "device": "/dev/sda1"
+        },
+        "ts": 1703240000
+    },
+    {
+        "name": "disk.io.read_bytes_total_64",
+        "value": 5000000,
+        "labels": {
+            "device": "sda"
+        },
+        "ts": 1703240000
+    }
+]

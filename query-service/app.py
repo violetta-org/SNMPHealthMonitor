@@ -8,6 +8,8 @@ from services.topic_service import get_topic_data, stream_topic_data
 from api.router import api_bp
 from web.router import web_bp
 
+from utils.data_transformer import RealTimeTransformer
+
 # UDP notification callback
 def on_new_data(message: dict):
     """When new data arrives, stream it to all subscribed clients."""
@@ -17,13 +19,15 @@ def on_new_data(message: dict):
         return
     
     sysname = message.get('sysname')
+    metrics = message.get('metrics')
     metric_count = message.get('metric_count', 0)
+    ip_address = message.get('ip_address')
     
     if not sysname:
         print(f"[QueryService] Invalid notification message: missing sysname")
         return
     
-    print(f"[QueryService] New data notification for {sysname}, metric_count: {metric_count}")
+    print(f"[QueryService] New data notification for {sysname}, metric_count: {metric_count}, has_metrics: {bool(metrics)}")
     
     # Check which topics have active subscriptions
     try:
@@ -31,7 +35,22 @@ def on_new_data(message: dict):
 
         # Only stream to topics that have subscribers
         for topic in active_topics:
-            print(f"[QueryService] Streaming {topic} to subscribers")
+            # OPTIMIZATION: Use metrics list directly if available to avoid DB query
+            if metrics and topic in ['systemstatus', 'network', 'disk', 'diskio']:
+                try:
+                    # print(f"[QueryService] Transforming metrics for {topic}")
+                    extra_context = {'ip_address': ip_address} if ip_address else {}
+                    transformed_data = RealTimeTransformer.transform(topic, metrics, extra_context)
+                    if transformed_data:
+                        ws_manager.stream_data(sysname, topic, transformed_data)
+                        continue # Skip DB query
+                except Exception as e:
+                    print(f"[QueryService] Error transforming metrics for {topic}: {e}")
+                    # If transform fails, fallback to DB query below
+            
+            # Fallback / Legacy: Query DB
+            # Only run this if we didn't stream data via UDP transformation above
+            print(f"[QueryService] Streaming {topic} to subscribers (DB Query)")
             stream_topic_data(sysname, topic)
     except Exception as e:
         print(f"[QueryService] Error scheduling streaming tasks: {e}")
@@ -94,26 +113,26 @@ import os
 # When debug=True, the reloader spawns a child process.
 # We want to avoid starting the UDP listener in the main process (reloader parent)
 # because the child process will also try to bind the same port, causing "Address already in use".
-debug_mode = True
+# debug_mode = True
 
 # Check if we are in the reloader process (WERKZEUG_RUN_MAIN is set in the child)
 # If debug is False, WERKZEUG_RUN_MAIN is never set, so we assume valid to start.
 # If debug is True, we only start if we are in the child process (WERKZEUG_RUN_MAIN == 'true').
-is_reloader_child = os.environ.get("WERKZEUG_RUN_MAIN") == "true"
+# is_reloader_child = os.environ.get("WERKZEUG_RUN_MAIN") == "true"
 
-should_start = True
-if debug_mode and not is_reloader_child:
-    should_start = False
-    print("[Main] Reloader parent: Skipping UDP listener start to avoid port conflict")
+# should_start = True
+# if debug_mode and not is_reloader_child:
+#     should_start = False
+#     print("[Main] Reloader parent: Skipping UDP listener start to avoid port conflict")
 
 notify_listener = None
-if should_start:
-    print("[Main] Starting UDP Listener")
-    notify_listener = UDPNotificationListener(callback=on_new_data)
-    notify_listener.start()
+# if should_start:
+print("[Main] Starting UDP Listener")
+notify_listener = UDPNotificationListener(callback=on_new_data)
+notify_listener.start()
 
 try:
-    socketio.run(app, host=API_HOST, port=API_PORT, debug=debug_mode, allow_unsafe_werkzeug=True)
+    socketio.run(app, host=API_HOST, port=API_PORT, debug=False)
 finally:
     if notify_listener:
         notify_listener.stop()
