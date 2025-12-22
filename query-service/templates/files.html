@@ -766,7 +766,11 @@
           }
 
           // Generate Zip Blob
-          const zipContent = await zip.generateAsync({ type: "blob" });
+          const zipContent = await zip.generateAsync({
+            type: "blob"
+          }, (metadata) => {
+            setBusy(true, `Đang nén: ${metadata.percent.toFixed(1)}%`);
+          });
 
           // Create a File object
           const zipFile = new File([zipContent], targetFilename, { type: "application/zip" });
@@ -857,7 +861,7 @@
 
     async function uploadFileChunked(file, autoRename, signal, onNameUpdate) {
       const CHUNK_SIZE = 1024 * 1024; // 1MB
-      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE) || 1;
       const currentPath = {{ (rel_current if rel_current else '')| tojson
     }};
 
@@ -869,7 +873,7 @@
       const chunk = file.slice(start, end);
 
       const formData = new FormData();
-      formData.append('file', chunk);
+      formData.append('file', chunk, targetFilename);
       formData.append('filename', targetFilename);
       formData.append('path', currentPath);
       formData.append('chunk_index', i);
