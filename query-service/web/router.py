@@ -21,7 +21,7 @@ def index():
 def dashboard_default():
     return render_template(
         "dashboard.html",
-        sysname="raspi-pbl",
+        sysname="rasberrypi",
         topic="systemstatus"
     )
 
