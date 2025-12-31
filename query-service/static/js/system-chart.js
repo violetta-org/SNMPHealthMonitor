@@ -264,7 +264,7 @@ export function createCpuNetworkChart(container) {
             type: 'line',
             height: 350,
             stacked: false,  // Disabled - we manually stack network areas
-            animations: { enabled: true, easing: 'linear', speed: 300 },
+            animations: { enabled: true, easing: 'linear', speed: 1000, dynamicAnimation: { speed: 1000 } },
             toolbar: { show: false },
             zoom: { enabled: false },
             background: 'transparent',

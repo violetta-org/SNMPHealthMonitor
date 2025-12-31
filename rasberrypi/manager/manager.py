@@ -56,6 +56,7 @@ def main():
     conn = None
     try:
         while True:
+            start_time = time.time()
             try:
                 # Get config values
                 snmp_agent = get_snmp_agent()
@@ -121,7 +122,11 @@ def main():
                 traceback.print_exc()
                 logger.error("Exception in main loop", exc_info=True)
             
-            time.sleep(pull_interval)
+            # Drift-corrected sleep
+            elapsed = time.time() - start_time
+            sleep_time = max(0, pull_interval - elapsed)
+            # logger.info(f"Loop took {elapsed:.3f}s, sleeping for {sleep_time:.3f}s")
+            time.sleep(sleep_time)
             
     except KeyboardInterrupt:
         pass

@@ -234,12 +234,12 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
 
 def fetch_snmp_metrics(host: str, port: int, community: str, version: str, oids_file_path: str) -> List[Dict[str, Any]]:
     """Sync wrapper for async SNMP metrics collector"""
-    print(f"[DEBUG] Starting sync SNMP collection wrapper")
+    # print(f"[DEBUG] Starting sync SNMP collection wrapper")
     
     try:
         # Check if we're already in an event loop
         loop = asyncio.get_running_loop()
-        print(f"[DEBUG] Already in event loop, creating new thread")
+        # print(f"[DEBUG] Already in event loop, creating new thread")
         # If we're already in an event loop, we need to run in a new thread
         import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -247,6 +247,6 @@ def fetch_snmp_metrics(host: str, port: int, community: str, version: str, oids_
             return future.result()
     except RuntimeError:
         # No event loop running, safe to use asyncio.run
-        print(f"[DEBUG] No event loop running, using asyncio.run")
+        # print(f"[DEBUG] No event loop running, using asyncio.run")
         return asyncio.run(fetch_snmp_metrics_async(host, port, community, version, oids_file_path))
 
