@@ -9,7 +9,6 @@ env/
 .env/
 .cursorignore
 notebooks/*
-!notebooks/researchs/
 .cursor
 database/*.txt
 query-service/logs/*.log
