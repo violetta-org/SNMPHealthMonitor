@@ -300,6 +300,7 @@ export function createCpuNetworkChart(container) {
         xaxis: {
             type: 'datetime',
             labels: {
+                datetimeUTC: false,
                 style: { colors: '#aaa', fontSize: '11px' },
                 datetimeFormatter: { hour: 'HH:mm:ss', minute: 'HH:mm:ss', second: 'HH:mm:ss' }
             },
