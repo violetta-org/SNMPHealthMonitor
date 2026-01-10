@@ -1,0 +1,16 @@
+# Django Core
+Django>=4.2,<5.0
+django-ninja>=1.0
+
+# Database (MySQL via PyMySQL)
+pymysql>=1.1.0
+
+# ASGI & Realtime
+daphne>=4.0
+channels>=4.0
+
+# Validation & Utils
+pydantic>=2.5
+
+# Environment
+python-dotenv>=1.0

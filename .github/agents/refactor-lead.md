@@ -13,8 +13,8 @@ You are the **Refactor Lead**, the Solution Architect for migrating the `SNMPHea
 
 ## The Technical Stack (Strict)
 -   **Framework:** Django 5.0+ with **Django Ninja** (for API) and **Django Channels** (for WebSockets).
--   **Database:** **MySQL** (Use `mysqlclient`).
--   **Async Strategy:** **Native AsyncIO** via custom Management Commands (No Celery/Redis).
+-   **Database:** **MySQL** (Use `pymysql`).
+-   **Async Strategy:** **Native AsyncIO** (UDP Listener runs as a background task inside the ASGI process).
 -   **Package Manager:** Standard `pip` + `requirements.txt`.
 -   **Environment:** Conda environment named `manager`.
 

@@ -1,0 +1,682 @@
+{% extends "layout.html" %}
+
+{% block head_scripts %}
+<style>
+    /* Global Overrides for this page */
+    .container {
+        padding: 40px;
+        color: #e2e8f0;
+        background-color: #0d1117;
+        /* Deep Charcoal */
+        min-height: 100vh;
+        box-sizing: border-box;
+        font-family: 'Inter', sans-serif;
+    }
+
+    h2 {
+        font-weight: 300;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        color: #fff;
+        letter-spacing: -0.5px;
+    }
+
+    /* Controls Bar & Filter */
+    .controls-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+        background: #161b22;
+        /* Card background */
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid #30363d;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        position: relative;
+    }
+
+    .search-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-wrapper i {
+        position: absolute;
+        left: 12px;
+        color: #8b949e;
+    }
+
+    .search-input {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        color: #fff;
+        padding: 10px 16px 10px 36px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        width: 300px;
+        transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #d4af37;
+        /* Gold accent */
+    }
+
+    .filters-group {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .filter-btn {
+        background: #21262d;
+        border: 1px solid #30363d;
+        color: #c9d1d9;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+        background: #30363d;
+        color: #fff;
+        border-color: #8b949e;
+    }
+
+    .filter-btn.active {
+        border-color: #d4af37;
+        color: #d4af37;
+    }
+
+    /* Filter Popover */
+    .filter-popover {
+        position: absolute;
+        top: 60px;
+        /* Below the button */
+        right: 16px;
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        padding: 20px;
+        width: 320px;
+        z-index: 100;
+        display: none;
+        /* Hidden by default */
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .filter-popover.open {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .filter-section {
+        margin-bottom: 16px;
+    }
+
+    .filter-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: #8b949e;
+        margin-bottom: 8px;
+        display: block;
+        font-weight: 600;
+    }
+
+    .filter-input,
+    .filter-select {
+        width: 100%;
+        background: #0d1117;
+        border: 1px solid #30363d;
+        color: #fff;
+        padding: 8px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        box-sizing: border-box;
+    }
+
+    .filter-input:focus,
+    .filter-select:focus {
+        border-color: #d4af37;
+        outline: none;
+    }
+
+    .filter-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid #30363d;
+    }
+
+    .btn-apply {
+        background: #d4af37;
+        color: #000;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-apply:hover {
+        background: #f0c541;
+    }
+
+    .btn-clear {
+        background: transparent;
+        color: #8b949e;
+        border: none;
+        padding: 6px 14px;
+        cursor: pointer;
+    }
+
+    .btn-clear:hover {
+        color: #c9d1d9;
+    }
+
+    /* Filter Chips */
+    .active-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+        align-items: center;
+    }
+
+    .filter-chip {
+        background: rgba(212, 175, 55, 0.15);
+        color: #eac54f;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .chip-remove {
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+    .chip-remove:hover {
+        opacity: 1;
+    }
+
+    /* Table Design */
+    .audit-table-container {
+        background-color: #161b22;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        padding: 0;
+        /* Remove padding to let table headers touch top */
+        overflow: hidden;
+        border: 1px solid #30363d;
+    }
+
+    .audit-table {
+        width: 100%;
+        border-collapse: collapse;
+        color: #c9d1d9;
+    }
+
+    .audit-table th {
+        background: #21262d;
+        color: #8b949e;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        padding: 18px 24px;
+        text-align: left;
+        border-bottom: 1px solid #30363d;
+    }
+
+    .audit-table td {
+        padding: 20px 24px;
+        border-bottom: 1px solid #21262d;
+        font-size: 0.9rem;
+        vertical-align: middle;
+    }
+
+    .audit-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .audit-table tr {
+        transition: background 0.2s;
+    }
+
+    .audit-table tr:hover {
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Typography Details */
+    .col-time {
+        font-family: 'SF Mono', 'Consolas', monospace;
+        color: #8b949e;
+        font-size: 0.85rem;
+    }
+
+    .col-user {
+        font-weight: 500;
+        color: #fff;
+    }
+
+    .col-target {
+        font-family: 'SF Mono', 'Consolas', monospace;
+        color: #a5d6ff;
+    }
+
+    .col-details {
+        color: #8b949e;
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Action Badges - Luxury Style */
+    .action-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .action-icon {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .action-text {
+        font-weight: 600;
+        font-size: 0.8rem;
+        letter-spacing: 0.02em;
+    }
+
+    /* Styles per Action */
+    .style-upload .action-icon {
+        color: #d4af37;
+        background: rgba(212, 175, 55, 0.1);
+    }
+
+    .style-upload .action-text {
+        color: #d4af37;
+    }
+
+    /* Gold */
+
+    .style-save .action-icon {
+        color: #a5d6ff;
+        background: rgba(165, 214, 255, 0.1);
+    }
+
+    .style-save .action-text {
+        color: #a5d6ff;
+    }
+
+    /* Light Blue */
+
+    .style-delete .action-icon {
+        color: #f85149;
+        background: rgba(248, 81, 73, 0.1);
+    }
+
+    .style-delete .action-text {
+        color: #f85149;
+    }
+
+    /* Red */
+
+    .style-restore .action-icon {
+        color: #c9d1d9;
+        background: rgba(201, 209, 217, 0.1);
+    }
+
+    .style-restore .action-text {
+        color: #c9d1d9;
+    }
+
+    /* Silver */
+
+    /* Empty State */
+    .empty-state {
+        padding: 4rem;
+        text-align: center;
+        color: #8b949e;
+        font-style: italic;
+    }
+
+    /* Pagination */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        border-top: 1px solid #30363d;
+        background: #161b22;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+    }
+
+    .page-info {
+        font-size: 0.85rem;
+        color: #8b949e;
+    }
+
+    .page-btn {
+        background: #21262d;
+        border: 1px solid #30363d;
+        color: #c9d1d9;
+        padding: 6px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .page-btn:hover:not(:disabled) {
+        border-color: #8b949e;
+        color: #fff;
+        background: #30363d;
+    }
+
+    .page-btn:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+</style>
+<script>
+    let currentPage = 1;
+    const itemsPerPage = 15;
+
+    // Filter State
+    let currentFilters = {
+        startDate: '',
+        endDate: '',
+        action: '',
+        userId: '',
+        target: ''
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchLogs(currentPage);
+    });
+
+    function getActionStyle(action) {
+        if (action.includes('UPLOAD')) return { class: 'style-upload', icon: 'fa-cloud-upload-alt', label: 'UPLOAD' };
+        if (action.includes('SAVE')) return { class: 'style-save', icon: 'fa-save', label: 'SAVE' };
+        if (action.includes('DELETE') || action.includes('EMPTY')) return { class: 'style-delete', icon: 'fa-trash-alt', label: 'DELETE' };
+        if (action.includes('RESTORE')) return { class: 'style-restore', icon: 'fa-undo-alt', label: 'RESTORE' };
+        return { class: 'style-restore', icon: 'fa-info-circle', label: action };
+    }
+
+    function toggleFilterPopover() {
+        const popover = document.getElementById('filterPopover');
+        const btn = document.getElementById('filterBtn');
+        const isOpen = popover.classList.contains('open');
+
+        if (isOpen) {
+            popover.classList.remove('open');
+            setTimeout(() => { popover.style.display = 'none'; }, 200); // Wait for transition
+            btn.classList.remove('active');
+        } else {
+            popover.style.display = 'block';
+            // Small delay to allow display:block to apply before adding class for opacity transition
+            setTimeout(() => { popover.classList.add('open'); }, 10);
+            btn.classList.add('active');
+        }
+    }
+
+    function applyFilters() {
+        currentFilters.startDate = document.getElementById('filterStartDate').value;
+        currentFilters.endDate = document.getElementById('filterEndDate').value;
+        currentFilters.action = document.getElementById('filterAction').value;
+        currentFilters.userId = document.getElementById('filterUser').value;
+        currentFilters.target = document.getElementById('filterTarget').value;
+
+        updateFilterChips();
+        toggleFilterPopover(); // Close popover
+        fetchLogs(1); // Reset to page 1
+    }
+
+    function clearFilters() {
+        document.getElementById('filterStartDate').value = '';
+        document.getElementById('filterEndDate').value = '';
+        document.getElementById('filterAction').value = '';
+        document.getElementById('filterUser').value = '';
+        document.getElementById('filterTarget').value = '';
+
+        currentFilters = { startDate: '', endDate: '', action: '', userId: '', target: '' };
+
+        updateFilterChips();
+        toggleFilterPopover();
+        fetchLogs(1);
+    }
+
+    function removeFilter(key) {
+        currentFilters[key] = '';
+
+        // Update input field manually just in case
+        if (key === 'startDate') document.getElementById('filterStartDate').value = '';
+        if (key === 'endDate') document.getElementById('filterEndDate').value = '';
+        if (key === 'action') document.getElementById('filterAction').value = '';
+        if (key === 'userId') document.getElementById('filterUser').value = '';
+        if (key === 'target') document.getElementById('filterTarget').value = '';
+
+        updateFilterChips();
+        fetchLogs(1);
+    }
+
+    function updateFilterChips() {
+        const container = document.getElementById('activeFilters');
+        container.innerHTML = '';
+
+        if (currentFilters.startDate) addChip(container, `After: ${currentFilters.startDate}`, 'startDate');
+        if (currentFilters.endDate) addChip(container, `Before: ${currentFilters.endDate}`, 'endDate');
+        if (currentFilters.action) addChip(container, `Action: ${currentFilters.action}`, 'action');
+        if (currentFilters.userId) {
+            const select = document.getElementById('filterUser');
+            const text = select.options[select.selectedIndex].text;
+            addChip(container, `User: ${text}`, 'userId');
+        }
+        if (currentFilters.target) addChip(container, `Target: ${currentFilters.target}`, 'target');
+    }
+
+    function addChip(container, text, key) {
+        const chip = document.createElement('div');
+        chip.className = 'filter-chip';
+        chip.innerHTML = `${text} <span class="chip-remove" onclick="removeFilter('${key}')">&times;</span>`;
+        container.appendChild(chip);
+    }
+
+    async function fetchLogs(page) {
+        try {
+            document.getElementById('audit-table-body').innerHTML = `<tr><td colspan="6" class="empty-state"><i class="fas fa-spinner fa-spin"></i> Loading data...</td></tr>`;
+
+            // Build Query Params
+            const params = new URLSearchParams({
+                page: page,
+                limit: itemsPerPage,
+                start_date: currentFilters.startDate,
+                end_date: currentFilters.endDate,
+                action: currentFilters.action,
+                user_id: currentFilters.userId,
+                target: currentFilters.target
+            });
+
+            const response = await fetch(`/api/logs?${params.toString()}`);
+            const data = await response.json();
+
+            const tbody = document.getElementById('audit-table-body');
+            tbody.innerHTML = '';
+
+            if (data.error) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state"><i class="fas fa-exclamation-triangle"></i> Error: ${data.error}</td></tr>`;
+                return;
+            }
+
+            if (!data.logs || data.logs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No audit logs found matching criteria.</td></tr>`;
+                updatePagination(0, 0, 1);
+                return;
+            }
+
+            data.logs.forEach(log => {
+                const tr = document.createElement('tr');
+                const style = getActionStyle(log.action);
+
+                tr.innerHTML = `
+                    <td class="col-time">${log.timestamp}</td>
+                    <td class="col-user">${log.user}</td>
+                    <td>
+                        <div class="action-cell ${style.class}">
+                            <div class="action-icon"><i class="fas ${style.icon}"></i></div>
+                            <span class="action-text">${style.label}</span>
+                        </div>
+                    </td>
+                    <td class="col-target">${log.target || '-'}</td>
+                    <td class="col-details" title="${log.details}">${log.details || '-'}</td>
+                    <td style="color: #8b949e;">${log.ip_address || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updatePagination(data.total, data.current_page, data.pages);
+
+        } catch (e) {
+            console.error(e);
+            document.getElementById('audit-table-body').innerHTML = `<tr><td colspan="6" class="empty-state">Failed to connect to server.</td></tr>`;
+        }
+    }
+
+    function updatePagination(total, current, pages) {
+        currentPage = current;
+        document.getElementById('page-info').textContent = `Showing page ${current} of ${pages} (${total} entries)`;
+
+        document.getElementById('btn-prev').disabled = current <= 1;
+        document.getElementById('btn-next').disabled = current >= pages;
+    }
+
+    function changePage(delta) {
+        fetchLogs(currentPage + delta);
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="controls-bar">
+        <div>
+            <h2>Audit Logs</h2>
+            <div id="activeFilters" class="active-filters"></div>
+        </div>
+
+        <div class="filters-group">
+            <button id="filterBtn" class="filter-btn" onclick="toggleFilterPopover()">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+            <button class="filter-btn" onclick="fetchLogs(currentPage)">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+
+            <!-- Filter Popover -->
+            <div id="filterPopover" class="filter-popover">
+                <div class="filter-section">
+                    <label class="filter-label">Date Range</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="date" id="filterStartDate" class="filter-input">
+                        <input type="date" id="filterEndDate" class="filter-input">
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <label class="filter-label">Action</label>
+                    <select id="filterAction" class="filter-select">
+                        <option value="">All Actions</option>
+                        <option value="UPLOAD_FILE">Upload File</option>
+                        <option value="DELETE_FILE">Delete File</option>
+                        <option value="SAVE_FILE">Save File</option>
+                        <option value="EMPTY_TRASH">Empty Trash</option>
+                        <option value="RESTORE_FILE">Restore File</option>
+                        <option value="DELETE_BATCH">Batch Delete</option>
+                    </select>
+                </div>
+
+                <div class="filter-section">
+                    <label class="filter-label">User</label>
+                    <select id="filterUser" class="filter-select">
+                        <option value="">All Users</option>
+                        {% for u in users %}
+                        <option value="{{ u.id }}">{{ u.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-section">
+                    <label class="filter-label">Target (Search)</label>
+                    <input type="text" id="filterTarget" class="filter-input" placeholder="Filename, path...">
+                </div>
+
+                <div class="filter-actions">
+                    <button class="btn-clear" onclick="clearFilters()">Clear All</button>
+                    <button class="btn-apply" onclick="applyFilters()">Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="audit-table-container">
+        <table class="audit-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Target</th>
+                    <th>Details</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
+            <tbody id="audit-table-body">
+                <!-- JS populated -->
+            </tbody>
+        </table>
+
+        <div class="pagination-container">
+            <div id="page-info" class="page-info">Loading...</div>
+            <div style="display: flex; gap: 8px;">
+                <button id="btn-prev" class="page-btn" onclick="changePage(-1)" disabled><i
+                        class="fas fa-chevron-left"></i> Previous</button>
+                <button id="btn-next" class="page-btn" onclick="changePage(1)" disabled>Next <i
+                        class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

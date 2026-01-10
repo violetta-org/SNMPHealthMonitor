@@ -1,0 +1,238 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<style>
+  main {
+    background: #111;
+    color: #eee;
+  }
+
+  .container {
+    padding: 16px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 6px 10px;
+    background: #2a2a2a;
+    color: #eee;
+    border: 1px solid #444;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .btn:hover {
+    background: #333;
+  }
+
+  .btn-danger {
+    background: #7f1d1d;
+    border-color: #b91c1c;
+  }
+
+  .btn-danger:hover {
+    background: #991b1b;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #1a1a1a;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  thead {
+    background: #0a0a0a;
+  }
+
+  th,
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #222;
+    text-align: left;
+  }
+
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  .task-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    pointer-events: auto;
+  }
+
+  .task-overlay-inner {
+    background: #111827;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #e5e7eb;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  }
+</style>
+<div class="container">
+  <h2>Trash</h2>
+  <p>
+    <a href="{{ url_for('web.files') }}" class="btn">← Back to File Manager</a>
+    <button id="emptyTrashBtn" class="btn btn-danger" style="margin-left:8px;">Empty Trash</button>
+  </p>
+  {% if items %}
+  <table>
+    <thead>
+      <tr>
+        <th>Original Path</th>
+        <th>Trashed At</th>
+        <th>Type</th>
+        <th style="width: 120px;">Size</th>
+        <th style="width: 220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td class="mono">{{ it.original_rel }}</td>
+        <td>{{ it.trashed_at }}</td>
+        <td>{{ 'Dir' if it.is_dir else 'File' }}</td>
+        <td>
+          {% if not it.is_dir %}
+          {{ it.size }} B
+          {% else %}
+          —
+          {% endif %}
+        </td>
+        <td class="actions">
+          <button class="btn restore" data-tr="{{ it.trash_rel }}">Restore</button>
+          <button class="btn btn-danger delp" data-tr="{{ it.trash_rel }}">Delete permanently</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No items in Trash.</p>
+  {% endif %}
+</div>
+<script>
+  (function () {
+    let isBusy = false;
+    let busyReason = '';
+    const busyOverlay = document.createElement('div');
+    busyOverlay.className = 'task-overlay';
+    busyOverlay.innerHTML = "<div class=\"task-overlay-inner\" id=\"trashOverlayText\">Đang xử lý, vui lòng chờ...</div>";
+    document.body.appendChild(busyOverlay);
+    const busyTextEl = busyOverlay.querySelector('#trashOverlayText');
+
+    function setBusy(busy, message) {
+      isBusy = !!busy;
+      busyReason = busy ? (message || busyReason || '') : '';
+      busyOverlay.style.display = busy ? 'flex' : 'none';
+      if (busy && busyTextEl) {
+        if (message) {
+          busyTextEl.textContent = message;
+        } else if (busyReason) {
+          busyTextEl.textContent = busyReason;
+        }
+      }
+    }
+
+    function beginTask(kind, message) {
+      if (isBusy) {
+        alert('Hiện đang có tác vụ khác đang chạy. Vui lòng chờ hoàn tất trước khi thực hiện thao tác mới.');
+        return false;
+      }
+      setBusy(true, message);
+      return true;
+    }
+
+    function endTask() {
+      setBusy(false, '');
+    }
+
+    window.addEventListener('beforeunload', function (e) {
+      if (isBusy) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+
+    const emptyBtn = document.getElementById('emptyTrashBtn');
+    if (emptyBtn) {
+      emptyBtn.addEventListener('click', function () {
+        if (!confirm('Xóa toàn bộ thùng rác? Hành động này không thể hoàn tác.')) return;
+        if (!beginTask('empty_trash', 'Đang xóa toàn bộ thùng rác...')) return;
+        fetch("{{ url_for('api.api_trash_empty') }}", { method: 'POST' })
+          .then(r => r.json()).then(resp => {
+            if (resp && resp.ok) {
+              endTask();
+              location.reload();
+            } else {
+              endTask();
+              alert('Empty Trash failed: ' + (resp.error || JSON.stringify(resp)));
+            }
+          })
+          .catch(err => {
+            endTask();
+            alert('Network error: ' + err);
+          });
+      });
+    }
+
+    document.querySelectorAll('.restore').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const tr = this.getAttribute('data-tr');
+        if (!confirm('Khôi phục mục đã chọn?')) return;
+        if (!beginTask('restore', 'Đang khôi phục mục đã chọn...')) return;
+        fetch("{{ url_for('api.api_restore') }}", { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trash_rel: tr }) })
+          .then(r => r.json()).then(resp => {
+            if (resp && resp.ok) {
+              endTask();
+              location.reload();
+            } else {
+              endTask();
+              alert('Restore failed: ' + (resp.error || JSON.stringify(resp)));
+            }
+          })
+          .catch(err => {
+            endTask();
+            alert('Network error: ' + err);
+          });
+      });
+    });
+
+    document.querySelectorAll('.delp').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const tr = this.getAttribute('data-tr');
+        if (!confirm('Xóa vĩnh viễn? Hành động này không thể hoàn tác.')) return;
+        if (!beginTask('delete_permanent', 'Đang xóa vĩnh viễn mục được chọn...')) return;
+        fetch("{{ url_for('api.api_delete_permanent') }}", { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trash_rel: tr }) })
+          .then(r => r.json()).then(resp => {
+            if (resp && resp.ok) {
+              endTask();
+              location.reload();
+            } else {
+              endTask();
+              alert('Delete failed: ' + (resp.error || JSON.stringify(resp)));
+            }
+          })
+          .catch(err => {
+            endTask();
+            alert('Network error: ' + err);
+          });
+      });
+    });
+  })();
+</script>
+{% endblock %}

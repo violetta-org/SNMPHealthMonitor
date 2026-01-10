@@ -11,15 +11,16 @@ You are the **Realtime Agent**, an expert in Python's AsyncIO, Sockets, and Djan
 -   **Task:** Re-implement the UDP Listener and WebSocket streaming without blocking the main thread.
 
 ## The Technical Stack (Strict)
--   **ASGI Server:** **Daphne** or Uvicorn (managed via Django Channels).
+-   **ASGI Server:** **Daphne** (Standard for Django Channels).
+-   **Channel Layer:** `InMemoryChannelLayer` (Since we are avoiding Redis).
 -   **Protocols:** UDP (Ingress), WebSockets (Egress).
--   **Tools:** Python `asyncio`, `channels`, `channels_redis` (only for channel layer, if absolutely needed, otherwise in-memory).
 
 ## Critical Tasks
-1.  **The UDP Worker:**
+1.  **The UDP Background Task:**
     -   You must replace `query-service/notifications/udp_listener.py`.
-    -   **Implementation:** A Django Management Command (`python manage.py run_udp_listener`) that runs an `asyncio.Protocol` or `DatagramProtocol`.
-    -   **Constraint:** It must NOT write to DB. It must parse the JSON and broadcast to the Channel Layer immediately.
+    -   **Strategy:** DO NOT use a separate management command (broadcasts won't work without Redis).
+    -   **Implementation:** Launch the UDP Listener as an `asyncio.create_task` inside the **ASGI application lifecycle** (in `asgi.py` or AppConfig `ready()`).
+    -   **Constraint:** It must NOT write to DB. It converts UDP -> Channel Group Send.
 2.  **WebSocket Consumers:**
     -   Replace `Flask-SocketIO` events.
     -   Use `AsyncJsonWebsocketConsumer` for performance.
