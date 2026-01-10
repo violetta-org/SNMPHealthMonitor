@@ -1,0 +1,841 @@
+2025-12-23 05:05:46,334 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-23 05:05:46,345 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-23 05:05:50,584 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:06:07,929 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 222
+2025-12-23 05:06:18,856 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:06:22,175 - websocket.socket_handlers - INFO - Client connected, sid=gVBpT_TeO2CfwTh0AAAB
+2025-12-23 05:06:22,188 - websocket.socket_handlers - INFO - Subscribe requested: sid=gVBpT_TeO2CfwTh0AAAB, sysname=raspi-pbl, topic=systemstatus
+2025-12-23 05:06:22,229 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:systemstatus (sid=gVBpT_TeO2CfwTh0AAAB)
+2025-12-23 05:06:33,183 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 230
+2025-12-23 05:06:38,578 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=gVBpT_TeO2CfwTh0AAAB
+2025-12-23 05:06:44,151 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:06:55,207 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:06:58,102 - notifications.udp_listener - INFO - Stopping...
+2025-12-23 05:06:58,103 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-23 05:06:58,104 - notifications.udp_listener - INFO - Socket closed
+2025-12-23 05:06:58,104 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-23 05:06:58,105 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-23 05:06:58,106 - notifications.udp_listener - INFO - Thread finished
+2025-12-23 05:08:07,232 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-23 05:08:07,232 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-23 05:08:09,328 - websocket.socket_handlers - INFO - Client connected, sid=GrTd7OpNsSezFbIIAAAB
+2025-12-23 05:08:09,333 - websocket.socket_handlers - INFO - Subscribe requested: sid=GrTd7OpNsSezFbIIAAAB, sysname=raspi-pbl, topic=systemstatus
+2025-12-23 05:08:09,333 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:systemstatus (sid=GrTd7OpNsSezFbIIAAAB)
+2025-12-23 05:08:25,588 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=GrTd7OpNsSezFbIIAAAB
+2025-12-23 05:08:35,495 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 222
+2025-12-23 05:08:51,828 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:08:51,830 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:09:08,064 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:09:08,065 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:09:24,327 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:09:24,329 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 225
+2025-12-23 05:09:40,583 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:10:08,598 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:10:24,867 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:10:24,867 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:10:34,569 - websocket.socket_handlers - INFO - Client disconnected, sid=GrTd7OpNsSezFbIIAAAB
+2025-12-23 05:10:34,573 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:systemstatus (sid=GrTd7OpNsSezFbIIAAAB)
+2025-12-23 05:10:37,534 - websocket.socket_handlers - INFO - Client connected, sid=3BNW1LZKjMDOw5mLAAAD
+2025-12-23 05:10:37,553 - websocket.socket_handlers - INFO - Subscribe requested: sid=3BNW1LZKjMDOw5mLAAAD, sysname=raspi-pbl, topic=systemstatus
+2025-12-23 05:10:37,555 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:systemstatus (sid=3BNW1LZKjMDOw5mLAAAD)
+2025-12-23 05:10:41,197 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:10:41,200 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:10:53,785 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=3BNW1LZKjMDOw5mLAAAD
+2025-12-23 05:10:57,478 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:10:57,478 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:11:13,796 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:11:13,796 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:11:30,066 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:11:30,082 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:11:30,336 - websocket.socket_handlers - INFO - Client disconnected, sid=3BNW1LZKjMDOw5mLAAAD
+2025-12-23 05:11:30,336 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:systemstatus (sid=3BNW1LZKjMDOw5mLAAAD)
+2025-12-23 05:11:32,765 - websocket.socket_handlers - INFO - Client connected, sid=rDTUalnM6rUJHQvGAAAF
+2025-12-23 05:11:32,768 - websocket.socket_handlers - INFO - Subscribe requested: sid=rDTUalnM6rUJHQvGAAAF, sysname=raspi-pbl, topic=network
+2025-12-23 05:11:32,768 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:network (sid=rDTUalnM6rUJHQvGAAAF)
+2025-12-23 05:11:36,874 - websocket.socket_handlers - INFO - Sent initial network data to sid=rDTUalnM6rUJHQvGAAAF
+2025-12-23 05:11:39,383 - websocket.socket_handlers - INFO - Client disconnected, sid=rDTUalnM6rUJHQvGAAAF
+2025-12-23 05:11:39,384 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:network (sid=rDTUalnM6rUJHQvGAAAF)
+2025-12-23 05:11:41,752 - websocket.socket_handlers - INFO - Client connected, sid=ui9DcSDx2Jtxh-CNAAAH
+2025-12-23 05:11:41,804 - websocket.socket_handlers - INFO - Subscribe requested: sid=ui9DcSDx2Jtxh-CNAAAH, sysname=raspi-pbl, topic=disk
+2025-12-23 05:11:41,806 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:disk (sid=ui9DcSDx2Jtxh-CNAAAH)
+2025-12-23 05:11:45,907 - websocket.socket_handlers - INFO - Sent initial disk data to sid=ui9DcSDx2Jtxh-CNAAAH
+2025-12-23 05:11:46,426 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:11:46,428 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:11:47,011 - websocket.socket_handlers - INFO - Client disconnected, sid=ui9DcSDx2Jtxh-CNAAAH
+2025-12-23 05:11:47,012 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:disk (sid=ui9DcSDx2Jtxh-CNAAAH)
+2025-12-23 05:11:49,385 - websocket.socket_handlers - INFO - Client connected, sid=cIGs59KDRWN3pyIeAAAJ
+2025-12-23 05:11:49,409 - websocket.socket_handlers - INFO - Subscribe requested: sid=cIGs59KDRWN3pyIeAAAJ, sysname=raspi-pbl, topic=diskio
+2025-12-23 05:11:49,417 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:diskio (sid=cIGs59KDRWN3pyIeAAAJ)
+2025-12-23 05:11:50,507 - services.topic_service - DEBUG - [TopicService] Successfully streamed disk data to clients
+2025-12-23 05:11:50,511 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:11:53,474 - websocket.socket_handlers - INFO - Sent initial diskio data to sid=cIGs59KDRWN3pyIeAAAJ
+2025-12-23 05:11:54,603 - services.topic_service - DEBUG - [TopicService] Successfully streamed diskio data to clients
+2025-12-23 05:11:54,606 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:11:58,107 - websocket.socket_handlers - INFO - Client disconnected, sid=cIGs59KDRWN3pyIeAAAJ
+2025-12-23 05:11:58,107 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:diskio (sid=cIGs59KDRWN3pyIeAAAJ)
+2025-12-23 05:11:58,722 - services.topic_service - DEBUG - [TopicService] Successfully streamed diskio data to clients
+2025-12-23 05:11:58,722 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:11:58,723 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:11:59,788 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:12:09,825 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:12:19,816 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:12:29,432 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:12:39,736 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:12:51,025 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:13:00,517 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:13:07,522 - websocket.socket_handlers - INFO - Client connected, sid=nXGdtPdCyUSuAxnMAAAL
+2025-12-23 05:13:07,528 - websocket.socket_handlers - INFO - Subscribe requested: sid=nXGdtPdCyUSuAxnMAAAL, sysname=raspi-pbl, topic=systemstatus
+2025-12-23 05:13:07,528 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:systemstatus (sid=nXGdtPdCyUSuAxnMAAAL)
+2025-12-23 05:13:10,439 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:13:23,795 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=nXGdtPdCyUSuAxnMAAAL
+2025-12-23 05:13:26,759 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:13:26,762 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:13:43,097 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:13:43,098 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:13:59,342 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:13:59,344 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:14:15,607 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:14:15,612 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:14:31,937 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:14:32,072 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:14:49,486 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:14:49,488 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:15:05,792 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:15:05,792 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:15:22,016 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:15:22,017 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:15:38,261 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:15:38,262 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:15:54,565 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:15:54,566 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 231
+2025-12-23 05:16:10,811 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:16:32,569 - notifications.udp_listener - INFO - New data for raspi-pbl, metric_count: 63
+2025-12-23 05:16:48,875 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 05:18:44,723 - websocket.socket_handlers - INFO - Client disconnected, sid=nXGdtPdCyUSuAxnMAAAL
+2025-12-23 05:18:44,726 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:systemstatus (sid=nXGdtPdCyUSuAxnMAAAL)
+2025-12-23 05:18:47,567 - websocket.socket_handlers - INFO - Client connected, sid=mU2-oTvpYGFOtuJeAAAN
+2025-12-23 05:18:47,606 - websocket.socket_handlers - INFO - Subscribe requested: sid=mU2-oTvpYGFOtuJeAAAN, sysname=raspi-pbl, topic=network
+2025-12-23 05:18:47,639 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:network (sid=mU2-oTvpYGFOtuJeAAAN)
+2025-12-23 05:18:51,738 - websocket.socket_handlers - INFO - Sent initial network data to sid=mU2-oTvpYGFOtuJeAAAN
+2025-12-23 05:20:02,235 - websocket.socket_handlers - INFO - Client disconnected, sid=mU2-oTvpYGFOtuJeAAAN
+2025-12-23 05:20:02,236 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:network (sid=mU2-oTvpYGFOtuJeAAAN)
+2025-12-23 05:20:04,828 - websocket.socket_handlers - INFO - Client connected, sid=ESVGNqCHoXO3d-IfAAAP
+2025-12-23 05:20:04,854 - websocket.socket_handlers - INFO - Subscribe requested: sid=ESVGNqCHoXO3d-IfAAAP, sysname=raspi-pbl, topic=systemstatus
+2025-12-23 05:20:04,856 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:systemstatus (sid=ESVGNqCHoXO3d-IfAAAP)
+2025-12-23 05:20:21,176 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=ESVGNqCHoXO3d-IfAAAP
+2025-12-23 05:20:59,641 - websocket.socket_handlers - INFO - Client disconnected, sid=ESVGNqCHoXO3d-IfAAAP
+2025-12-23 05:20:59,642 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:systemstatus (sid=ESVGNqCHoXO3d-IfAAAP)
+2025-12-23 05:21:02,416 - websocket.socket_handlers - INFO - Client connected, sid=dX2Vgry2nkjOdg1-AAAR
+2025-12-23 05:21:02,423 - websocket.socket_handlers - INFO - Subscribe requested: sid=dX2Vgry2nkjOdg1-AAAR, sysname=raspi-pbl, topic=network
+2025-12-23 05:21:02,425 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:network (sid=dX2Vgry2nkjOdg1-AAAR)
+2025-12-23 05:21:06,516 - websocket.socket_handlers - INFO - Sent initial network data to sid=dX2Vgry2nkjOdg1-AAAR
+2025-12-23 05:21:08,712 - websocket.socket_handlers - INFO - Client disconnected, sid=dX2Vgry2nkjOdg1-AAAR
+2025-12-23 05:21:08,712 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:network (sid=dX2Vgry2nkjOdg1-AAAR)
+2025-12-23 05:21:11,186 - websocket.socket_handlers - INFO - Client connected, sid=L5Kj6zkg589gJt_zAAAT
+2025-12-23 05:21:11,214 - websocket.socket_handlers - INFO - Subscribe requested: sid=L5Kj6zkg589gJt_zAAAT, sysname=raspi-pbl, topic=systemstatus
+2025-12-23 05:21:11,232 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:systemstatus (sid=L5Kj6zkg589gJt_zAAAT)
+2025-12-23 05:21:27,465 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=L5Kj6zkg589gJt_zAAAT
+2025-12-23 05:27:34,761 - websocket.socket_handlers - INFO - Client disconnected, sid=L5Kj6zkg589gJt_zAAAT
+2025-12-23 05:27:34,832 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:systemstatus (sid=L5Kj6zkg589gJt_zAAAT)
+2025-12-23 05:30:09,650 - notifications.udp_listener - INFO - Stopping...
+2025-12-23 05:30:09,819 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-23 05:30:09,829 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-23 05:30:09,819 - notifications.udp_listener - INFO - Socket closed
+2025-12-23 05:32:17,840 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-23 05:32:17,840 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-23 05:32:21,176 - websocket.socket_handlers - INFO - Client connected, sid=r56_BbxL-w_9-WwYAAAB
+2025-12-23 05:32:21,302 - websocket.socket_handlers - INFO - Subscribe requested: sid=r56_BbxL-w_9-WwYAAAB, sysname=raspi-pbl, topic=systemstatus
+2025-12-23 05:32:21,303 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:systemstatus (sid=r56_BbxL-w_9-WwYAAAB)
+2025-12-23 05:32:33,485 - websocket.socket_handlers - INFO - Client disconnected, sid=r56_BbxL-w_9-WwYAAAB
+2025-12-23 05:32:33,487 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:systemstatus (sid=r56_BbxL-w_9-WwYAAAB)
+2025-12-23 05:32:36,058 - websocket.socket_handlers - INFO - Client connected, sid=JcIjHyTojz_ERPgCAAAD
+2025-12-23 05:32:36,153 - websocket.socket_handlers - INFO - Subscribe requested: sid=JcIjHyTojz_ERPgCAAAD, sysname=raspi-pbl, topic=systemstatus
+2025-12-23 05:32:36,153 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:systemstatus (sid=JcIjHyTojz_ERPgCAAAD)
+2025-12-23 05:32:37,666 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=r56_BbxL-w_9-WwYAAAB
+2025-12-23 05:32:52,397 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=JcIjHyTojz_ERPgCAAAD
+2025-12-23 05:33:43,238 - websocket.socket_handlers - INFO - Client disconnected, sid=JcIjHyTojz_ERPgCAAAD
+2025-12-23 05:33:43,241 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:systemstatus (sid=JcIjHyTojz_ERPgCAAAD)
+2025-12-23 05:33:46,118 - websocket.socket_handlers - INFO - Client connected, sid=7feP4Fzu8po7e69GAAAF
+2025-12-23 05:33:46,232 - websocket.socket_handlers - INFO - Subscribe requested: sid=7feP4Fzu8po7e69GAAAF, sysname=raspi-pbl, topic=systemstatus
+2025-12-23 05:33:46,233 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:systemstatus (sid=7feP4Fzu8po7e69GAAAF)
+2025-12-23 05:33:53,057 - websocket.socket_handlers - INFO - Client disconnected, sid=7feP4Fzu8po7e69GAAAF
+2025-12-23 05:33:53,060 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:systemstatus (sid=7feP4Fzu8po7e69GAAAF)
+2025-12-23 05:33:55,514 - websocket.socket_handlers - INFO - Client connected, sid=3ZnIzQFUPdsqBLDjAAAH
+2025-12-23 05:33:55,593 - websocket.socket_handlers - INFO - Subscribe requested: sid=3ZnIzQFUPdsqBLDjAAAH, sysname=raspi-pbl, topic=network
+2025-12-23 05:33:55,595 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:network (sid=3ZnIzQFUPdsqBLDjAAAH)
+2025-12-23 05:33:59,672 - websocket.socket_handlers - INFO - Sent initial network data to sid=3ZnIzQFUPdsqBLDjAAAH
+2025-12-23 05:34:02,505 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=7feP4Fzu8po7e69GAAAF
+2025-12-23 05:35:37,213 - websocket.socket_handlers - INFO - Client disconnected, sid=3ZnIzQFUPdsqBLDjAAAH
+2025-12-23 05:35:37,215 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:network (sid=3ZnIzQFUPdsqBLDjAAAH)
+2025-12-23 05:35:39,796 - websocket.socket_handlers - INFO - Client connected, sid=-BnAcCXOIrijOFwHAAAJ
+2025-12-23 05:35:39,903 - websocket.socket_handlers - INFO - Subscribe requested: sid=-BnAcCXOIrijOFwHAAAJ, sysname=raspi-pbl, topic=disk
+2025-12-23 05:35:39,904 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:disk (sid=-BnAcCXOIrijOFwHAAAJ)
+2025-12-23 05:35:44,011 - websocket.socket_handlers - INFO - Sent initial disk data to sid=-BnAcCXOIrijOFwHAAAJ
+2025-12-23 05:36:01,080 - websocket.socket_handlers - INFO - Client disconnected, sid=-BnAcCXOIrijOFwHAAAJ
+2025-12-23 05:36:01,081 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:disk (sid=-BnAcCXOIrijOFwHAAAJ)
+2025-12-23 06:33:23,341 - websocket.socket_handlers - INFO - Client connected, sid=fP3KXbF013SmKSoqAAAL
+2025-12-23 06:33:23,427 - websocket.socket_handlers - INFO - Subscribe requested: sid=fP3KXbF013SmKSoqAAAL, sysname=raspi-pbl, topic=disk
+2025-12-23 06:33:23,437 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:disk (sid=fP3KXbF013SmKSoqAAAL)
+2025-12-23 06:33:27,521 - websocket.socket_handlers - INFO - Sent initial disk data to sid=fP3KXbF013SmKSoqAAAL
+2025-12-23 06:34:07,314 - websocket.socket_handlers - INFO - Client disconnected, sid=fP3KXbF013SmKSoqAAAL
+2025-12-23 06:34:07,364 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:disk (sid=fP3KXbF013SmKSoqAAAL)
+2025-12-23 06:34:09,739 - websocket.socket_handlers - INFO - Client connected, sid=Z3jgQshd4zhLvXgyAAAN
+2025-12-23 06:34:09,818 - websocket.socket_handlers - INFO - Subscribe requested: sid=Z3jgQshd4zhLvXgyAAAN, sysname=raspi-pbl, topic=diskio
+2025-12-23 06:34:09,819 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:diskio (sid=Z3jgQshd4zhLvXgyAAAN)
+2025-12-23 06:34:14,106 - websocket.socket_handlers - INFO - Sent initial diskio data to sid=Z3jgQshd4zhLvXgyAAAN
+2025-12-23 07:04:00,772 - websocket.socket_handlers - INFO - Client disconnected, sid=Z3jgQshd4zhLvXgyAAAN
+2025-12-23 07:04:00,774 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:diskio (sid=Z3jgQshd4zhLvXgyAAAN)
+2025-12-23 09:11:24,031 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-23 09:11:24,031 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-23 09:11:35,424 - websocket.socket_handlers - INFO - Client connected, sid=EuyOvA__2GXMNcWqAAAB
+2025-12-23 09:11:35,438 - websocket.socket_handlers - INFO - Subscribe requested: sid=EuyOvA__2GXMNcWqAAAB, sysname=raspi-pbl, topic=systemstatus
+2025-12-23 09:11:35,438 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:systemstatus (sid=EuyOvA__2GXMNcWqAAAB)
+2025-12-23 09:11:51,781 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=EuyOvA__2GXMNcWqAAAB
+2025-12-23 09:49:03,741 - websocket.socket_handlers - INFO - Client disconnected, sid=EuyOvA__2GXMNcWqAAAB
+2025-12-23 09:49:03,796 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:systemstatus (sid=EuyOvA__2GXMNcWqAAAB)
+2025-12-23 09:49:56,751 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 09:50:08,758 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 09:51:33,275 - notifications.udp_listener - INFO - Stopping...
+2025-12-23 09:51:33,277 - notifications.udp_listener - INFO - Socket closed
+2025-12-23 09:51:33,277 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-23 09:51:33,279 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-23 09:51:33,280 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-23 09:51:33,283 - notifications.udp_listener - INFO - Thread finished
+2025-12-23 09:51:39,337 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-23 09:51:39,337 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-23 09:51:47,766 - websocket.socket_handlers - INFO - Client connected, sid=oXY2P0RHATnLEkWRAAAB
+2025-12-23 09:51:47,780 - websocket.socket_handlers - INFO - Subscribe requested: sid=oXY2P0RHATnLEkWRAAAB, sysname=raspi-pbl, topic=systemstatus
+2025-12-23 09:51:47,781 - websocket.websocket_manager - INFO - Client connected to raspi-pbl:systemstatus (sid=oXY2P0RHATnLEkWRAAAB)
+2025-12-23 09:52:04,262 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=oXY2P0RHATnLEkWRAAAB
+2025-12-23 09:52:17,884 - websocket.socket_handlers - INFO - Client disconnected, sid=oXY2P0RHATnLEkWRAAAB
+2025-12-23 09:52:17,887 - websocket.websocket_manager - INFO - Client disconnected from raspi-pbl:systemstatus (sid=oXY2P0RHATnLEkWRAAAB)
+2025-12-23 09:52:20,787 - websocket.socket_handlers - INFO - Client connected, sid=C7NUzYuENOa5OhKGAAAD
+2025-12-23 09:52:20,847 - websocket.socket_handlers - INFO - Subscribe requested: sid=C7NUzYuENOa5OhKGAAAD, sysname=pi, topic=systemstatus
+2025-12-23 09:52:20,847 - websocket.websocket_manager - INFO - Client connected to pi:systemstatus (sid=C7NUzYuENOa5OhKGAAAD)
+2025-12-23 09:52:37,240 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=C7NUzYuENOa5OhKGAAAD
+2025-12-23 09:53:00,151 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 236
+2025-12-23 09:53:11,633 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 09:53:53,753 - notifications.udp_listener - INFO - Stopping...
+2025-12-23 09:53:53,755 - notifications.udp_listener - INFO - Socket closed
+2025-12-23 09:53:53,756 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-23 09:53:53,758 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-23 09:53:53,760 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-23 09:53:53,765 - notifications.udp_listener - INFO - Thread finished
+2025-12-23 09:53:58,440 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-23 09:53:58,440 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-23 09:54:01,167 - websocket.socket_handlers - INFO - Client connected, sid=PL0U2jx9ufJvl1hTAAAB
+2025-12-23 09:54:01,227 - websocket.socket_handlers - INFO - Subscribe requested: sid=PL0U2jx9ufJvl1hTAAAB, sysname=pi, topic=systemstatus
+2025-12-23 09:54:01,228 - websocket.websocket_manager - INFO - Client connected to pi:systemstatus (sid=PL0U2jx9ufJvl1hTAAAB)
+2025-12-23 09:54:17,663 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=PL0U2jx9ufJvl1hTAAAB
+2025-12-23 09:54:48,753 - notifications.udp_listener - INFO - Stopping...
+2025-12-23 09:54:48,756 - notifications.udp_listener - INFO - Socket closed
+2025-12-23 09:54:48,756 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-23 09:54:48,762 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-23 09:54:48,764 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-23 09:54:48,770 - notifications.udp_listener - INFO - Thread finished
+2025-12-23 09:55:06,676 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-23 09:55:06,676 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-23 09:55:10,207 - websocket.socket_handlers - INFO - Client connected, sid=8xbd6pHExEuOSydUAAAB
+2025-12-23 09:55:10,255 - websocket.socket_handlers - INFO - Subscribe requested: sid=8xbd6pHExEuOSydUAAAB, sysname=pi, topic=systemstatus
+2025-12-23 09:55:10,256 - websocket.websocket_manager - INFO - Client connected to pi:systemstatus (sid=8xbd6pHExEuOSydUAAAB)
+2025-12-23 09:55:10,524 - websocket.socket_handlers - INFO - Client disconnected, sid=8xbd6pHExEuOSydUAAAB
+2025-12-23 09:55:10,526 - websocket.websocket_manager - INFO - Client disconnected from pi:systemstatus (sid=8xbd6pHExEuOSydUAAAB)
+2025-12-23 09:55:14,833 - websocket.socket_handlers - INFO - Client connected, sid=8yzg8A9NlFDOv3BEAAAD
+2025-12-23 09:55:14,909 - websocket.socket_handlers - INFO - Subscribe requested: sid=8yzg8A9NlFDOv3BEAAAD, sysname=pi, topic=systemstatus
+2025-12-23 09:55:14,910 - websocket.websocket_manager - INFO - Client connected to pi:systemstatus (sid=8yzg8A9NlFDOv3BEAAAD)
+2025-12-23 09:55:24,091 - websocket.socket_handlers - INFO - Client disconnected, sid=8yzg8A9NlFDOv3BEAAAD
+2025-12-23 09:55:24,093 - websocket.websocket_manager - INFO - Client disconnected from pi:systemstatus (sid=8yzg8A9NlFDOv3BEAAAD)
+2025-12-23 09:55:26,592 - websocket.socket_handlers - INFO - Client connected, sid=TOzNIlYg1xNuqnA5AAAF
+2025-12-23 09:55:26,666 - websocket.socket_handlers - INFO - Subscribe requested: sid=TOzNIlYg1xNuqnA5AAAF, sysname=rasberrypi, topic=systemstatus
+2025-12-23 09:55:26,666 - websocket.websocket_manager - INFO - Client connected to rasberrypi:systemstatus (sid=TOzNIlYg1xNuqnA5AAAF)
+2025-12-23 09:55:26,693 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=8xbd6pHExEuOSydUAAAB
+2025-12-23 09:55:31,262 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=8yzg8A9NlFDOv3BEAAAD
+2025-12-23 09:55:43,081 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=TOzNIlYg1xNuqnA5AAAF
+2025-12-23 09:55:57,619 - websocket.socket_handlers - INFO - Client disconnected, sid=TOzNIlYg1xNuqnA5AAAF
+2025-12-23 09:55:57,620 - websocket.websocket_manager - INFO - Client disconnected from rasberrypi:systemstatus (sid=TOzNIlYg1xNuqnA5AAAF)
+2025-12-23 09:56:00,086 - websocket.socket_handlers - INFO - Client connected, sid=tFpvTYSZecbY3-uIAAAH
+2025-12-23 09:56:00,147 - websocket.socket_handlers - INFO - Subscribe requested: sid=tFpvTYSZecbY3-uIAAAH, sysname=raspberrypi, topic=systemstatus
+2025-12-23 09:56:00,148 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=tFpvTYSZecbY3-uIAAAH)
+2025-12-23 09:56:16,603 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=tFpvTYSZecbY3-uIAAAH
+2025-12-23 09:59:24,264 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 234
+2025-12-23 09:59:39,709 - websocket.socket_handlers - INFO - Client disconnected, sid=tFpvTYSZecbY3-uIAAAH
+2025-12-23 09:59:39,713 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=tFpvTYSZecbY3-uIAAAH)
+2025-12-23 09:59:40,681 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 09:59:41,391 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 09:59:42,284 - websocket.socket_handlers - INFO - Client connected, sid=krkdTZqpwOd8B6gHAAAJ
+2025-12-23 09:59:42,341 - websocket.socket_handlers - INFO - Subscribe requested: sid=krkdTZqpwOd8B6gHAAAJ, sysname=raspberrypi, topic=systemstatus
+2025-12-23 09:59:42,343 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=krkdTZqpwOd8B6gHAAAJ)
+2025-12-23 09:59:58,851 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=krkdTZqpwOd8B6gHAAAJ
+2025-12-23 09:59:58,976 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:00:15,402 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:00:16,065 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:00:32,498 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:00:34,658 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:00:51,078 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:00:51,097 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:01:07,505 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:01:08,117 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:01:18,442 - notifications.udp_listener - INFO - Stopping...
+2025-12-23 10:01:18,442 - notifications.udp_listener - INFO - Socket closed
+2025-12-23 10:01:18,442 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-23 10:01:20,449 - notifications.udp_listener - WARNING - Thread did not finish within timeout
+2025-12-23 10:01:32,908 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-23 10:01:32,909 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-23 10:01:33,131 - websocket.socket_handlers - INFO - Client connected, sid=04oAZ3QAlQMAPx0jAAAB
+2025-12-23 10:01:33,192 - websocket.socket_handlers - INFO - Subscribe requested: sid=04oAZ3QAlQMAPx0jAAAB, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:01:33,193 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=04oAZ3QAlQMAPx0jAAAB)
+2025-12-23 10:01:49,624 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=04oAZ3QAlQMAPx0jAAAB
+2025-12-23 10:02:53,803 - websocket.socket_handlers - INFO - Client disconnected, sid=04oAZ3QAlQMAPx0jAAAB
+2025-12-23 10:02:53,805 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=04oAZ3QAlQMAPx0jAAAB)
+2025-12-23 10:02:56,409 - websocket.socket_handlers - INFO - Client connected, sid=9obgtGrPaHtIf-dtAAAD
+2025-12-23 10:02:56,593 - websocket.socket_handlers - INFO - Subscribe requested: sid=9obgtGrPaHtIf-dtAAAD, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:02:56,593 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=9obgtGrPaHtIf-dtAAAD)
+2025-12-23 10:03:13,038 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=9obgtGrPaHtIf-dtAAAD
+2025-12-23 10:09:23,741 - websocket.socket_handlers - INFO - Client disconnected, sid=9obgtGrPaHtIf-dtAAAD
+2025-12-23 10:09:23,747 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=9obgtGrPaHtIf-dtAAAD)
+2025-12-23 10:22:06,302 - websocket.socket_handlers - INFO - Client connected, sid=zCb4VTCGkzwdZdZaAAAF
+2025-12-23 10:22:06,333 - websocket.socket_handlers - INFO - Subscribe requested: sid=zCb4VTCGkzwdZdZaAAAF, sysname=rasberrypi, topic=systemstatus
+2025-12-23 10:22:06,333 - websocket.websocket_manager - INFO - Client connected to rasberrypi:systemstatus (sid=zCb4VTCGkzwdZdZaAAAF)
+2025-12-23 10:22:22,791 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=zCb4VTCGkzwdZdZaAAAF
+2025-12-23 10:22:43,898 - websocket.socket_handlers - INFO - Client disconnected, sid=zCb4VTCGkzwdZdZaAAAF
+2025-12-23 10:22:43,899 - websocket.websocket_manager - INFO - Client disconnected from rasberrypi:systemstatus (sid=zCb4VTCGkzwdZdZaAAAF)
+2025-12-23 10:22:46,224 - websocket.socket_handlers - INFO - Client connected, sid=Uhtab-Qd3TfEqjpkAAAH
+2025-12-23 10:22:46,265 - websocket.socket_handlers - INFO - Subscribe requested: sid=Uhtab-Qd3TfEqjpkAAAH, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:22:46,267 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=Uhtab-Qd3TfEqjpkAAAH)
+2025-12-23 10:23:02,735 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=Uhtab-Qd3TfEqjpkAAAH
+2025-12-23 10:24:23,425 - websocket.socket_handlers - INFO - Client disconnected, sid=Uhtab-Qd3TfEqjpkAAAH
+2025-12-23 10:24:23,425 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=Uhtab-Qd3TfEqjpkAAAH)
+2025-12-23 10:24:30,060 - websocket.socket_handlers - INFO - Client connected, sid=oigYD_OnOkPBbh51AAAJ
+2025-12-23 10:24:30,151 - websocket.socket_handlers - INFO - Subscribe requested: sid=oigYD_OnOkPBbh51AAAJ, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:24:30,152 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=oigYD_OnOkPBbh51AAAJ)
+2025-12-23 10:24:31,718 - websocket.socket_handlers - INFO - Client disconnected, sid=oigYD_OnOkPBbh51AAAJ
+2025-12-23 10:24:31,719 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=oigYD_OnOkPBbh51AAAJ)
+2025-12-23 10:24:46,627 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=oigYD_OnOkPBbh51AAAJ
+2025-12-23 10:26:30,475 - websocket.socket_handlers - INFO - Client connected, sid=1_5fdj4G66ffvWVsAAAL
+2025-12-23 10:26:30,508 - websocket.socket_handlers - INFO - Subscribe requested: sid=1_5fdj4G66ffvWVsAAAL, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:26:30,509 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=1_5fdj4G66ffvWVsAAAL)
+2025-12-23 10:26:46,964 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=1_5fdj4G66ffvWVsAAAL
+2025-12-23 10:27:17,317 - websocket.socket_handlers - INFO - Client disconnected, sid=1_5fdj4G66ffvWVsAAAL
+2025-12-23 10:27:17,318 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=1_5fdj4G66ffvWVsAAAL)
+2025-12-23 10:27:18,414 - websocket.socket_handlers - INFO - Client connected, sid=-gkQ-0jACVWQ1QTqAAAN
+2025-12-23 10:27:18,505 - websocket.socket_handlers - INFO - Subscribe requested: sid=-gkQ-0jACVWQ1QTqAAAN, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:27:18,506 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=-gkQ-0jACVWQ1QTqAAAN)
+2025-12-23 10:27:34,993 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=-gkQ-0jACVWQ1QTqAAAN
+2025-12-23 10:28:48,520 - websocket.socket_handlers - INFO - Client disconnected, sid=-gkQ-0jACVWQ1QTqAAAN
+2025-12-23 10:28:48,536 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=-gkQ-0jACVWQ1QTqAAAN)
+2025-12-23 10:28:51,625 - websocket.socket_handlers - INFO - Client connected, sid=jya_fo5iJcBDi9dgAAAP
+2025-12-23 10:28:51,691 - websocket.socket_handlers - INFO - Subscribe requested: sid=jya_fo5iJcBDi9dgAAAP, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:28:51,692 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=jya_fo5iJcBDi9dgAAAP)
+2025-12-23 10:28:56,237 - notifications.udp_listener - INFO - Stopping...
+2025-12-23 10:28:56,243 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-23 10:28:56,243 - notifications.udp_listener - INFO - Socket closed
+2025-12-23 10:28:56,277 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-23 10:28:56,286 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-23 10:28:56,294 - notifications.udp_listener - INFO - Thread finished
+2025-12-23 10:29:05,398 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-23 10:29:05,399 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-23 10:29:05,507 - websocket.socket_handlers - INFO - Client connected, sid=LxCJbYTQmV89w4bqAAAB
+2025-12-23 10:29:05,546 - websocket.socket_handlers - INFO - Subscribe requested: sid=LxCJbYTQmV89w4bqAAAB, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:29:05,546 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=LxCJbYTQmV89w4bqAAAB)
+2025-12-23 10:29:08,576 - websocket.socket_handlers - INFO - Client disconnected, sid=LxCJbYTQmV89w4bqAAAB
+2025-12-23 10:29:08,578 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=LxCJbYTQmV89w4bqAAAB)
+2025-12-23 10:29:10,871 - websocket.socket_handlers - INFO - Client connected, sid=_OBpTcv3ikYVQngRAAAD
+2025-12-23 10:29:10,944 - websocket.socket_handlers - INFO - Subscribe requested: sid=_OBpTcv3ikYVQngRAAAD, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:29:10,944 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=_OBpTcv3ikYVQngRAAAD)
+2025-12-23 10:29:14,139 - websocket.socket_handlers - INFO - Client disconnected, sid=_OBpTcv3ikYVQngRAAAD
+2025-12-23 10:29:14,139 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=_OBpTcv3ikYVQngRAAAD)
+2025-12-23 10:29:22,031 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=LxCJbYTQmV89w4bqAAAB
+2025-12-23 10:29:27,438 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=_OBpTcv3ikYVQngRAAAD
+2025-12-23 10:36:29,749 - websocket.socket_handlers - INFO - Client connected, sid=ixmCMLCVnHu0ODeNAAAF
+2025-12-23 10:36:29,820 - websocket.socket_handlers - INFO - Subscribe requested: sid=ixmCMLCVnHu0ODeNAAAF, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:36:29,820 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=ixmCMLCVnHu0ODeNAAAF)
+2025-12-23 10:36:32,614 - websocket.socket_handlers - INFO - Client disconnected, sid=ixmCMLCVnHu0ODeNAAAF
+2025-12-23 10:36:32,615 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=ixmCMLCVnHu0ODeNAAAF)
+2025-12-23 10:36:46,258 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=ixmCMLCVnHu0ODeNAAAF
+2025-12-23 10:37:06,490 - websocket.socket_handlers - INFO - Client connected, sid=npX0MnhzEHR-bn4VAAAH
+2025-12-23 10:37:06,517 - websocket.socket_handlers - INFO - Subscribe requested: sid=npX0MnhzEHR-bn4VAAAH, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:37:06,517 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=npX0MnhzEHR-bn4VAAAH)
+2025-12-23 10:37:09,070 - websocket.socket_handlers - INFO - Client disconnected, sid=npX0MnhzEHR-bn4VAAAH
+2025-12-23 10:37:09,071 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=npX0MnhzEHR-bn4VAAAH)
+2025-12-23 10:37:11,394 - websocket.socket_handlers - INFO - Client connected, sid=w1V-v14GYLMgrgjsAAAJ
+2025-12-23 10:37:11,430 - websocket.socket_handlers - INFO - Subscribe requested: sid=w1V-v14GYLMgrgjsAAAJ, sysname=raspberrypi, topic=network
+2025-12-23 10:37:11,430 - websocket.websocket_manager - INFO - Client connected to raspberrypi:network (sid=w1V-v14GYLMgrgjsAAAJ)
+2025-12-23 10:37:14,088 - websocket.socket_handlers - INFO - Client disconnected, sid=w1V-v14GYLMgrgjsAAAJ
+2025-12-23 10:37:14,091 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:network (sid=w1V-v14GYLMgrgjsAAAJ)
+2025-12-23 10:37:15,541 - websocket.socket_handlers - INFO - Sent initial network data to sid=w1V-v14GYLMgrgjsAAAJ
+2025-12-23 10:37:22,907 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=npX0MnhzEHR-bn4VAAAH
+2025-12-23 10:37:30,481 - websocket.socket_handlers - INFO - Client connected, sid=mnNpnNNdpVYCMKwGAAAL
+2025-12-23 10:37:30,562 - websocket.socket_handlers - INFO - Subscribe requested: sid=mnNpnNNdpVYCMKwGAAAL, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:37:30,566 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=mnNpnNNdpVYCMKwGAAAL)
+2025-12-23 10:37:46,999 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=mnNpnNNdpVYCMKwGAAAL
+2025-12-23 10:39:49,862 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:40:06,283 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:40:06,286 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:40:22,768 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:40:22,770 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:40:39,193 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:40:39,195 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:40:55,630 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:41:00,365 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:41:16,833 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:41:16,835 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:41:33,278 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:41:33,279 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:41:37,735 - websocket.socket_handlers - INFO - Client disconnected, sid=mnNpnNNdpVYCMKwGAAAL
+2025-12-23 10:41:37,736 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=mnNpnNNdpVYCMKwGAAAL)
+2025-12-23 10:41:49,731 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:41:49,733 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:41:49,734 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:41:57,466 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:42:08,701 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:42:20,327 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:42:31,364 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:44:16,911 - websocket.socket_handlers - INFO - Client connected, sid=VPgA_kwKXU8122-lAAAO
+2025-12-23 10:44:17,112 - websocket.socket_handlers - INFO - Client connected, sid=IUYSEI7vXuVJHUDQAAAQ
+2025-12-23 10:44:17,187 - websocket.socket_handlers - INFO - Client disconnected, sid=IUYSEI7vXuVJHUDQAAAQ
+2025-12-23 10:44:17,192 - websocket.websocket_manager - WARNING - Client disconnected (topic not found, sid=IUYSEI7vXuVJHUDQAAAQ)
+2025-12-23 10:44:18,556 - websocket.socket_handlers - INFO - Client connected, sid=GI2iWrMH9mrlt0_TAAAS
+2025-12-23 10:44:18,619 - websocket.socket_handlers - INFO - Subscribe requested: sid=GI2iWrMH9mrlt0_TAAAS, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:44:18,625 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=GI2iWrMH9mrlt0_TAAAS)
+2025-12-23 10:44:35,102 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=GI2iWrMH9mrlt0_TAAAS
+2025-12-23 10:45:12,651 - websocket.socket_handlers - INFO - Client disconnected, sid=VPgA_kwKXU8122-lAAAO
+2025-12-23 10:45:12,652 - websocket.websocket_manager - WARNING - Client disconnected (topic not found, sid=VPgA_kwKXU8122-lAAAO)
+2025-12-23 10:45:51,309 - websocket.socket_handlers - INFO - Client disconnected, sid=GI2iWrMH9mrlt0_TAAAS
+2025-12-23 10:45:51,310 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=GI2iWrMH9mrlt0_TAAAS)
+2025-12-23 10:45:53,566 - websocket.socket_handlers - INFO - Client connected, sid=sTgHMSZbiVDrVBf3AAAU
+2025-12-23 10:45:53,643 - websocket.socket_handlers - INFO - Subscribe requested: sid=sTgHMSZbiVDrVBf3AAAU, sysname=raspberrypi, topic=network
+2025-12-23 10:45:53,644 - websocket.websocket_manager - INFO - Client connected to raspberrypi:network (sid=sTgHMSZbiVDrVBf3AAAU)
+2025-12-23 10:45:57,729 - websocket.socket_handlers - INFO - Sent initial network data to sid=sTgHMSZbiVDrVBf3AAAU
+2025-12-23 10:46:23,335 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:46:27,464 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 10:46:32,577 - websocket.socket_handlers - INFO - Client disconnected, sid=sTgHMSZbiVDrVBf3AAAU
+2025-12-23 10:46:32,578 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:network (sid=sTgHMSZbiVDrVBf3AAAU)
+2025-12-23 10:46:34,509 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:46:34,917 - websocket.socket_handlers - INFO - Client connected, sid=tbhKPoPeowWQ4RoYAAAW
+2025-12-23 10:46:35,004 - websocket.socket_handlers - INFO - Subscribe requested: sid=tbhKPoPeowWQ4RoYAAAW, sysname=raspberrypi, topic=systemstatus
+2025-12-23 10:46:35,005 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=tbhKPoPeowWQ4RoYAAAW)
+2025-12-23 10:46:45,669 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:46:46,614 - websocket.socket_handlers - INFO - Client disconnected, sid=tbhKPoPeowWQ4RoYAAAW
+2025-12-23 10:46:46,615 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=tbhKPoPeowWQ4RoYAAAW)
+2025-12-23 10:46:51,453 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=tbhKPoPeowWQ4RoYAAAW
+2025-12-23 10:47:02,129 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 10:47:02,130 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:47:08,298 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:47:19,811 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:47:31,123 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:47:41,990 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:47:53,226 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:48:04,092 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:48:37,653 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:48:49,123 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:49:00,063 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:49:28,862 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:49:40,730 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:49:51,916 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:50:03,058 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:50:14,338 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:50:28,865 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 236
+2025-12-23 10:50:40,192 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:50:51,625 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:51:02,992 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:51:14,447 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:51:25,587 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:51:46,481 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 179
+2025-12-23 10:51:57,942 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:52:09,870 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:52:24,588 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 222
+2025-12-23 10:52:35,758 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:52:47,291 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:52:58,962 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:53:10,472 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:53:22,067 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:53:34,011 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:53:46,597 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:53:58,145 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:54:10,069 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:54:21,664 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:54:33,054 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:54:48,127 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 236
+2025-12-23 10:54:59,994 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 10:55:11,463 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:35:51,650 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 232
+2025-12-23 11:36:00,275 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 233
+2025-12-23 11:36:09,235 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 233
+2025-12-23 11:36:18,399 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:36:31,162 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 236
+2025-12-23 11:36:39,755 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:36:48,708 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:36:57,595 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:37:06,567 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:37:15,395 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:37:23,691 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:37:38,788 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 217
+2025-12-23 11:37:47,748 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:37:56,985 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:38:01,351 - websocket.socket_handlers - INFO - Client connected, sid=yKeDbKW6OQit2hEpAAAY
+2025-12-23 11:38:01,401 - websocket.socket_handlers - INFO - Subscribe requested: sid=yKeDbKW6OQit2hEpAAAY, sysname=raspberrypi, topic=systemstatus
+2025-12-23 11:38:01,428 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=yKeDbKW6OQit2hEpAAAY)
+2025-12-23 11:38:05,904 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:38:17,866 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=yKeDbKW6OQit2hEpAAAY
+2025-12-23 11:38:22,321 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:38:22,322 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:38:38,775 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:38:38,777 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:38:55,238 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:38:55,239 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:39:11,665 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:39:36,278 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:39:52,724 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:39:52,726 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:40:09,189 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:40:09,199 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:40:25,679 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:40:25,679 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:40:42,064 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:40:42,065 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:40:58,511 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:40:58,512 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:41:14,938 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:41:14,939 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 226
+2025-12-23 11:41:31,341 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:41:31,342 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:41:47,827 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:41:47,828 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:42:04,271 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:42:04,273 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:42:20,753 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:42:20,754 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:42:37,183 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:42:37,185 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:42:44,396 - websocket.socket_handlers - INFO - Client disconnected, sid=yKeDbKW6OQit2hEpAAAY
+2025-12-23 11:42:44,399 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=yKeDbKW6OQit2hEpAAAY)
+2025-12-23 11:42:44,900 - websocket.socket_handlers - INFO - Client connected, sid=Ur3f7awyBrdwFD4hAAAa
+2025-12-23 11:42:44,959 - websocket.socket_handlers - INFO - Subscribe requested: sid=Ur3f7awyBrdwFD4hAAAa, sysname=rasberrypi, topic=systemstatus
+2025-12-23 11:42:44,960 - websocket.websocket_manager - INFO - Client connected to rasberrypi:systemstatus (sid=Ur3f7awyBrdwFD4hAAAa)
+2025-12-23 11:42:47,332 - websocket.socket_handlers - INFO - Client disconnected, sid=Ur3f7awyBrdwFD4hAAAa
+2025-12-23 11:42:47,334 - websocket.websocket_manager - INFO - Client disconnected from rasberrypi:systemstatus (sid=Ur3f7awyBrdwFD4hAAAa)
+2025-12-23 11:42:47,635 - websocket.socket_handlers - INFO - Client connected, sid=FUvEwy1B0f1rqZjbAAAc
+2025-12-23 11:42:47,717 - websocket.socket_handlers - INFO - Subscribe requested: sid=FUvEwy1B0f1rqZjbAAAc, sysname=raspberrypi, topic=systemstatus
+2025-12-23 11:42:47,720 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=FUvEwy1B0f1rqZjbAAAc)
+2025-12-23 11:42:53,582 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:42:53,584 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:43:01,334 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=Ur3f7awyBrdwFD4hAAAa
+2025-12-23 11:43:04,134 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=FUvEwy1B0f1rqZjbAAAc
+2025-12-23 11:43:10,047 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:43:10,048 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:43:26,516 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:43:26,518 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:43:42,991 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:43:42,992 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:43:59,454 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:43:59,456 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:44:15,942 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:44:15,943 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:44:32,435 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:44:32,437 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:44:48,944 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:44:48,948 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:45:05,416 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:45:05,432 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:45:21,922 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:45:21,924 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:45:38,357 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:45:38,358 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:45:54,764 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:45:54,769 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:46:11,292 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:46:11,294 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:46:27,761 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:46:27,762 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:46:44,184 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:46:44,185 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:47:00,620 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:47:00,622 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:47:17,084 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:47:17,085 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:47:33,583 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:47:33,585 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:47:50,079 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:47:50,081 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:48:06,494 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:48:06,495 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:48:22,956 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:48:22,958 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:48:39,407 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:48:39,408 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:48:55,864 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:48:55,866 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 228
+2025-12-23 11:49:12,338 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:49:12,339 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:49:28,785 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:49:28,789 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:49:45,280 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:49:45,280 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:00,307 - websocket.socket_handlers - INFO - Client disconnected, sid=FUvEwy1B0f1rqZjbAAAc
+2025-12-23 11:50:00,394 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=FUvEwy1B0f1rqZjbAAAc)
+2025-12-23 11:50:01,585 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:50:01,588 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,596 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,601 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,602 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,604 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,606 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,610 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,612 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,613 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,615 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 206
+2025-12-23 11:50:01,616 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,617 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,619 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 227
+2025-12-23 11:50:01,620 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,622 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,624 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 232
+2025-12-23 11:50:01,625 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,627 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,631 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,635 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,636 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:50:01,638 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 230
+2025-12-23 11:50:01,640 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 76
+2025-12-23 11:50:09,161 - websocket.socket_handlers - INFO - Client connected, sid=4xIAbesT8Etq_dgXAAAe
+2025-12-23 11:50:09,233 - websocket.socket_handlers - INFO - Subscribe requested: sid=4xIAbesT8Etq_dgXAAAe, sysname=raspberrypi, topic=systemstatus
+2025-12-23 11:50:09,235 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=4xIAbesT8Etq_dgXAAAe)
+2025-12-23 11:50:25,721 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=4xIAbesT8Etq_dgXAAAe
+2025-12-23 11:51:12,410 - websocket.socket_handlers - INFO - Client disconnected, sid=4xIAbesT8Etq_dgXAAAe
+2025-12-23 11:51:12,412 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=4xIAbesT8Etq_dgXAAAe)
+2025-12-23 11:51:15,679 - websocket.socket_handlers - INFO - Client connected, sid=xOlviE7wC5TvW6YZAAAg
+2025-12-23 11:51:15,719 - websocket.socket_handlers - INFO - Subscribe requested: sid=xOlviE7wC5TvW6YZAAAg, sysname=raspberrypi, topic=systemstatus
+2025-12-23 11:51:15,722 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=xOlviE7wC5TvW6YZAAAg)
+2025-12-23 11:51:21,329 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 236
+2025-12-23 11:51:32,209 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=xOlviE7wC5TvW6YZAAAg
+2025-12-23 11:51:37,796 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:51:37,797 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:51:54,205 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:51:54,207 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:52:10,647 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:52:10,648 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:52:27,143 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:52:27,144 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:52:43,540 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:52:43,541 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:53:00,020 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:53:00,021 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:53:16,452 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:53:16,454 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 235
+2025-12-23 11:53:32,877 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:53:32,878 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:53:49,344 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:53:49,345 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:54:05,824 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:54:05,825 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:54:22,282 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:54:22,283 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:54:38,739 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:54:38,740 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:54:55,182 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:54:55,183 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:55:11,665 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:55:11,666 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:55:28,098 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:55:28,099 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:55:44,445 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:55:44,449 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:56:00,775 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:56:00,777 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:56:17,055 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:56:17,056 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:56:33,369 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:56:33,369 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:56:49,786 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:56:49,787 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:57:06,257 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:57:06,258 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:57:22,777 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:57:22,778 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:57:39,262 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:57:39,264 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:57:55,746 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:57:55,747 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:58:12,215 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:58:12,216 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 231
+2025-12-23 11:58:28,698 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:58:28,699 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:58:45,169 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:58:45,170 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:59:01,595 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:59:01,596 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:59:18,087 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:59:18,089 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 11:59:34,558 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:59:34,559 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 80
+2025-12-23 11:59:51,027 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 11:59:51,028 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:00:07,446 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:00:07,447 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:00:23,892 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:00:23,893 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:00:40,381 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:00:40,382 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:00:56,872 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:00:56,873 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:01:13,299 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:01:13,300 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:01:29,749 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:01:29,750 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:01:46,205 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:01:46,206 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:02:02,656 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:02:02,657 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:02:19,185 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:02:19,187 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:02:35,669 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:02:35,672 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:02:52,153 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:02:52,155 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:03:08,580 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:03:08,581 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:03:25,005 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:03:25,008 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:03:41,474 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:03:41,475 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:03:57,871 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:03:57,873 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:04:14,341 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:04:14,342 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:04:30,843 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:04:30,844 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:04:47,311 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:04:47,313 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:05:03,816 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:05:03,817 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:05:20,273 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:05:20,275 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:05:36,673 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:05:36,674 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:05:53,085 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:05:53,086 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:06:09,496 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:06:09,498 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 234
+2025-12-23 12:06:25,915 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:06:25,916 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:06:42,358 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:06:42,359 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:06:58,821 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:06:58,822 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:07:15,283 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:07:15,286 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:07:31,654 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:07:31,655 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:07:47,944 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:07:47,961 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:08:04,225 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:08:04,225 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:08:20,529 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:08:20,543 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:08:37,016 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:08:37,019 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:08:53,495 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:08:53,496 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:02,162 - websocket.socket_handlers - INFO - Client disconnected, sid=xOlviE7wC5TvW6YZAAAg
+2025-12-23 12:09:02,165 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=xOlviE7wC5TvW6YZAAAg)
+2025-12-23 12:09:10,005 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:09:10,007 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 233
+2025-12-23 12:09:10,009 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 195
+2025-12-23 12:09:10,010 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:10,012 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:10,015 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 232
+2025-12-23 12:09:10,017 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:10,019 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:10,026 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:10,028 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:10,030 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 201
+2025-12-23 12:09:10,033 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:11,611 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:23,357 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:31,586 - websocket.socket_handlers - INFO - Client connected, sid=AR37Jz0gnJDHcVGhAAAi
+2025-12-23 12:09:31,651 - websocket.socket_handlers - INFO - Subscribe requested: sid=AR37Jz0gnJDHcVGhAAAi, sysname=raspberrypi, topic=systemstatus
+2025-12-23 12:09:31,658 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=AR37Jz0gnJDHcVGhAAAi)
+2025-12-23 12:09:34,568 - websocket.socket_handlers - INFO - Client disconnected, sid=AR37Jz0gnJDHcVGhAAAi
+2025-12-23 12:09:34,570 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=AR37Jz0gnJDHcVGhAAAi)
+2025-12-23 12:09:34,805 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:47,644 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:09:48,117 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=AR37Jz0gnJDHcVGhAAAi
+2025-12-23 12:09:59,944 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:10:11,369 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:10:22,955 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:10:34,788 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:10:46,118 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:13:23,251 - websocket.socket_handlers - INFO - Client connected, sid=S_P-15rsx5gw7qT6AAAk
+2025-12-23 12:13:23,319 - websocket.socket_handlers - INFO - Subscribe requested: sid=S_P-15rsx5gw7qT6AAAk, sysname=rasberrypi, topic=systemstatus
+2025-12-23 12:13:23,319 - websocket.websocket_manager - INFO - Client connected to rasberrypi:systemstatus (sid=S_P-15rsx5gw7qT6AAAk)
+2025-12-23 12:13:28,782 - websocket.socket_handlers - INFO - Client disconnected, sid=S_P-15rsx5gw7qT6AAAk
+2025-12-23 12:13:28,795 - websocket.websocket_manager - INFO - Client disconnected from rasberrypi:systemstatus (sid=S_P-15rsx5gw7qT6AAAk)
+2025-12-23 12:13:32,324 - websocket.socket_handlers - INFO - Client connected, sid=UButhk9sFDcg-S_WAAAm
+2025-12-23 12:13:32,378 - websocket.socket_handlers - INFO - Subscribe requested: sid=UButhk9sFDcg-S_WAAAm, sysname=raspberrypi, topic=systemstatus
+2025-12-23 12:13:32,385 - websocket.websocket_manager - INFO - Client connected to raspberrypi:systemstatus (sid=UButhk9sFDcg-S_WAAAm)
+2025-12-23 12:13:39,771 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=S_P-15rsx5gw7qT6AAAk
+2025-12-23 12:13:44,112 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:13:48,898 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=UButhk9sFDcg-S_WAAAm
+2025-12-23 12:14:00,575 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:14:00,576 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 234
+2025-12-23 12:14:17,010 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:14:17,011 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:14:24,164 - websocket.socket_handlers - INFO - Client disconnected, sid=UButhk9sFDcg-S_WAAAm
+2025-12-23 12:14:24,167 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:systemstatus (sid=UButhk9sFDcg-S_WAAAm)
+2025-12-23 12:14:26,634 - websocket.socket_handlers - INFO - Client connected, sid=cipwdff12Cldboe2AAAo
+2025-12-23 12:14:26,689 - websocket.socket_handlers - INFO - Subscribe requested: sid=cipwdff12Cldboe2AAAo, sysname=raspberrypi, topic=network
+2025-12-23 12:14:26,699 - websocket.websocket_manager - INFO - Client connected to raspberrypi:network (sid=cipwdff12Cldboe2AAAo)
+2025-12-23 12:14:30,810 - websocket.socket_handlers - INFO - Sent initial network data to sid=cipwdff12Cldboe2AAAo
+2025-12-23 12:14:33,479 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-23 12:14:33,480 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:14:37,590 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:14:37,591 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:14:41,721 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:14:46,897 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:14:51,016 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:14:58,340 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:15:02,432 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:15:10,193 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:15:14,329 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:15:22,715 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:15:26,834 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:15:34,655 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:15:38,750 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:16:10,306 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:16:14,417 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:16:22,166 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:16:26,295 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:16:33,460 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:16:37,563 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:16:48,109 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 228
+2025-12-23 12:16:52,238 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:16:59,386 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:17:03,475 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:17:13,930 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 215
+2025-12-23 12:17:18,046 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:17:26,383 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:17:30,488 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:17:38,902 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:17:43,008 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:18:15,193 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:18:19,309 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:18:26,976 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:18:31,084 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:18:38,983 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:18:43,088 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:18:51,900 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 237
+2025-12-23 12:18:56,013 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:19:10,574 - notifications.udp_listener - INFO - New data for raspberrypi, metric_count: 201
+2025-12-23 12:19:14,702 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-23 12:26:10,220 - websocket.socket_handlers - INFO - Client disconnected, sid=cipwdff12Cldboe2AAAo
+2025-12-23 12:26:10,223 - websocket.websocket_manager - INFO - Client disconnected from raspberrypi:network (sid=cipwdff12Cldboe2AAAo)
+2025-12-24 16:52:10,457 - websocket.socket_handlers - INFO - Client connected, sid=XowwXEINU4MLmygWAAAq
+2025-12-24 16:52:10,503 - websocket.socket_handlers - INFO - Subscribe requested: sid=XowwXEINU4MLmygWAAAq, sysname=raspberrypi, topic=network
+2025-12-24 16:52:10,504 - websocket.websocket_manager - INFO - Client connected to raspberrypi:network (sid=XowwXEINU4MLmygWAAAq)
+2025-12-24 16:52:15,257 - websocket.socket_handlers - INFO - Sent initial network data to sid=XowwXEINU4MLmygWAAAq
+2025-12-24 16:56:14,588 - notifications.udp_listener - INFO - Stopping...
+2025-12-24 16:56:14,589 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-24 16:56:14,589 - notifications.udp_listener - INFO - Socket closed
+2025-12-24 16:56:14,589 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-24 16:56:14,590 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-24 16:56:14,590 - notifications.udp_listener - INFO - Thread finished

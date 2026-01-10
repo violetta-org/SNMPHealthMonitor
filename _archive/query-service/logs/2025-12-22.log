@@ -1,0 +1,1681 @@
+2025-12-22 10:39:38,751 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 10:39:38,751 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 10:40:13,131 - websocket.socket_handlers - INFO - Client connected, sid=TGut212Qu7n5SaKbAAAB
+2025-12-22 10:40:13,161 - websocket.socket_handlers - INFO - Subscribe requested: sid=TGut212Qu7n5SaKbAAAB, sysname=viole, topic=network
+2025-12-22 10:40:13,165 - websocket.websocket_manager - INFO - Client connected to viole:network (sid=TGut212Qu7n5SaKbAAAB)
+2025-12-22 10:40:17,231 - services.topic_service - ERROR - [TopicService] Error fetching network data: (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
+Traceback (most recent call last):
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 644, in connect
+    sock = socket.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\socket.py", line 863, in create_connection
+    raise exceptions[0]
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\socket.py", line 848, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\services\topic_service.py", line 57, in get_topic_data
+    data = get_network_metrics(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\queries.py", line 393, in get_network_metrics
+    with get_db() as conn:
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 19, in get_db
+    conn = create_connection()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 7, in create_connection
+    return pymysql.connect(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 358, in __init__
+    self.connect()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 711, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
+2025-12-22 10:40:17,262 - websocket.socket_handlers - INFO - Sent initial network data to sid=TGut212Qu7n5SaKbAAAB
+2025-12-22 10:40:19,743 - websocket.socket_handlers - INFO - Client disconnected, sid=TGut212Qu7n5SaKbAAAB
+2025-12-22 10:40:19,745 - websocket.websocket_manager - INFO - Client disconnected from viole:network (sid=TGut212Qu7n5SaKbAAAB)
+2025-12-22 10:40:26,038 - websocket.socket_handlers - INFO - Client connected, sid=UiIvOEA-Uk6atgyrAAAD
+2025-12-22 10:40:26,060 - websocket.socket_handlers - INFO - Subscribe requested: sid=UiIvOEA-Uk6atgyrAAAD, sysname=viole, topic=systemstatus
+2025-12-22 10:40:26,061 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=UiIvOEA-Uk6atgyrAAAD)
+2025-12-22 10:40:30,136 - services.topic_service - ERROR - [TopicService] Error fetching systemstatus data: (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
+Traceback (most recent call last):
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 644, in connect
+    sock = socket.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\socket.py", line 863, in create_connection
+    raise exceptions[0]
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\socket.py", line 848, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\services\topic_service.py", line 49, in get_topic_data
+    data = get_status_metrics(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\queries.py", line 1013, in get_status_metrics
+    'device_info': get_device_info(sysname),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\queries.py", line 63, in get_device_info
+    with get_db() as conn:
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 19, in get_db
+    conn = create_connection()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 7, in create_connection
+    return pymysql.connect(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 358, in __init__
+    self.connect()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 711, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
+2025-12-22 10:40:30,180 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=UiIvOEA-Uk6atgyrAAAD
+2025-12-22 10:40:44,070 - websocket.socket_handlers - INFO - Client disconnected, sid=UiIvOEA-Uk6atgyrAAAD
+2025-12-22 10:40:44,073 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=UiIvOEA-Uk6atgyrAAAD)
+2025-12-22 10:40:47,009 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 10:40:47,009 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 10:40:47,010 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 10:40:47,010 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 10:40:47,011 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 10:40:47,011 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 10:43:32,962 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 10:43:32,962 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 12:11:08,559 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 12:11:08,559 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 12:11:08,559 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 12:11:08,560 - notifications.udp_listener - ERROR - Failed to start listener: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted
+2025-12-22 12:11:08,560 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 12:11:08,561 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 12:12:11,745 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 12:12:11,746 - notifications.udp_listener - ERROR - Failed to start listener: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted
+2025-12-22 12:12:11,747 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 12:19:12,765 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 12:19:12,766 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 12:35:18,662 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 12:35:18,663 - notifications.udp_listener - ERROR - Failed to start listener: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted
+2025-12-22 12:35:18,664 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 20:05:51,827 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 20:05:51,828 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 20:05:56,265 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:05:56,266 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:06:03,885 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:06:03,886 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:06:11,570 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:06:11,571 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:06:19,222 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:06:19,223 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:06:20,655 - websocket.socket_handlers - INFO - Client connected, sid=SGD3OVRua7-CrF2xAAAB
+2025-12-22 20:06:20,733 - websocket.socket_handlers - INFO - Subscribe requested: sid=SGD3OVRua7-CrF2xAAAB, sysname=viole, topic=network
+2025-12-22 20:06:20,734 - websocket.websocket_manager - INFO - Client connected to viole:network (sid=SGD3OVRua7-CrF2xAAAB)
+2025-12-22 20:06:22,792 - services.topic_service - ERROR - [TopicService] Error fetching network data: (1045, "Access denied for user 'pbl4_user'@'localhost' (using password: YES)")
+Traceback (most recent call last):
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\services\topic_service.py", line 57, in get_topic_data
+    data = get_network_metrics(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\queries.py", line 393, in get_network_metrics
+    with get_db() as conn:
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 19, in get_db
+    conn = create_connection()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 7, in create_connection
+    return pymysql.connect(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 358, in __init__
+    self.connect()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 664, in connect
+    self._request_authentication()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 954, in _request_authentication
+    auth_packet = self._read_packet()
+                  ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 772, in _read_packet
+    packet.raise_for_error()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1045, "Access denied for user 'pbl4_user'@'localhost' (using password: YES)")
+2025-12-22 20:06:22,922 - websocket.socket_handlers - INFO - Sent initial network data to sid=SGD3OVRua7-CrF2xAAAB
+2025-12-22 20:06:26,877 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:06:26,877 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:06:30,179 - websocket.socket_handlers - INFO - Client disconnected, sid=SGD3OVRua7-CrF2xAAAB
+2025-12-22 20:06:30,181 - websocket.websocket_manager - INFO - Client disconnected from viole:network (sid=SGD3OVRua7-CrF2xAAAB)
+2025-12-22 20:06:32,749 - websocket.socket_handlers - INFO - Client connected, sid=681-3Vuz8lJMl2YMAAAD
+2025-12-22 20:06:32,763 - websocket.socket_handlers - INFO - Subscribe requested: sid=681-3Vuz8lJMl2YMAAAD, sysname=viole, topic=systemstatus
+2025-12-22 20:06:32,770 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=681-3Vuz8lJMl2YMAAAD)
+2025-12-22 20:06:34,795 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:06:34,796 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:06:34,828 - services.topic_service - ERROR - [TopicService] Error fetching systemstatus data: (1045, "Access denied for user 'pbl4_user'@'localhost' (using password: YES)")
+Traceback (most recent call last):
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\services\topic_service.py", line 49, in get_topic_data
+    data = get_status_metrics(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\queries.py", line 1013, in get_status_metrics
+    'device_info': get_device_info(sysname),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\queries.py", line 63, in get_device_info
+    with get_db() as conn:
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 19, in get_db
+    conn = create_connection()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 7, in create_connection
+    return pymysql.connect(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 358, in __init__
+    self.connect()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 664, in connect
+    self._request_authentication()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 954, in _request_authentication
+    auth_packet = self._read_packet()
+                  ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 772, in _read_packet
+    packet.raise_for_error()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1045, "Access denied for user 'pbl4_user'@'localhost' (using password: YES)")
+2025-12-22 20:06:34,861 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=681-3Vuz8lJMl2YMAAAD
+2025-12-22 20:06:42,842 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:06:42,842 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:06:49,001 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 20:06:49,001 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 20:06:49,002 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 20:06:49,002 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 20:06:49,003 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 20:06:49,006 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 20:07:16,997 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 20:07:16,997 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 20:07:18,469 - websocket.socket_handlers - INFO - Client connected, sid=C_tDrffLqpXEBYnjAAAB
+2025-12-22 20:07:18,474 - websocket.socket_handlers - INFO - Subscribe requested: sid=C_tDrffLqpXEBYnjAAAB, sysname=viole, topic=systemstatus
+2025-12-22 20:07:18,475 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=C_tDrffLqpXEBYnjAAAB)
+2025-12-22 20:07:21,505 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:07:21,506 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:07:29,217 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:07:29,239 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:07:34,875 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=C_tDrffLqpXEBYnjAAAB
+2025-12-22 20:07:36,933 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:07:36,934 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:07:44,631 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:07:44,633 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:07:52,436 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:07:52,437 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:08:00,187 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:08:00,188 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:08:07,851 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:08:07,852 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:08:15,590 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:08:15,591 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:08:23,178 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:08:23,179 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:08:30,852 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:08:30,852 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:08:38,864 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:08:38,866 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:08:46,492 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:08:46,494 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:08:54,209 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:08:54,209 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:09:01,977 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:09:01,977 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:09:09,657 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:09:09,658 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:09:17,301 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:09:17,301 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:09:26,643 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:09:26,643 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:09:34,290 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:09:34,291 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:09:42,562 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:09:42,563 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:09:50,378 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:09:50,380 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:09:58,280 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:09:58,285 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:10:06,092 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:10:06,093 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:10:13,908 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:10:13,909 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:10:21,562 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:10:21,568 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:10:29,422 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:10:29,423 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:10:37,458 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:10:37,464 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:10:45,178 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:10:45,179 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:10:53,053 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:10:53,054 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:11:00,897 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:11:00,898 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:11:08,557 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:11:08,561 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:11:16,447 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:11:16,448 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:11:24,137 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:11:24,139 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:11:32,047 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:11:32,047 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:11:39,930 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:11:39,931 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:11:47,681 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:11:47,682 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:11:55,530 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:11:55,534 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:12:03,242 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:12:03,243 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:12:10,960 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:12:10,960 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:12:18,718 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:12:18,719 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:12:26,704 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:12:26,705 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:12:34,523 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:12:34,525 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:12:42,390 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:12:42,391 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:12:50,270 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:12:50,271 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:12:58,226 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:12:58,227 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:13:06,079 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:13:06,080 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:13:13,995 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:13:13,996 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:13:21,729 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:13:21,729 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:13:29,634 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:13:29,635 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:13:37,315 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:13:37,316 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:13:45,072 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:13:45,072 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:13:54,124 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:13:54,125 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:14:02,112 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:14:02,112 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:14:09,957 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:14:09,958 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:14:18,087 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:14:18,090 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:14:25,744 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:14:25,746 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:14:33,606 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:14:33,607 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:14:41,410 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:14:41,413 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:14:49,206 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:14:49,206 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:14:56,917 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:14:56,919 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:15:04,688 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:15:04,691 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:15:12,385 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:15:12,386 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:15:20,138 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:15:20,139 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:15:27,985 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:15:27,985 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:15:35,984 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:15:35,985 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:15:43,801 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:15:43,802 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:15:51,534 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:15:51,535 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:15:59,449 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:15:59,450 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:16:07,163 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:16:07,165 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:16:14,787 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:16:14,795 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:16:22,661 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:16:22,662 - notifications.udp_listener - ERROR - Error: name 'metric_count' is not defined
+2025-12-22 20:16:25,843 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 20:16:25,845 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 20:16:25,845 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 20:16:25,847 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 20:16:25,848 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 20:16:25,856 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 20:19:09,300 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 20:19:09,301 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 20:19:19,466 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:19:20,736 - websocket.socket_handlers - INFO - Client connected, sid=vj7jrO-AjnyFFoYNAAAB
+2025-12-22 20:19:20,740 - websocket.socket_handlers - INFO - Subscribe requested: sid=vj7jrO-AjnyFFoYNAAAB, sysname=viole, topic=systemstatus
+2025-12-22 20:19:20,785 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=vj7jrO-AjnyFFoYNAAAB)
+2025-12-22 20:19:27,358 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:19:35,358 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:19:38,217 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=vj7jrO-AjnyFFoYNAAAB
+2025-12-22 20:19:43,289 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:19:51,164 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:19:55,549 - websocket.socket_handlers - INFO - Client disconnected, sid=vj7jrO-AjnyFFoYNAAAB
+2025-12-22 20:19:55,567 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=vj7jrO-AjnyFFoYNAAAB)
+2025-12-22 20:19:58,448 - websocket.socket_handlers - INFO - Client connected, sid=NLTbFDM5TqH0AhW_AAAD
+2025-12-22 20:19:58,533 - websocket.socket_handlers - INFO - Subscribe requested: sid=NLTbFDM5TqH0AhW_AAAD, sysname=viole, topic=systemstatus
+2025-12-22 20:19:58,534 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=NLTbFDM5TqH0AhW_AAAD)
+2025-12-22 20:19:58,814 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:20:06,481 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:20:14,424 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:20:14,956 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=NLTbFDM5TqH0AhW_AAAD
+2025-12-22 20:20:22,167 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:20:29,903 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:20:37,579 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:20:45,301 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:20:53,039 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:21:01,063 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:21:08,794 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:21:16,524 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:21:24,195 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:21:31,946 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:21:39,651 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:21:47,484 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:21:55,091 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:22:03,047 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:22:10,774 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:22:18,454 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:22:26,234 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:22:34,178 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:22:42,102 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:22:50,173 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:22:57,849 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:23:05,490 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:23:13,268 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:23:21,705 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:23:29,525 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:23:37,225 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:23:44,895 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:23:52,723 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:24:00,527 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:24:08,256 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:24:16,067 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:24:23,929 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:24:31,622 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:24:39,467 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:24:47,248 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:24:55,481 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:25:03,200 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:25:11,008 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:25:18,973 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:25:27,449 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:25:35,107 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:25:43,226 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:25:51,122 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:25:58,710 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:26:06,562 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:26:14,302 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:26:22,102 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:26:29,782 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:26:37,464 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:26:45,369 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:26:53,076 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:27:00,695 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:27:08,364 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:27:16,090 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:27:24,223 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:27:31,873 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:27:39,479 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:27:47,204 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:27:55,007 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:28:02,970 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:28:10,902 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:28:18,660 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:28:28,327 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:28:33,889 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 20:28:33,891 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 20:28:33,893 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 20:28:33,895 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 20:28:33,895 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 20:28:33,897 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 20:28:40,565 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 20:28:40,565 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 20:28:44,900 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:28:47,282 - websocket.socket_handlers - INFO - Client connected, sid=DhKi_SIlgiOmHEEoAAAB
+2025-12-22 20:28:47,366 - websocket.socket_handlers - INFO - Subscribe requested: sid=DhKi_SIlgiOmHEEoAAAB, sysname=viole, topic=systemstatus
+2025-12-22 20:28:47,377 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=DhKi_SIlgiOmHEEoAAAB)
+2025-12-22 20:28:52,657 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:29:00,847 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:29:03,717 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=DhKi_SIlgiOmHEEoAAAB
+2025-12-22 20:29:08,700 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:29:16,556 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:29:24,297 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:29:32,043 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:29:39,756 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:29:47,385 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:29:55,092 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:30:03,041 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:30:11,076 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:30:18,883 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:30:26,805 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:30:35,888 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:30:43,754 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:30:51,749 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:30:59,580 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:31:07,319 - notifications.udp_listener - INFO - New data for viole, metric_count: 108
+2025-12-22 20:31:15,709 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:31:23,417 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:31:31,231 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:31:39,039 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:31:46,821 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:31:54,490 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:32:02,202 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:32:09,958 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:32:17,898 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:32:25,718 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:32:33,721 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:32:41,485 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:32:49,767 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:32:57,644 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:33:05,363 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:33:13,334 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:33:21,166 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:33:28,822 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:33:36,719 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:33:44,407 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:33:52,159 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:34:00,255 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:34:07,870 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:34:15,700 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:34:23,490 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:34:31,206 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:34:38,893 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:34:46,639 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:34:54,402 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:35:02,138 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:35:10,048 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:35:17,784 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:35:25,620 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:35:33,279 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:35:41,038 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:35:48,710 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:35:56,325 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:36:03,958 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:36:11,846 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:36:19,518 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:36:27,237 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:36:34,911 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:36:42,674 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:36:50,259 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:36:57,009 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 20:36:57,010 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 20:36:57,011 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 20:36:57,012 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 20:36:57,012 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 20:36:57,014 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 20:37:01,408 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 20:37:01,408 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 20:37:03,535 - websocket.socket_handlers - INFO - Client connected, sid=V_pXZE0naKGLySNiAAAB
+2025-12-22 20:37:03,656 - websocket.socket_handlers - INFO - Subscribe requested: sid=V_pXZE0naKGLySNiAAAB, sysname=viole, topic=systemstatus
+2025-12-22 20:37:03,657 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=V_pXZE0naKGLySNiAAAB)
+2025-12-22 20:37:05,667 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:37:09,534 - websocket.socket_handlers - INFO - Client disconnected, sid=V_pXZE0naKGLySNiAAAB
+2025-12-22 20:37:09,535 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=V_pXZE0naKGLySNiAAAB)
+2025-12-22 20:37:13,073 - websocket.socket_handlers - INFO - Client connected, sid=4izu06h0MUtMjQa-AAAD
+2025-12-22 20:37:13,237 - websocket.socket_handlers - INFO - Subscribe requested: sid=4izu06h0MUtMjQa-AAAD, sysname=viole, topic=systemstatus
+2025-12-22 20:37:13,239 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=4izu06h0MUtMjQa-AAAD)
+2025-12-22 20:37:13,461 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:37:20,041 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=V_pXZE0naKGLySNiAAAB
+2025-12-22 20:37:21,178 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:37:28,851 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:37:29,629 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=4izu06h0MUtMjQa-AAAD
+2025-12-22 20:37:36,623 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:37:44,293 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:37:51,934 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:37:59,614 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:38:07,199 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:38:15,008 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:38:22,636 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:38:30,352 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:38:37,978 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:38:45,515 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:38:53,120 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:39:00,677 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:39:08,350 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:39:15,909 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:39:23,805 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:39:31,999 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:39:39,944 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:39:47,772 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:39:55,517 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:40:03,512 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:40:11,314 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:40:19,347 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:40:27,546 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:40:35,423 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:40:43,596 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:40:51,365 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:40:59,137 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:41:06,785 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:41:14,642 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:41:20,717 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 20:41:20,719 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 20:41:20,719 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 20:41:20,721 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 20:41:20,722 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 20:41:20,724 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 20:41:25,535 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 20:41:25,535 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 20:41:28,196 - websocket.socket_handlers - INFO - Client connected, sid=IbNEYEpAB2dYpwD0AAAB
+2025-12-22 20:41:28,223 - websocket.socket_handlers - INFO - Subscribe requested: sid=IbNEYEpAB2dYpwD0AAAB, sysname=viole, topic=systemstatus
+2025-12-22 20:41:28,230 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=IbNEYEpAB2dYpwD0AAAB)
+2025-12-22 20:41:30,107 - websocket.socket_handlers - INFO - Client disconnected, sid=IbNEYEpAB2dYpwD0AAAB
+2025-12-22 20:41:30,126 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=IbNEYEpAB2dYpwD0AAAB)
+2025-12-22 20:41:31,158 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:41:34,138 - websocket.socket_handlers - INFO - Client connected, sid=uVCHYfltjHtzeEKhAAAD
+2025-12-22 20:41:34,274 - websocket.socket_handlers - INFO - Subscribe requested: sid=uVCHYfltjHtzeEKhAAAD, sysname=viole, topic=systemstatus
+2025-12-22 20:41:34,280 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=uVCHYfltjHtzeEKhAAAD)
+2025-12-22 20:41:38,967 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:41:44,593 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=IbNEYEpAB2dYpwD0AAAB
+2025-12-22 20:41:46,759 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:41:50,664 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=uVCHYfltjHtzeEKhAAAD
+2025-12-22 20:41:54,413 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:42:02,271 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:42:09,980 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:42:17,601 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:42:25,472 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:42:33,169 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:42:40,825 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:42:48,480 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:42:56,134 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:43:03,961 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:43:11,857 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:43:19,526 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:43:27,264 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:43:35,032 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:43:42,669 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:43:50,503 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:43:58,470 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:44:06,167 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:44:13,926 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:44:21,685 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:44:29,359 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:44:37,075 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:44:44,974 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:44:52,635 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:45:00,471 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:45:08,067 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:45:15,784 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:45:23,442 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:45:31,091 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:45:38,805 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:45:46,449 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:45:54,055 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:46:01,645 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:46:09,230 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:46:16,971 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:46:24,736 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:46:32,393 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:46:40,024 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:46:47,764 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:46:55,395 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:47:03,083 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:47:10,751 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:47:18,399 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:47:26,978 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:47:34,573 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:47:42,457 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:47:50,625 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:48:00,323 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:48:07,945 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:48:15,478 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:48:20,278 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 20:48:20,280 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 20:48:20,281 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 20:48:20,282 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 20:48:20,283 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 20:48:20,286 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 20:48:58,427 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 20:48:58,427 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 20:49:01,854 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:49:05,481 - websocket.socket_handlers - INFO - Client connected, sid=3G0TZZIK-VNycLbKAAAB
+2025-12-22 20:49:05,502 - websocket.socket_handlers - INFO - Subscribe requested: sid=3G0TZZIK-VNycLbKAAAB, sysname=viole, topic=systemstatus
+2025-12-22 20:49:05,504 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=3G0TZZIK-VNycLbKAAAB)
+2025-12-22 20:49:09,577 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:49:17,148 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:49:21,855 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=3G0TZZIK-VNycLbKAAAB
+2025-12-22 20:49:24,791 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:49:32,338 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:49:39,882 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:49:47,522 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:49:55,287 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:50:02,889 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:50:10,534 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:50:18,073 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:50:25,769 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:50:33,338 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:50:40,953 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:50:48,536 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:50:56,108 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:51:03,725 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:51:08,348 - websocket.socket_handlers - INFO - Client disconnected, sid=3G0TZZIK-VNycLbKAAAB
+2025-12-22 20:51:08,353 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=3G0TZZIK-VNycLbKAAAB)
+2025-12-22 20:51:11,404 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:51:11,397 - websocket.socket_handlers - INFO - Client connected, sid=IHu-OUeH_ajBplhEAAAD
+2025-12-22 20:51:11,563 - websocket.socket_handlers - INFO - Subscribe requested: sid=IHu-OUeH_ajBplhEAAAD, sysname=viole, topic=systemstatus
+2025-12-22 20:51:11,564 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=IHu-OUeH_ajBplhEAAAD)
+2025-12-22 20:51:18,964 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:51:26,574 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:51:27,945 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=IHu-OUeH_ajBplhEAAAD
+2025-12-22 20:51:34,272 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:51:41,861 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:51:49,673 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:51:57,623 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:52:05,272 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:52:12,996 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:52:20,655 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:52:28,240 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:52:35,939 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:52:43,642 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:52:51,496 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:52:59,158 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:53:03,421 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 20:53:03,424 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 20:53:03,424 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 20:53:03,425 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 20:53:03,425 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 20:53:03,427 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 20:53:09,012 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 20:53:09,012 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 20:53:14,085 - websocket.socket_handlers - INFO - Client connected, sid=kzpTRwMLiPq55zsVAAAB
+2025-12-22 20:53:14,252 - websocket.socket_handlers - INFO - Subscribe requested: sid=kzpTRwMLiPq55zsVAAAB, sysname=viole, topic=systemstatus
+2025-12-22 20:53:14,311 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=kzpTRwMLiPq55zsVAAAB)
+2025-12-22 20:53:14,850 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:53:22,509 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:53:30,074 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:53:30,629 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=kzpTRwMLiPq55zsVAAAB
+2025-12-22 20:53:38,014 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:53:45,845 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:53:53,530 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:54:01,155 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:54:08,862 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:54:16,565 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:54:24,156 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:54:31,958 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:54:39,569 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:54:47,158 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:54:54,823 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:55:02,512 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:55:10,093 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:55:17,716 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:55:25,354 - websocket.socket_handlers - INFO - Client disconnected, sid=kzpTRwMLiPq55zsVAAAB
+2025-12-22 20:55:25,362 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=kzpTRwMLiPq55zsVAAAB)
+2025-12-22 20:55:26,029 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:55:26,903 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 20:55:26,906 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 20:55:26,906 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 20:55:26,906 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 20:55:26,907 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 20:55:26,908 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 20:55:33,732 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 20:55:33,732 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 20:55:34,143 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:55:40,240 - websocket.socket_handlers - INFO - Client connected, sid=9Ns1QvSfolfQLGwTAAAB
+2025-12-22 20:55:40,525 - websocket.socket_handlers - INFO - Subscribe requested: sid=9Ns1QvSfolfQLGwTAAAB, sysname=viole, topic=systemstatus
+2025-12-22 20:55:40,525 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=9Ns1QvSfolfQLGwTAAAB)
+2025-12-22 20:55:42,458 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:55:50,126 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:55:56,806 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=9Ns1QvSfolfQLGwTAAAB
+2025-12-22 20:55:57,944 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:56:05,865 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:56:13,683 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:56:21,282 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:56:29,460 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:56:37,370 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:56:45,040 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:56:52,778 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:57:00,569 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:57:09,116 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:57:17,020 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:57:24,718 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:57:32,830 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:57:40,509 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:57:48,146 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:57:56,346 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:58:04,225 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:58:44,139 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:58:52,165 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:58:59,842 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:59:07,648 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:59:15,611 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:59:22,268 - websocket.socket_handlers - INFO - Client disconnected, sid=9Ns1QvSfolfQLGwTAAAB
+2025-12-22 20:59:22,290 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=9Ns1QvSfolfQLGwTAAAB)
+2025-12-22 20:59:23,490 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:59:24,930 - websocket.socket_handlers - INFO - Client connected, sid=zBAsY8HXJ6rEHBOFAAAD
+2025-12-22 20:59:24,955 - websocket.socket_handlers - INFO - Subscribe requested: sid=zBAsY8HXJ6rEHBOFAAAD, sysname=viole, topic=systemstatus
+2025-12-22 20:59:24,955 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=zBAsY8HXJ6rEHBOFAAAD)
+2025-12-22 20:59:31,425 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:59:39,138 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:59:41,264 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=zBAsY8HXJ6rEHBOFAAAD
+2025-12-22 20:59:46,998 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 20:59:54,734 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:00:02,537 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:00:10,811 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:00:18,674 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:00:26,292 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:00:34,201 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:01:00,352 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:01:08,070 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:01:15,914 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:01:23,605 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:01:31,305 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:01:39,285 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:01:47,014 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:01:55,045 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:02:02,680 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:02:10,804 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:02:18,459 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:02:26,280 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:02:34,032 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:02:41,773 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:02:49,597 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:02:57,530 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:03:05,304 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:03:13,261 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:03:21,240 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:03:29,220 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:03:36,934 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:03:45,180 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:03:52,868 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:04:00,584 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:04:08,147 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:04:15,984 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:04:27,487 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 21:04:27,488 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 21:04:27,488 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 21:04:27,489 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 21:04:27,489 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 21:04:27,490 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 21:04:37,126 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 21:04:37,126 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 21:04:40,514 - websocket.socket_handlers - INFO - Client connected, sid=7YxADOQl-xJBlDVXAAAB
+2025-12-22 21:04:40,545 - websocket.socket_handlers - INFO - Subscribe requested: sid=7YxADOQl-xJBlDVXAAAB, sysname=viole, topic=systemstatus
+2025-12-22 21:04:40,546 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=7YxADOQl-xJBlDVXAAAB)
+2025-12-22 21:04:56,867 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=7YxADOQl-xJBlDVXAAAB
+2025-12-22 21:05:19,219 - websocket.socket_handlers - INFO - Client disconnected, sid=7YxADOQl-xJBlDVXAAAB
+2025-12-22 21:05:19,220 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=7YxADOQl-xJBlDVXAAAB)
+2025-12-22 21:05:22,804 - websocket.socket_handlers - INFO - Client connected, sid=sbckLfSEp-9ri5mkAAAD
+2025-12-22 21:05:23,024 - websocket.socket_handlers - INFO - Subscribe requested: sid=sbckLfSEp-9ri5mkAAAD, sysname=viole, topic=systemstatus
+2025-12-22 21:05:23,027 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=sbckLfSEp-9ri5mkAAAD)
+2025-12-22 21:05:37,514 - websocket.socket_handlers - INFO - Client disconnected, sid=sbckLfSEp-9ri5mkAAAD
+2025-12-22 21:05:37,531 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=sbckLfSEp-9ri5mkAAAD)
+2025-12-22 21:05:39,304 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=sbckLfSEp-9ri5mkAAAD
+2025-12-22 21:05:40,047 - websocket.socket_handlers - INFO - Client connected, sid=aLGPBsL_k6Ale9DrAAAF
+2025-12-22 21:05:40,075 - websocket.socket_handlers - INFO - Subscribe requested: sid=aLGPBsL_k6Ale9DrAAAF, sysname=viole, topic=systemstatus
+2025-12-22 21:05:40,075 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=aLGPBsL_k6Ale9DrAAAF)
+2025-12-22 21:05:56,386 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=aLGPBsL_k6Ale9DrAAAF
+2025-12-22 21:06:55,745 - websocket.socket_handlers - INFO - Client disconnected, sid=aLGPBsL_k6Ale9DrAAAF
+2025-12-22 21:06:55,977 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=aLGPBsL_k6Ale9DrAAAF)
+2025-12-22 21:07:00,926 - websocket.socket_handlers - INFO - Client connected, sid=h2IqpgriAyvTYRlKAAAH
+2025-12-22 21:07:01,016 - websocket.socket_handlers - INFO - Subscribe requested: sid=h2IqpgriAyvTYRlKAAAH, sysname=viole, topic=systemstatus
+2025-12-22 21:07:01,031 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=h2IqpgriAyvTYRlKAAAH)
+2025-12-22 21:07:19,385 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=h2IqpgriAyvTYRlKAAAH
+2025-12-22 21:10:06,987 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 21:10:06,988 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 21:10:06,989 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 21:10:06,989 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 21:10:06,990 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 21:10:06,990 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 21:10:13,225 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 21:10:13,225 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 21:10:18,483 - websocket.socket_handlers - INFO - Client connected, sid=H4cIplrdXhF_zm1kAAAB
+2025-12-22 21:10:18,491 - websocket.socket_handlers - INFO - Subscribe requested: sid=H4cIplrdXhF_zm1kAAAB, sysname=viole, topic=systemstatus
+2025-12-22 21:10:18,494 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=H4cIplrdXhF_zm1kAAAB)
+2025-12-22 21:10:34,844 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=H4cIplrdXhF_zm1kAAAB
+2025-12-22 21:11:51,971 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:11:59,791 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:12:07,517 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:12:15,302 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:12:22,992 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:12:30,775 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:12:38,640 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:12:46,304 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:12:53,993 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:13:01,655 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:13:09,372 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:13:17,604 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:13:26,457 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:13:34,810 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:13:42,878 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:13:50,698 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:13:58,458 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:14:06,183 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:14:14,061 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:14:22,061 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:14:29,952 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:14:37,662 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:14:46,086 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:14:53,821 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:15:01,950 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:15:09,768 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:15:17,582 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:15:25,253 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:15:32,990 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:15:40,950 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:15:49,233 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:15:57,151 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:16:04,850 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:16:14,157 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:16:22,120 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:16:30,028 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:16:37,776 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:16:46,839 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:16:54,636 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:17:02,386 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:17:10,180 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:17:17,930 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:17:25,684 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:17:33,418 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:17:41,157 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:17:48,969 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:17:56,715 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:18:04,665 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:18:12,496 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:18:20,319 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:18:28,054 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:18:36,355 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:18:45,954 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:18:55,319 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:19:03,459 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:19:12,122 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:19:20,212 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:19:27,994 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:19:35,773 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:19:43,832 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:19:51,539 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:19:59,250 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:20:07,749 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:20:15,506 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:20:23,273 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:20:30,971 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:20:38,799 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:20:46,739 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:20:54,482 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:21:02,229 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:21:10,047 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:21:17,715 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:21:25,806 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:21:33,581 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:21:41,436 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:21:50,065 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:21:57,885 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:22:05,744 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:22:15,613 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:22:23,406 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:22:32,256 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:22:41,177 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:22:48,998 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:22:59,483 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:23:05,315 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 21:23:05,316 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 21:23:05,316 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 21:23:05,316 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 21:23:05,317 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 21:23:05,319 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 21:23:39,144 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 21:23:39,144 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 21:23:44,481 - websocket.socket_handlers - INFO - Client connected, sid=Do1-NzxnSgQsJozbAAAB
+2025-12-22 21:23:44,494 - websocket.socket_handlers - INFO - Subscribe requested: sid=Do1-NzxnSgQsJozbAAAB, sysname=viole, topic=systemstatus
+2025-12-22 21:23:44,496 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=Do1-NzxnSgQsJozbAAAB)
+2025-12-22 21:23:46,967 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:23:54,786 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:24:00,791 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=Do1-NzxnSgQsJozbAAAB
+2025-12-22 21:24:02,519 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:24:10,272 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:24:18,084 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:24:26,262 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:24:34,052 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:24:41,788 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:24:49,482 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:24:57,189 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:25:04,967 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:25:12,655 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:25:20,913 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:25:26,948 - websocket.socket_handlers - INFO - Client disconnected, sid=Do1-NzxnSgQsJozbAAAB
+2025-12-22 21:25:26,948 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=Do1-NzxnSgQsJozbAAAB)
+2025-12-22 21:50:39,223 - websocket.socket_handlers - INFO - Client connected, sid=rh2RP9osubQmFOG4AAAD
+2025-12-22 21:50:39,431 - websocket.socket_handlers - INFO - Subscribe requested: sid=rh2RP9osubQmFOG4AAAD, sysname=viole, topic=systemstatus
+2025-12-22 21:50:39,431 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=rh2RP9osubQmFOG4AAAD)
+2025-12-22 21:50:52,400 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:50:56,031 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=rh2RP9osubQmFOG4AAAD
+2025-12-22 21:51:00,166 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:51:07,809 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:51:15,522 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:51:23,131 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:51:30,999 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:51:38,585 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:51:46,169 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:51:53,772 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:52:01,382 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:52:09,146 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:52:16,907 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:52:24,604 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:52:32,261 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:52:39,975 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:52:47,602 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:52:55,365 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:53:03,039 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:53:10,577 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:53:18,276 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:53:26,023 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:53:33,848 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:53:41,673 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:53:49,388 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:53:57,057 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:54:04,771 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:54:12,420 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:54:20,237 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:54:27,911 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:54:35,645 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:54:43,300 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:54:50,864 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:54:58,892 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:55:21,207 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 21:55:21,208 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 21:55:21,208 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 21:55:21,209 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 21:55:21,209 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 21:55:21,210 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 21:55:25,596 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 21:55:25,596 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 21:55:27,482 - websocket.socket_handlers - INFO - Client connected, sid=0-5GlJVwV5FxJTNOAAAB
+2025-12-22 21:55:27,500 - websocket.socket_handlers - INFO - Subscribe requested: sid=0-5GlJVwV5FxJTNOAAAB, sysname=viole, topic=systemstatus
+2025-12-22 21:55:27,503 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=0-5GlJVwV5FxJTNOAAAB)
+2025-12-22 21:55:30,839 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:55:38,558 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:55:43,919 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=0-5GlJVwV5FxJTNOAAAB
+2025-12-22 21:55:46,264 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:55:53,908 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:56:01,561 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:56:09,334 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:56:17,029 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:56:19,533 - websocket.socket_handlers - INFO - Client disconnected, sid=0-5GlJVwV5FxJTNOAAAB
+2025-12-22 21:56:19,579 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=0-5GlJVwV5FxJTNOAAAB)
+2025-12-22 21:56:37,038 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:56:45,598 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:56:53,466 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:57:01,373 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:57:09,067 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:57:16,420 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 21:57:16,424 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 21:57:16,425 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 21:57:16,425 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 21:57:16,425 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 21:57:16,430 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 21:57:21,431 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 21:57:21,431 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 21:57:24,649 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:57:32,362 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:57:40,027 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:57:47,773 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:57:49,373 - websocket.socket_handlers - INFO - Client connected, sid=SwK9rDsvvKVSqshvAAAB
+2025-12-22 21:57:49,379 - websocket.socket_handlers - INFO - Subscribe requested: sid=SwK9rDsvvKVSqshvAAAB, sysname=violet, topic=network
+2025-12-22 21:57:49,379 - websocket.websocket_manager - INFO - Client connected to violet:network (sid=SwK9rDsvvKVSqshvAAAB)
+2025-12-22 21:57:53,481 - websocket.socket_handlers - INFO - Sent initial network data to sid=SwK9rDsvvKVSqshvAAAB
+2025-12-22 21:57:55,256 - websocket.socket_handlers - INFO - Client disconnected, sid=SwK9rDsvvKVSqshvAAAB
+2025-12-22 21:57:55,258 - websocket.websocket_manager - INFO - Client disconnected from violet:network (sid=SwK9rDsvvKVSqshvAAAB)
+2025-12-22 21:57:55,592 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:57:57,863 - websocket.socket_handlers - INFO - Client connected, sid=i4B9_bBBZI0c-KX5AAAD
+2025-12-22 21:57:57,874 - websocket.socket_handlers - INFO - Subscribe requested: sid=i4B9_bBBZI0c-KX5AAAD, sysname=violet, topic=systemstatus
+2025-12-22 21:57:57,875 - websocket.websocket_manager - INFO - Client connected to violet:systemstatus (sid=i4B9_bBBZI0c-KX5AAAD)
+2025-12-22 21:58:01,474 - websocket.socket_handlers - INFO - Client disconnected, sid=i4B9_bBBZI0c-KX5AAAD
+2025-12-22 21:58:01,475 - websocket.websocket_manager - INFO - Client disconnected from violet:systemstatus (sid=i4B9_bBBZI0c-KX5AAAD)
+2025-12-22 21:58:03,484 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:58:04,600 - websocket.socket_handlers - INFO - Client connected, sid=2OsB-THEnv8UFEUTAAAF
+2025-12-22 21:58:04,644 - websocket.socket_handlers - INFO - Subscribe requested: sid=2OsB-THEnv8UFEUTAAAF, sysname=violet, topic=systemstatus
+2025-12-22 21:58:04,710 - websocket.websocket_manager - INFO - Client connected to violet:systemstatus (sid=2OsB-THEnv8UFEUTAAAF)
+2025-12-22 21:58:11,242 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:58:14,231 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=i4B9_bBBZI0c-KX5AAAD
+2025-12-22 21:58:19,447 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:58:21,014 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=2OsB-THEnv8UFEUTAAAF
+2025-12-22 21:58:27,127 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:58:33,931 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 21:58:33,932 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 21:58:33,932 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 21:58:33,932 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 21:58:33,932 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 21:58:33,937 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 21:58:38,161 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 21:58:38,161 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 21:58:40,465 - websocket.socket_handlers - INFO - Client connected, sid=oUMnhhLowsQ-5iRzAAAB
+2025-12-22 21:58:40,488 - websocket.socket_handlers - INFO - Subscribe requested: sid=oUMnhhLowsQ-5iRzAAAB, sysname=violet, topic=systemstatus
+2025-12-22 21:58:40,489 - websocket.websocket_manager - INFO - Client connected to violet:systemstatus (sid=oUMnhhLowsQ-5iRzAAAB)
+2025-12-22 21:58:42,698 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:58:45,477 - websocket.socket_handlers - INFO - Client disconnected, sid=oUMnhhLowsQ-5iRzAAAB
+2025-12-22 21:58:45,482 - websocket.websocket_manager - INFO - Client disconnected from violet:systemstatus (sid=oUMnhhLowsQ-5iRzAAAB)
+2025-12-22 21:58:48,847 - websocket.socket_handlers - INFO - Client connected, sid=8h6BK10xqXTq2DFpAAAD
+2025-12-22 21:58:48,852 - websocket.socket_handlers - INFO - Subscribe requested: sid=8h6BK10xqXTq2DFpAAAD, sysname=violet, topic=systemstatus
+2025-12-22 21:58:48,855 - websocket.websocket_manager - INFO - Client connected to violet:systemstatus (sid=8h6BK10xqXTq2DFpAAAD)
+2025-12-22 21:58:51,474 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:58:56,781 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=oUMnhhLowsQ-5iRzAAAB
+2025-12-22 21:58:59,238 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:59:05,158 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=8h6BK10xqXTq2DFpAAAD
+2025-12-22 21:59:06,828 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:59:14,486 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:59:22,432 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 21:59:30,144 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:03:10,672 - websocket.socket_handlers - INFO - Client disconnected, sid=8h6BK10xqXTq2DFpAAAD
+2025-12-22 22:03:10,678 - websocket.websocket_manager - INFO - Client disconnected from violet:systemstatus (sid=8h6BK10xqXTq2DFpAAAD)
+2025-12-22 22:03:13,925 - websocket.socket_handlers - INFO - Client connected, sid=v0hzLYGBE0uMY1sXAAAF
+2025-12-22 22:03:14,039 - websocket.socket_handlers - INFO - Subscribe requested: sid=v0hzLYGBE0uMY1sXAAAF, sysname=violet, topic=systemstatus
+2025-12-22 22:03:14,047 - websocket.websocket_manager - INFO - Client connected to violet:systemstatus (sid=v0hzLYGBE0uMY1sXAAAF)
+2025-12-22 22:03:30,292 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=v0hzLYGBE0uMY1sXAAAF
+2025-12-22 22:25:14,285 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 22:25:14,286 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 22:25:14,286 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 22:25:14,286 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 22:25:14,287 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 22:25:14,288 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 22:25:32,237 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 22:25:32,238 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 22:25:33,461 - websocket.socket_handlers - INFO - Client connected, sid=5-egb_YO4mynMKWOAAAB
+2025-12-22 22:25:33,469 - websocket.socket_handlers - INFO - Subscribe requested: sid=5-egb_YO4mynMKWOAAAB, sysname=violet, topic=systemstatus
+2025-12-22 22:25:33,471 - websocket.websocket_manager - INFO - Client connected to violet:systemstatus (sid=5-egb_YO4mynMKWOAAAB)
+2025-12-22 22:25:35,509 - services.topic_service - ERROR - [TopicService] Error fetching systemstatus data: (1045, "Access denied for user 'pbl4_user'@'localhost' (using password: YES)")
+Traceback (most recent call last):
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\services\topic_service.py", line 49, in get_topic_data
+    data = get_status_metrics(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\queries.py", line 1013, in get_status_metrics
+    'device_info': get_device_info(sysname),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\queries.py", line 63, in get_device_info
+    with get_db() as conn:
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 19, in get_db
+    conn = create_connection()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 7, in create_connection
+    return pymysql.connect(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 358, in __init__
+    self.connect()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 664, in connect
+    self._request_authentication()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 954, in _request_authentication
+    auth_packet = self._read_packet()
+                  ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 772, in _read_packet
+    packet.raise_for_error()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1045, "Access denied for user 'pbl4_user'@'localhost' (using password: YES)")
+2025-12-22 22:25:35,558 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=5-egb_YO4mynMKWOAAAB
+2025-12-22 22:25:45,820 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:25:53,512 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:25:56,819 - websocket.socket_handlers - INFO - Client disconnected, sid=5-egb_YO4mynMKWOAAAB
+2025-12-22 22:25:56,821 - websocket.websocket_manager - INFO - Client disconnected from violet:systemstatus (sid=5-egb_YO4mynMKWOAAAB)
+2025-12-22 22:25:59,908 - websocket.socket_handlers - INFO - Client connected, sid=GPX_TMkwBJ4BHrwUAAAD
+2025-12-22 22:25:59,917 - websocket.socket_handlers - INFO - Subscribe requested: sid=GPX_TMkwBJ4BHrwUAAAD, sysname=violet, topic=systemstatus
+2025-12-22 22:25:59,919 - websocket.websocket_manager - INFO - Client connected to violet:systemstatus (sid=GPX_TMkwBJ4BHrwUAAAD)
+2025-12-22 22:26:01,869 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:26:01,954 - services.topic_service - ERROR - [TopicService] Error fetching systemstatus data: (1045, "Access denied for user 'pbl4_user'@'localhost' (using password: YES)")
+Traceback (most recent call last):
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\services\topic_service.py", line 49, in get_topic_data
+    data = get_status_metrics(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\queries.py", line 1013, in get_status_metrics
+    'device_info': get_device_info(sysname),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\queries.py", line 63, in get_device_info
+    with get_db() as conn:
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 19, in get_db
+    conn = create_connection()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\VIOLETTA\Documents\MQF\StudyMaterial\Third year\5th Semester\PBL4\projects\query-service\db\connection.py", line 7, in create_connection
+    return pymysql.connect(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 358, in __init__
+    self.connect()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 664, in connect
+    self._request_authentication()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 954, in _request_authentication
+    auth_packet = self._read_packet()
+                  ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\connections.py", line 772, in _read_packet
+    packet.raise_for_error()
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "C:\Users\LAPTOP T&T\.conda\envs\manager\Lib\site-packages\pymysql\err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1045, "Access denied for user 'pbl4_user'@'localhost' (using password: YES)")
+2025-12-22 22:26:01,989 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=GPX_TMkwBJ4BHrwUAAAD
+2025-12-22 22:26:09,570 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:26:17,269 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:26:25,043 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:26:32,878 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:26:34,962 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 22:26:34,962 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 22:26:34,962 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 22:26:34,962 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 22:26:34,962 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 22:26:34,965 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 22:26:48,578 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 22:26:48,578 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 22:26:48,647 - websocket.socket_handlers - INFO - Client connected, sid=RVtozEEK2EMyGXQMAAAB
+2025-12-22 22:26:48,808 - websocket.socket_handlers - INFO - Subscribe requested: sid=RVtozEEK2EMyGXQMAAAB, sysname=violet, topic=systemstatus
+2025-12-22 22:26:48,809 - websocket.websocket_manager - INFO - Client connected to violet:systemstatus (sid=RVtozEEK2EMyGXQMAAAB)
+2025-12-22 22:26:56,078 - websocket.socket_handlers - INFO - Client connected, sid=rKtvFDKuRwi5V7YmAAAD
+2025-12-22 22:26:56,254 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:27:03,957 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:27:05,221 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=RVtozEEK2EMyGXQMAAAB
+2025-12-22 22:27:09,917 - websocket.socket_handlers - INFO - Client connected, sid=JCSJxIKm2890tdLaAAAF
+2025-12-22 22:27:11,624 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:27:19,301 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:27:26,930 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:27:27,665 - websocket.socket_handlers - INFO - Client connected, sid=gc_M9TGr_i5yipycAAAH
+2025-12-22 22:27:31,714 - websocket.socket_handlers - INFO - Subscribe requested: sid=gc_M9TGr_i5yipycAAAH, sysname=violet, topic=systemstatus
+2025-12-22 22:27:31,715 - websocket.websocket_manager - INFO - Client connected to violet:systemstatus (sid=gc_M9TGr_i5yipycAAAH)
+2025-12-22 22:27:34,509 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:27:42,196 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:27:48,036 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=gc_M9TGr_i5yipycAAAH
+2025-12-22 22:27:50,282 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:27:53,701 - websocket.socket_handlers - INFO - Client disconnected, sid=rKtvFDKuRwi5V7YmAAAD
+2025-12-22 22:27:53,703 - websocket.websocket_manager - WARNING - Client disconnected (topic not found, sid=rKtvFDKuRwi5V7YmAAAD)
+2025-12-22 22:27:54,757 - websocket.socket_handlers - INFO - Client disconnected, sid=gc_M9TGr_i5yipycAAAH
+2025-12-22 22:27:54,760 - websocket.websocket_manager - INFO - Client disconnected from violet:systemstatus (sid=gc_M9TGr_i5yipycAAAH)
+2025-12-22 22:27:57,258 - websocket.socket_handlers - INFO - Client connected, sid=osm5ic9KJpQ3W7nrAAAJ
+2025-12-22 22:27:58,013 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:27:58,719 - websocket.socket_handlers - INFO - Client disconnected, sid=JCSJxIKm2890tdLaAAAF
+2025-12-22 22:27:58,719 - websocket.websocket_manager - WARNING - Client disconnected (topic not found, sid=JCSJxIKm2890tdLaAAAF)
+2025-12-22 22:28:01,308 - websocket.socket_handlers - INFO - Subscribe requested: sid=osm5ic9KJpQ3W7nrAAAJ, sysname=viole, topic=systemstatus
+2025-12-22 22:28:01,310 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=osm5ic9KJpQ3W7nrAAAJ)
+2025-12-22 22:28:05,649 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:28:09,882 - websocket.socket_handlers - INFO - Client disconnected, sid=osm5ic9KJpQ3W7nrAAAJ
+2025-12-22 22:28:09,882 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=osm5ic9KJpQ3W7nrAAAJ)
+2025-12-22 22:28:13,232 - websocket.socket_handlers - INFO - Client connected, sid=EiexA-TRVn1VlPmOAAAL
+2025-12-22 22:28:17,291 - websocket.socket_handlers - INFO - Subscribe requested: sid=EiexA-TRVn1VlPmOAAAL, sysname=viole, topic=systemstatus
+2025-12-22 22:28:17,292 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=EiexA-TRVn1VlPmOAAAL)
+2025-12-22 22:28:17,587 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=osm5ic9KJpQ3W7nrAAAJ
+2025-12-22 22:28:22,011 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:28:22,014 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:28:33,618 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=EiexA-TRVn1VlPmOAAAL
+2025-12-22 22:28:38,376 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:28:38,379 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:28:54,698 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:28:54,698 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:11,050 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:29:11,055 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:27,363 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:29:27,365 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:42,503 - websocket.socket_handlers - INFO - Client disconnected, sid=EiexA-TRVn1VlPmOAAAL
+2025-12-22 22:29:42,516 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=EiexA-TRVn1VlPmOAAAL)
+2025-12-22 22:29:43,674 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:29:43,674 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:43,675 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:43,676 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:43,676 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:43,677 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:43,678 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:43,678 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:45,136 - websocket.socket_handlers - INFO - Client connected, sid=iwVvRhDExnhMLYC0AAAN
+2025-12-22 22:29:46,119 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:49,215 - websocket.socket_handlers - INFO - Subscribe requested: sid=iwVvRhDExnhMLYC0AAAN, sysname=viole, topic=network
+2025-12-22 22:29:49,215 - websocket.websocket_manager - INFO - Client connected to viole:network (sid=iwVvRhDExnhMLYC0AAAN)
+2025-12-22 22:29:53,319 - websocket.socket_handlers - INFO - Sent initial network data to sid=iwVvRhDExnhMLYC0AAAN
+2025-12-22 22:29:53,839 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:29:57,920 - services.topic_service - DEBUG - [TopicService] Successfully streamed network data to clients
+2025-12-22 22:29:57,922 - websocket.socket_handlers - INFO - Client disconnected, sid=iwVvRhDExnhMLYC0AAAN
+2025-12-22 22:29:57,923 - websocket.websocket_manager - INFO - Client disconnected from viole:network (sid=iwVvRhDExnhMLYC0AAAN)
+2025-12-22 22:30:00,349 - websocket.socket_handlers - INFO - Client connected, sid=cqRfGWKhRee16MMnAAAP
+2025-12-22 22:30:01,506 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:30:04,460 - websocket.socket_handlers - INFO - Subscribe requested: sid=cqRfGWKhRee16MMnAAAP, sysname=viole, topic=disk
+2025-12-22 22:30:04,461 - websocket.websocket_manager - INFO - Client connected to viole:disk (sid=cqRfGWKhRee16MMnAAAP)
+2025-12-22 22:30:08,539 - websocket.socket_handlers - INFO - Sent initial disk data to sid=cqRfGWKhRee16MMnAAAP
+2025-12-22 22:30:09,299 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:30:10,339 - websocket.socket_handlers - INFO - Client disconnected, sid=cqRfGWKhRee16MMnAAAP
+2025-12-22 22:30:10,340 - websocket.websocket_manager - INFO - Client disconnected from viole:disk (sid=cqRfGWKhRee16MMnAAAP)
+2025-12-22 22:30:12,794 - websocket.socket_handlers - INFO - Client connected, sid=acUa4HPIudaisJ8dAAAR
+2025-12-22 22:30:13,404 - services.topic_service - DEBUG - [TopicService] Successfully streamed disk data to clients
+2025-12-22 22:30:16,887 - websocket.socket_handlers - INFO - Subscribe requested: sid=acUa4HPIudaisJ8dAAAR, sysname=viole, topic=diskio
+2025-12-22 22:30:16,890 - websocket.websocket_manager - INFO - Client connected to viole:diskio (sid=acUa4HPIudaisJ8dAAAR)
+2025-12-22 22:30:16,990 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:30:20,971 - websocket.socket_handlers - INFO - Sent initial diskio data to sid=acUa4HPIudaisJ8dAAAR
+2025-12-22 22:30:21,101 - services.topic_service - DEBUG - [TopicService] Successfully streamed diskio data to clients
+2025-12-22 22:30:23,081 - websocket.socket_handlers - INFO - Client disconnected, sid=acUa4HPIudaisJ8dAAAR
+2025-12-22 22:30:23,082 - websocket.websocket_manager - INFO - Client disconnected from viole:diskio (sid=acUa4HPIudaisJ8dAAAR)
+2025-12-22 22:30:24,579 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:30:32,205 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:30:39,876 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:30:47,513 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:30:53,562 - websocket.socket_handlers - INFO - Client connected, sid=yySJGpFcJQqq1rs7AAAT
+2025-12-22 22:30:55,394 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:30:57,635 - websocket.socket_handlers - INFO - Subscribe requested: sid=yySJGpFcJQqq1rs7AAAT, sysname=viole, topic=systemstatus
+2025-12-22 22:30:57,637 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=yySJGpFcJQqq1rs7AAAT)
+2025-12-22 22:31:03,058 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:31:13,918 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=yySJGpFcJQqq1rs7AAAT
+2025-12-22 22:31:19,349 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:31:19,351 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:31:24,498 - websocket.socket_handlers - INFO - Client disconnected, sid=RVtozEEK2EMyGXQMAAAB
+2025-12-22 22:31:24,513 - websocket.websocket_manager - INFO - Client disconnected from violet:systemstatus (sid=RVtozEEK2EMyGXQMAAAB)
+2025-12-22 22:31:35,642 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:31:35,661 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:31:52,045 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:31:52,047 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:32:08,405 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:32:08,405 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:32:24,711 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:32:24,712 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:32:41,042 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:32:41,042 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:32:57,296 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:32:57,296 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:33:13,587 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:33:13,679 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:33:29,949 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:33:29,951 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:33:46,282 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:33:46,284 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:34:02,564 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:34:02,566 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:34:18,893 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:34:18,894 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:34:35,229 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:34:35,231 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:34:51,556 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:34:51,561 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:35:07,914 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:35:07,916 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:35:24,267 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:35:24,271 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:35:40,532 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:35:40,534 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:35:56,853 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:35:56,856 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:09,945 - websocket.socket_handlers - INFO - Client disconnected, sid=yySJGpFcJQqq1rs7AAAT
+2025-12-22 22:36:09,946 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=yySJGpFcJQqq1rs7AAAT)
+2025-12-22 22:36:12,732 - websocket.socket_handlers - INFO - Client connected, sid=HtaGlxq0wLYCNB9DAAAV
+2025-12-22 22:36:13,167 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:36:13,168 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,169 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,169 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,171 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,172 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,174 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,175 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,176 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,177 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,178 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,179 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,180 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,181 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,182 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,183 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,185 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,186 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,187 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,187 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:13,188 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:15,132 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:16,824 - websocket.socket_handlers - INFO - Subscribe requested: sid=HtaGlxq0wLYCNB9DAAAV, sysname=viole, topic=systemstatus
+2025-12-22 22:36:16,824 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=HtaGlxq0wLYCNB9DAAAV)
+2025-12-22 22:36:18,853 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:33,140 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=HtaGlxq0wLYCNB9DAAAV
+2025-12-22 22:36:35,128 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:36:35,133 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:36:51,455 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:36:51,455 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:37:07,740 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:37:07,743 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:37:24,137 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:37:24,137 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:37:40,521 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:37:40,550 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:37:57,039 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:37:57,040 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:38:13,295 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:38:13,300 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:38:29,571 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:38:29,576 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:38:45,896 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:38:45,897 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:39:02,180 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:39:02,181 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:39:18,499 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:39:18,504 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:39:23,290 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 22:39:23,291 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 22:39:23,291 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 22:39:35,147 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 22:39:35,148 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 22:39:35,227 - websocket.socket_handlers - INFO - Client connected, sid=dBvVs6OhNGpH6e_PAAAB
+2025-12-22 22:39:37,335 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:39:38,737 - websocket.socket_handlers - INFO - Client connected, sid=eiVji2f-Hb75dcIVAAAD
+2025-12-22 22:39:39,302 - websocket.socket_handlers - INFO - Client disconnected, sid=dBvVs6OhNGpH6e_PAAAB
+2025-12-22 22:39:39,303 - websocket.websocket_manager - WARNING - Client disconnected (topic not found, sid=dBvVs6OhNGpH6e_PAAAB)
+2025-12-22 22:39:41,262 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:39:42,801 - websocket.socket_handlers - INFO - Subscribe requested: sid=eiVji2f-Hb75dcIVAAAD, sysname=viole, topic=systemstatus
+2025-12-22 22:39:42,802 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=eiVji2f-Hb75dcIVAAAD)
+2025-12-22 22:39:45,024 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:39:59,130 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=eiVji2f-Hb75dcIVAAAD
+2025-12-22 22:40:01,356 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:40:01,357 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:40:17,722 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:40:17,727 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:40:33,976 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:40:33,976 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:40:50,212 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:40:50,213 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:06,544 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:41:06,545 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:22,817 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:41:22,820 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:30,557 - websocket.socket_handlers - INFO - Client disconnected, sid=eiVji2f-Hb75dcIVAAAD
+2025-12-22 22:41:30,559 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=eiVji2f-Hb75dcIVAAAD)
+2025-12-22 22:41:39,073 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:41:39,074 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,075 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,075 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,076 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,077 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,078 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,078 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,079 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,081 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,083 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,084 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,086 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,087 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,088 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,089 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,090 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,091 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,092 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,092 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,094 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,095 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,095 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,096 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:39,099 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:41,317 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:44,920 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:48,634 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:52,440 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:41:57,135 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:42:00,776 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:42:04,492 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:42:08,273 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:42:10,148 - websocket.socket_handlers - INFO - Client connected, sid=clsZpJp-d1s7A6kXAAAF
+2025-12-22 22:42:12,002 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:42:14,232 - websocket.socket_handlers - INFO - Subscribe requested: sid=clsZpJp-d1s7A6kXAAAF, sysname=viole, topic=systemstatus
+2025-12-22 22:42:14,232 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=clsZpJp-d1s7A6kXAAAF)
+2025-12-22 22:42:15,653 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:42:30,544 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=clsZpJp-d1s7A6kXAAAF
+2025-12-22 22:42:31,964 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:42:31,999 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:42:48,346 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:42:48,346 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:43:04,630 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:43:04,631 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:43:20,922 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:43:20,923 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:43:28,141 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 22:43:28,144 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 22:43:28,145 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 22:45:50,800 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 22:45:50,800 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 22:45:50,806 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 22:45:50,807 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 22:45:50,807 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 22:45:50,807 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 22:46:12,945 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 22:46:12,946 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 22:46:16,694 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:46:17,210 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 22:46:17,210 - notifications.udp_listener - ERROR - Failed to start listener: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted
+2025-12-22 22:46:17,212 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 22:46:20,088 - websocket.socket_handlers - INFO - Client connected, sid=-YzpXEEH-vdCIMO9AAAB
+2025-12-22 22:46:20,406 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:46:24,072 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:46:24,134 - websocket.socket_handlers - INFO - Subscribe requested: sid=-YzpXEEH-vdCIMO9AAAB, sysname=viole, topic=systemstatus
+2025-12-22 22:46:24,136 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=-YzpXEEH-vdCIMO9AAAB)
+2025-12-22 22:46:27,835 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:46:31,608 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:46:35,384 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:46:39,007 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:46:40,413 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=-YzpXEEH-vdCIMO9AAAB
+2025-12-22 22:46:42,855 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:46:46,462 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:46:50,146 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:46:53,786 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:46:57,506 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:01,733 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:05,596 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:09,638 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:13,491 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:17,269 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:20,917 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:24,590 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:28,250 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:32,131 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:36,078 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:39,788 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:43,379 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:47,118 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:49,315 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 22:47:49,316 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 22:47:50,910 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:53,597 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 22:47:53,598 - notifications.udp_listener - ERROR - Failed to start listener: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted
+2025-12-22 22:47:53,599 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 22:47:53,656 - websocket.socket_handlers - INFO - Client connected, sid=6vl4qtrZ_drjBwH_AAAB
+2025-12-22 22:47:54,615 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:47:57,714 - websocket.socket_handlers - INFO - Subscribe requested: sid=6vl4qtrZ_drjBwH_AAAB, sysname=viole, topic=systemstatus
+2025-12-22 22:47:57,720 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=6vl4qtrZ_drjBwH_AAAB)
+2025-12-22 22:47:58,468 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:48:02,192 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:48:05,901 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:48:09,476 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:48:14,067 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=6vl4qtrZ_drjBwH_AAAB
+2025-12-22 22:48:22,380 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:48:23,967 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 22:48:23,969 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 22:48:24,215 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 22:48:24,215 - notifications.udp_listener - INFO - Socket closed, exiting listen loop
+2025-12-22 22:48:24,215 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 22:48:24,215 - notifications.udp_listener - INFO - Listen loop ended
+2025-12-22 22:48:24,215 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 22:48:24,219 - notifications.udp_listener - INFO - Thread finished
+2025-12-22 22:48:32,679 - notifications.udp_listener - INFO - Started on port 6003
+2025-12-22 22:48:32,679 - notifications.udp_listener - INFO - Listening on port 6003
+2025-12-22 22:48:35,500 - websocket.socket_handlers - INFO - Client connected, sid=g5xrszjKAsLp4TY7AAAC
+2025-12-22 22:48:38,209 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:48:39,553 - websocket.socket_handlers - INFO - Subscribe requested: sid=g5xrszjKAsLp4TY7AAAC, sysname=viole, topic=systemstatus
+2025-12-22 22:48:39,554 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=g5xrszjKAsLp4TY7AAAC)
+2025-12-22 22:48:45,896 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:48:55,914 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=g5xrszjKAsLp4TY7AAAC
+2025-12-22 22:49:02,246 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:49:02,248 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:49:18,566 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:49:18,576 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:49:34,955 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:49:34,960 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:49:51,234 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:49:51,247 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:50:07,748 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:50:07,749 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:50:24,069 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:50:24,070 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:50:40,390 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:50:40,392 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:50:56,761 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:50:56,761 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:04,053 - websocket.socket_handlers - INFO - Client disconnected, sid=g5xrszjKAsLp4TY7AAAC
+2025-12-22 22:51:04,055 - websocket.websocket_manager - INFO - Client disconnected from viole:systemstatus (sid=g5xrszjKAsLp4TY7AAAC)
+2025-12-22 22:51:06,755 - websocket.socket_handlers - INFO - Client connected, sid=fk47itvlCXbyEaYnAAAE
+2025-12-22 22:51:10,844 - websocket.socket_handlers - INFO - Client disconnected, sid=fk47itvlCXbyEaYnAAAE
+2025-12-22 22:51:10,844 - websocket.websocket_manager - WARNING - Client disconnected (topic not found, sid=fk47itvlCXbyEaYnAAAE)
+2025-12-22 22:51:12,414 - websocket.socket_handlers - INFO - Client connected, sid=we3HyYG7qDQZOxGYAAAG
+2025-12-22 22:51:13,036 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:51:13,037 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:13,039 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:13,040 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:13,041 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:13,045 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:13,046 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:13,048 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:13,049 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:13,051 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:13,052 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:13,393 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:16,505 - websocket.socket_handlers - INFO - Subscribe requested: sid=we3HyYG7qDQZOxGYAAAG, sysname=viole, topic=systemstatus
+2025-12-22 22:51:16,580 - websocket.websocket_manager - INFO - Client connected to viole:systemstatus (sid=we3HyYG7qDQZOxGYAAAG)
+2025-12-22 22:51:21,214 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:32,877 - websocket.socket_handlers - INFO - Sent initial systemstatus data to sid=we3HyYG7qDQZOxGYAAAG
+2025-12-22 22:51:37,528 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:51:37,529 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:51:53,893 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:51:53,895 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:52:10,245 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:52:10,335 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:52:26,705 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:52:26,706 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:52:43,016 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:52:43,017 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:52:59,346 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:52:59,348 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:53:15,733 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:53:15,734 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:53:32,018 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:53:32,020 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:53:48,338 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:53:48,341 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:54:04,673 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:54:04,676 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:54:20,992 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:54:20,996 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:54:37,400 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:54:37,401 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:54:53,760 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:54:53,761 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:55:10,142 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:55:10,147 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:55:26,499 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:55:26,501 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:55:42,892 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:55:42,896 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:55:59,261 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:55:59,264 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:56:15,623 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:56:15,626 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:56:31,991 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:56:31,996 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:56:48,353 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:56:48,355 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:57:04,701 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:57:04,705 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:57:21,068 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:57:21,069 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:57:37,392 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:57:37,392 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:57:53,777 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:57:53,782 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:58:10,116 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:58:10,116 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:58:26,472 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:58:26,472 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:58:42,837 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:58:42,840 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:58:59,254 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:58:59,256 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:59:15,774 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:59:15,784 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:59:32,140 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:59:32,143 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 22:59:48,512 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 22:59:48,512 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:00:04,905 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:00:04,905 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:00:21,262 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:00:21,263 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:00:37,537 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:00:37,538 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:00:53,853 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:00:53,856 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:01:10,202 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:01:10,207 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:01:26,486 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:01:26,490 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:01:42,775 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:01:42,775 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:01:59,190 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:01:59,195 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:02:15,619 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:02:15,621 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:02:31,971 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:02:31,976 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:02:48,355 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:02:48,355 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:03:04,740 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:03:04,740 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:03:21,369 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:03:21,370 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:03:37,684 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:03:37,685 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:03:54,116 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:03:54,116 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:04:10,511 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:04:10,513 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:04:26,858 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:04:26,859 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:04:43,382 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:04:43,382 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:04:59,733 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:04:59,735 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:05:16,090 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:05:16,094 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:05:32,423 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:05:32,424 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:05:48,717 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:05:48,718 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:06:05,005 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:06:05,008 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:06:21,333 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:06:21,333 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:06:37,761 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:06:37,761 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:06:54,156 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:06:54,161 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:07:10,477 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:07:10,479 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:07:26,871 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:07:26,871 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:07:43,272 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:07:43,275 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:07:59,642 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:07:59,727 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:08:16,119 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:08:16,122 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:08:32,464 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:08:32,482 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:08:48,875 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:08:48,880 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:09:05,209 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:09:05,210 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:09:21,576 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:09:21,576 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:09:37,933 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:09:37,933 - notifications.udp_listener - INFO - New data for viole, metric_count: 102
+2025-12-22 23:09:52,446 - notifications.udp_listener - INFO - Stopping...
+2025-12-22 23:09:52,457 - notifications.udp_listener - INFO - Socket closed
+2025-12-22 23:09:52,460 - notifications.udp_listener - INFO - Waiting for thread to finish...
+2025-12-22 23:09:54,276 - services.topic_service - DEBUG - [TopicService] Successfully streamed systemstatus data to clients
+2025-12-22 23:09:54,276 - notifications.udp_listener - INFO - Listen loop ended

@@ -1,42 +1,61 @@
 # SNMPHealthMonitor AI Coding Instructions
 
 ## Project Overview
-This project is a networked system monitoring solution comprising two distinct components:
-1. **`rasberrypi` (Collector):** An SNMP agent/collector that polls devices, writes data to MySQL, and broadcasts real-time updates via UDP.
-2. **`query-service` (Backend):** A Flask application that serves a dashboard, provides a REST API for historical data, and bridges UDP notifications to WebSockets for real-time visualization.
+This is a networked system monitoring solution comprising two distinct components:
+1.  **`rasberrypi` (Collector):** An SNMP agent/collector that polls devices, writes data to MySQL, and broadcasts real-time updates via UDP.
+2.  **`server_django` (Backend):** A Django-based application serving a dashboard, REST API (Django Ninja), and real-time WebSockets (Django Channels).
 
 ## Architecture & Data Flow
-Understanding the "Dual-Path" data flow is critical:
-*   **Path 1 (History):** The Collector writes metrics **directly** to the MySQL database. The Backend reads from this DB for historical charts/logs.
-*   **Path 2 (Real-time):** The Collector sends a **UDP packet** containing the latest metrics to the Backend. The Backend's UDP Listener receives this, processes it (without querying the DB), and pushes it to the Frontend via **Socket.IO**.
-    *   *Why?* This decouples real-time visualization latency from database write performance.
+The "Dual-Path" data flow is critical for performance:
+*   **Path 1 (History):** Collector writes metrics to MySQL. Backend reads via Raw SQL (for aggregations) and Django ORM (for metadata).
+*   **Path 2 (Real-time):** Collector sends UDP packets to Backend (Port 6003). Backend's UDP Listener (in background thread) transforms data and pushes to Frontend via WebSockets.
 
-## Subproject: `rasberrypi` (The Collector)
-*   **Entry Point:** `manager/manager.py` (Runs the polling loop).
-*   **SNMP:** Uses `pysnmp` (asyncio) logic in `collectors/snmp.py`. OIDs are loaded from JSON files in `oids/`.
-*   **Database:** `db_service/db_writer.py` handles direct MySQL insertions.
-*   **Import Handling:** Uses `sys.path.insert(0, ...)` pattern heavily to manage imports. Preserve this when adding new modules.
+## Component: `server_django` (The Backend)
+*   **Server Stack:** Django + Daphne (ASGI) + WhiteNoise (Static).
+*   **Directories:**
+    *   `apps/metrics`: API endpoints (Ninja) and Data Services (Raw SQL).
+    *   `apps/realtime`: UDP Listener and WebSocket Consumers.
+    *   `apps/web`: Standard Django Views for HTML rendering.
+*   **Real-time Architecture:**
+    *   **UDP Listener:** A `threading.Thread` started in `apps/realtime/apps.py` `ready()` hook. This bypasses ASGI lifespan issues on Windows/Daphne.
+    *   **WebSockets:** Standard `AsyncJsonWebsocketConsumer` in `apps/realtime/consumers.py`.
+    *   **Flow:** UDP Packet -> `UdpListener` -> `RealTimeTransformer` -> `ChannelLayer.group_send()` -> `Consumer` -> WebSocket Client.
 
-## Subproject: `query-service` (The Backend)
-*   **Entry Point:** `app.py` (Initializes Flask, SocketIO, and the background UDP thread).
-*   **Real-time Logic:**
-    *   `notifications/udp_listener.py`: Listens for UDP packets.
-    *   `services/topic_service.py`: Managing data topics.
-    *   `websocket/`: Handles Socket.IO events.
-*   **Data Transformation:** `utils/data_transformer.py` converts raw SNMP metrics into dashboard-ready JSON formats.
-*   **File Manager:** Contains a custom file management API (`services/file_service.py`) for the frontend.
+## Component: `rasberrypi` (The Collector)
+*   **Entry Point:** `python -m manager` (Run from `rasberrypi` directory).
+*   **Config:** `config/config.json` determines polled devices and OIDs.
+*   **Database:** Direct SQL writer in `db_service/db_writer.py`.
 
 ## Critical Patterns & Conventions
-1.  **Configuration:** 
-    *   `rasberrypi` uses `config/config.json`.
-    *   `query-service` uses `config.py` and environment variables.
-2.  **UDP Payload:** The UDP message contains the full metric payload (`{'event': 'new_data', 'metrics': [...]}`), allowing the backend to stream data immediately without DB lookups.
-3.  **Imports:** Both subprojects rely on root-relative imports. Always ensure `sys.path` modifications are respected if moving files.
+1.  **Database Access:**
+    *   **Metadata:** Use Django ORM (`Device.objects...`).
+    *   **Metrics (Time-Series):** Use Raw SQL via `connection.cursor()` in `apps/metrics/services.py`. Do NOT use ORM for high-volume metric ingestion/retrieval.
+    *   **Date Handling:** Backend returns **ISO 8601 strings** (`.isoformat()`). Frontend uses `new Date(iso_string)`. DO NOT pass python `datetime` objects directly to views/API responses.
+2.  **Frontend (Vanilla JS):**
+    *   Located in `server_django/static/js/`.
+    *   Uses ES6 Modules (`import/export`).
+    *   **Dashboard Logic:** `dashboard.js` orchestrates `websocket-manager.js` (live data) and `data-processor.js`.
+    *   **History Page:** Uses HTTP API (`/api/history/...`) strictly. Real-time status updates via WebSocket are optional but must use `systemstatus` topic if enabled.
+3.  **Static Files:**
+    *   Always run `python manage.py collectstatic --noinput` after modifying `server_django/static/`. Daphne serves files from `server_django/staticfiles`.
 
-## Common Workflows
-*   **Running the Backend:** `python query-service/app.py`
-*   **Running the Collector:** `python rasberrypi/manager/manager.py`
-*   **Frontend:** HTML/JS in `templates/` and `static/`. No build step required (vanilla JS).
+## Workflows & Debugging
+*   **Running Server:**
+    ```powershell
+    # Must use Daphne for WebSockets/ASGI
+    daphne -p 8000 config.asgi:application
+    ```
+*   **Running Collector:**
+    ```powershell
+    cd rasberrypi
+    python -m manager
+    ```
+*   **Debugging Real-time:**
+    *   Check `apps/realtime/apps.py` to ensure `start_udp_listener_thread` is called.
+    *   Use browser DevTools -> Network -> WS to verify WebSocket connection.
+    *   Verify `UDP_LISTEN_PORT` in `.env` matches the collector's target port.
 
-## Future Migration (Context)
-*   There is a plan to refactor towards **Django/MySQL**. If working on "Next Gen" features, check `notebooks/django.md` for architectural decisions (Django Ninja, Channels).
+## API Design (Django Ninja)
+*   Routes defined in `apps/metrics/api.py`.
+*   Uses `pydantic` schemas in `apps/metrics/schemas.py`.
+*   Responses must be strictly typed (e.g., `HistoryMetricsResponse`).
