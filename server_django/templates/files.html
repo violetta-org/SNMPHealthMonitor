@@ -348,8 +348,7 @@
           {% if item.is_editable %}
           <a class="btn" href="{% url 'web:edit' %}?req_path={{ item.relative_path }}">Edit</a>
           {% endif %}
-          {% if not item.is_dir and (item.name.lower().endswith('.zip') or item.name.lower().endswith('.tar') or
-          item.name.lower().endswith('.tar.gz') or item.name.lower().endswith('.tgz')) %}
+          {% if item.is_archive %}
           <button class="btn unzip-btn" data-path="{{ item.relative_path }}">Unzip</button>
           {% endif %}
           <button class="btn btn-danger delete" data-path="{{ item.relative_path }}"
