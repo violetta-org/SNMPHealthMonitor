@@ -86,7 +86,7 @@
 <div class="container">
   <h2>Trash</h2>
   <p>
-    <a href="{{ url_for('web.files') }}" class="btn">← Back to File Manager</a>
+    <a href="{% url 'web:files' %}" class="btn">← Back to File Manager</a>
     <button id="emptyTrashBtn" class="btn btn-danger" style="margin-left:8px;">Empty Trash</button>
   </p>
   {% if items %}
@@ -173,7 +173,7 @@
       emptyBtn.addEventListener('click', function () {
         if (!confirm('Xóa toàn bộ thùng rác? Hành động này không thể hoàn tác.')) return;
         if (!beginTask('empty_trash', 'Đang xóa toàn bộ thùng rác...')) return;
-        fetch("{{ url_for('api.api_trash_empty') }}", { method: 'POST' })
+        fetch("{% url 'api:trash_empty' %}", { method: 'POST' })
           .then(r => r.json()).then(resp => {
             if (resp && resp.ok) {
               endTask();
@@ -195,7 +195,7 @@
         const tr = this.getAttribute('data-tr');
         if (!confirm('Khôi phục mục đã chọn?')) return;
         if (!beginTask('restore', 'Đang khôi phục mục đã chọn...')) return;
-        fetch("{{ url_for('api.api_restore') }}", { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trash_rel: tr }) })
+        fetch("{% url 'api:trash_restore' %}", { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trash_rel: tr }) })
           .then(r => r.json()).then(resp => {
             if (resp && resp.ok) {
               endTask();
@@ -217,7 +217,7 @@
         const tr = this.getAttribute('data-tr');
         if (!confirm('Xóa vĩnh viễn? Hành động này không thể hoàn tác.')) return;
         if (!beginTask('delete_permanent', 'Đang xóa vĩnh viễn mục được chọn...')) return;
-        fetch("{{ url_for('api.api_delete_permanent') }}", { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trash_rel: tr }) })
+        fetch("{% url 'api:trash_delete_permanent' %}", { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trash_rel: tr }) })
           .then(r => r.json()).then(resp => {
             if (resp && resp.ok) {
               endTask();
