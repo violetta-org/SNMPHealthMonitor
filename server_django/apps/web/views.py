@@ -37,9 +37,40 @@ def index(request):
 
 
 def login(request):
-    """Login page."""
-    if request.method == 'POST':
+    """Login page with full authentication."""
+    # Already logged in? redirect to dashboard
+    if request.session.get('user_id'):
         return redirect('web:dashboard_default')
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+
+        if not username or not password:
+            return render(request, 'login.html', {'error': 'Vui lòng nhập đầy đủ thông tin.'})
+
+        try:
+            from apps.core.models import User
+            user = User.objects.get(username=username)
+            if user.check_password(password):
+                # Set session
+                request.session['user_id'] = user.id
+                request.session['username'] = user.username
+                request.session.set_expiry(0)  # Browser-length session
+
+                # Audit log
+                _audit_log(request, user, 'LOGIN', None, 'Login successful')
+
+                return redirect('web:dashboard_default')
+            else:
+                _audit_log(request, None, 'LOGIN_FAILED', None, f'Wrong password for {username}')
+                return render(request, 'login.html', {'error': 'Sai mật khẩu.'})
+        except User.DoesNotExist:
+            _audit_log(request, None, 'LOGIN_FAILED', None, f'Unknown user: {username}')
+            return render(request, 'login.html', {'error': 'Tên đăng nhập không tồn tại.'})
+        except Exception as e:
+            return render(request, 'login.html', {'error': f'Lỗi: {e}'})
+
     return render(request, 'login.html')
 
 
@@ -350,4 +381,33 @@ def logs_view(request):
 
 
 def logout(request):
-    return redirect('web:index')
+    """Logout — clear session and redirect."""
+    user_id = request.session.get('user_id')
+    username = request.session.get('username')
+    if user_id:
+        try:
+            from apps.core.models import User
+            user = User.objects.get(id=user_id)
+            _audit_log(request, user, 'LOGOUT', None, f'{username} logged out')
+        except Exception:
+            pass
+    request.session.flush()
+    return redirect('web:login')
+
+
+def _audit_log(request, user, action, target, details):
+    """Helper to write an audit log entry."""
+    try:
+        from apps.core.models import AuditLog
+        ip = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
+        if not ip:
+            ip = request.META.get('REMOTE_ADDR', '')
+        AuditLog.objects.create(
+            user=user,
+            action=action,
+            target=target,
+            details=details,
+            ip_address=ip,
+        )
+    except Exception as e:
+        print(f'Audit log error: {e}')

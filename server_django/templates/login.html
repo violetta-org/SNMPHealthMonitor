@@ -60,6 +60,7 @@
       <h2>Admin Login</h2>
       {% if error %}<p class="error">{{ error }}</p>{% endif %}
       <form method="POST">
+        {% csrf_token %}
         <div>
           <label for="username">Username</label>
           <input id="username" name="username" type="text" required autocomplete="username" />
