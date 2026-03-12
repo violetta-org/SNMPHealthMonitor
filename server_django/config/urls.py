@@ -5,11 +5,12 @@ from django.contrib import admin
 from django.urls import path, include
 from ninja import NinjaAPI
 
-# Initialize Django Ninja API
+# Initialize Django Ninja API (csrf_exempt because JS fetch calls don't send CSRF tokens)
 api = NinjaAPI(
     title="SNMPHealthMonitor API",
     version="2.0.0",
     description="Django Ninja API for SNMP Health Monitoring Dashboard",
+    csrf=False,
 )
 
 # Import and register routers from apps
