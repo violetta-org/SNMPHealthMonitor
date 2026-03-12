@@ -1,0 +1,203 @@
+{% extends 'layout.html' %}
+
+{% block head_scripts %}
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+{% endblock %}
+
+{% block content %}
+  <style>
+    .container { padding: 16px; color: #eee; background: #111; min-height: 100vh; box-sizing: border-box; }
+    .section { margin-bottom: 24px; }
+    input[type=text] { padding: 6px 8px; width: 280px; }
+    button { padding: 6px 12px; margin-left: 8px; }
+    table { width: 100%; border-collapse: collapse; background: #1a1a1a; color: #ddd; margin-top: 12px; }
+    thead th { text-align: left; border-bottom: 1px solid #333; padding: 8px; }
+    tbody td { padding: 8px; border-bottom: 1px solid #222; }
+    #pkg-status { 
+      margin-top: 12px; 
+      font-weight: 600;
+      font-size: 14px;
+    }
+    #pkg-console {
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .row-high-cpu {
+      background-color: #ff9900;
+    }
+    .row-med-cpu {
+      background-color: #ffff00;
+    }
+  </style>
+  <div class="container">
+    <h2>System Manager</h2>
+
+    <div class="section">
+      <h3>Packages</h3>
+      <form id="pkg-form" onsubmit="return false;">
+        <input type="text" id="pkg-name" placeholder="Tên gói (vd: htop)">
+        <button id="btn-install" type="button">Install</button>
+        <button id="btn-remove" type="button">Remove</button>
+      </form>
+      <div id="pkg-status"></div>
+      <pre id="pkg-console" style="background: #000; color: #eee; padding: 10px; border-radius: 5px; max-height: 300px; overflow-y: scroll; margin-top: 10px; display: none;"></pre>
+    </div>
+
+    <div class="section">
+      <h3>Processes</h3>
+      <button id="btn-refresh-ps" type="button">Refresh Processes</button>
+      <table>
+        <thead>
+          <tr>
+            <th>PID</th>
+            <th>Tên</th>
+            <th>User</th>
+            <th>CPU %</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="process-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const socket = io();
+      const pkgInput = document.getElementById('pkg-name');
+      const pkgStatus = document.getElementById('pkg-status');
+      const pkgConsole = document.getElementById('pkg-console');
+      const tbody = document.getElementById('process-table-body');
+      const btnInstall = document.getElementById('btn-install');
+      const btnRemove = document.getElementById('btn-remove');
+      let pkgBusy = false;
+      let psInterval = null;
+
+      function setPkgBusy(busy) {
+        pkgBusy = busy;
+        btnInstall.disabled = busy;
+        btnRemove.disabled = busy;
+      }
+
+      btnInstall.addEventListener('click', () => {
+        if (pkgBusy) return;
+        const name = (pkgInput.value || '').trim();
+        if (!name) return;
+        
+        // Clear and reset UI
+        pkgStatus.textContent = `Đang thực thi: sudo apt-get install -y ${name}`;
+        pkgStatus.style.color = '#eee';
+        pkgConsole.textContent = '';
+        pkgConsole.style.display = 'block';
+        setPkgBusy(true);
+        
+        socket.emit('system_action', { action: 'install', package: name });
+      });
+
+      btnRemove.addEventListener('click', () => {
+        if (pkgBusy) return;
+        const name = (pkgInput.value || '').trim();
+        if (!name) return;
+        
+        // Clear and reset UI
+        pkgStatus.textContent = `Đang thực thi: sudo apt-get remove -y ${name}`;
+        pkgStatus.style.color = '#eee';
+        pkgConsole.textContent = '';
+        pkgConsole.style.display = 'block';
+        setPkgBusy(true);
+        
+        socket.emit('system_action', { action: 'remove', package: name });
+      });
+
+      // Listen for package status updates (streaming output)
+      socket.on('pkg_status', (data) => {
+        // Append output lines to console
+        if (data.output) {
+          pkgConsole.textContent += data.output + '\n';
+          // Auto-scroll to bottom
+          pkgConsole.scrollTop = pkgConsole.scrollHeight;
+        }
+        
+        // Handle final status (success or error)
+        if (data.status === 'success') {
+          pkgStatus.textContent = data.output || 'Hoàn thành thành công!';
+          pkgStatus.style.color = '#4ade80'; // Green
+          setPkgBusy(false);
+        } else if (data.status === 'error') {
+          pkgStatus.textContent = data.output || 'Có lỗi xảy ra!';
+          pkgStatus.style.color = '#f87171'; // Red
+          setPkgBusy(false);
+        }
+      });
+
+      document.getElementById('btn-refresh-ps').addEventListener('click', () => {
+        tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+        socket.emit('list_processes');
+      });
+
+      socket.on('process_list', (data) => {
+        tbody.innerHTML = '';
+        (data || []).forEach(proc => {
+          const tr = document.createElement('tr');
+          const cpu = Number(proc.cpu_percent ?? 0);
+          let rowClass = '';
+          if (!Number.isNaN(cpu)) {
+            if (cpu >= 80) rowClass = 'row-high-cpu';
+            else if (cpu >= 50) rowClass = 'row-med-cpu';
+          }
+          if (rowClass) tr.classList.add(rowClass);
+
+          const isProtected = !!proc.protected;
+          const btnLabel = isProtected ? 'Protected' : 'Kill';
+          const disabledAttr = isProtected ? 'disabled' : '';
+          const titleAttr = isProtected ? 'title="Protected system process"' : '';
+
+          tr.innerHTML = `
+            <td>${proc.pid ?? ''}</td>
+            <td>${proc.name ?? ''}</td>
+            <td>${proc.username ?? ''}</td>
+            <td>${proc.cpu_percent ?? ''}</td>
+            <td><button data-pid="${proc.pid}" ${disabledAttr} ${titleAttr}>${btnLabel}</button></td>
+          `;
+          const btn = tr.querySelector('button');
+          if (!isProtected && btn) {
+            btn.addEventListener('click', (e) => {
+              const pid = e.currentTarget.getAttribute('data-pid');
+              if (pid) socket.emit('kill_process', { pid: Number(pid) });
+            });
+          }
+          tbody.appendChild(tr);
+        });
+        if (!tbody.children.length) {
+          tbody.innerHTML = '<tr><td colspan="5">No processes.</td></tr>';
+        }
+      });
+
+      // Handle process kill errors
+      socket.on('process_error', (data) => {
+        alert(data.message + (data.error ? '\n' + data.error : ''));
+      });
+
+      // Auto-refresh process list periodically when connected (htop-like behavior)
+      socket.on('connect', () => {
+        // First load immediately
+        socket.emit('list_processes');
+
+        // Then refresh every 2 seconds
+        if (psInterval) clearInterval(psInterval);
+        psInterval = setInterval(() => {
+          socket.emit('list_processes');
+        }, 1000);
+      });
+
+      // Stop auto-refresh when leaving the page
+      window.addEventListener('beforeunload', () => {
+        if (psInterval) {
+          clearInterval(psInterval);
+          psInterval = null;
+        }
+      });
+    });
+  </script>
+{% endblock %}

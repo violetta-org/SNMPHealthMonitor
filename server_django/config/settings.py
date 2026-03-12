@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'apps.metrics',
     'apps.realtime',
     'apps.web',
+    'apps.files',
     
     # Third party apps
     'django_extensions',
@@ -138,3 +139,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # UDP Listener (for receiving metrics from rasberrypi collector)
 UDP_LISTEN_HOST = os.getenv('UDP_LISTEN_HOST', '0.0.0.0')
 UDP_LISTEN_PORT = int(os.getenv('UDP_LISTEN_PORT', '9999'))
+
+
+# =============================================================================
+# File Management Settings
+# =============================================================================
+HOME_DIRECTORY = os.path.abspath(os.path.expanduser(
+    os.getenv('FILE_HOME_DIR', '~/managed_files')
+))
+TRASH_DIRECTORY = os.path.join(HOME_DIRECTORY, '.trash')
+BACKUP_DIRECTORY = os.path.join(HOME_DIRECTORY, '.backups')
+BACKUP_RETENTION = 10          # keep last N backups per file
+MAX_EDIT_SIZE = 10 * 1024 * 1024  # 10 MB
+ARCHIVE_EXTENSIONS = ('.zip', '.tar', '.tar.gz', '.tgz')
