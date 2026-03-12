@@ -342,7 +342,10 @@ def system(request):
 
 def logs_view(request):
     from apps.core.models import User
-    users = User.objects.all().order_by('username')
+    try:
+        users = User.objects.all().order_by('username')
+    except Exception:
+        users = []
     return render(request, "audit.html", {'users': users})
 
 
