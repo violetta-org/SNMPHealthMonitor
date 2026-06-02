@@ -4,7 +4,7 @@
 {% block header_title %}History Investigation{% endblock %}
 
 {% block extra_head %}
-<!-- ApexCharts is already loaded in base.html -->
+<link rel="stylesheet" href="{% static 'css/history.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -71,7 +71,7 @@
                 <div class="panel-meta">Average across all cores</div>
             </div>
             <div class="chart-wrapper">
-                <div id="chart-cpu"></div>
+                <div id="chart-cpu"><canvas></canvas></div>
             </div>
         </div>
 
@@ -82,7 +82,7 @@
                 <div class="panel-meta">Physical RAM</div>
             </div>
             <div class="chart-wrapper">
-                <div id="chart-memory"></div>
+                <div id="chart-memory"><canvas></canvas></div>
             </div>
         </div>
 
@@ -93,7 +93,7 @@
                 <div class="panel-meta">% Used per mount</div>
             </div>
             <div class="chart-wrapper">
-                <div id="chart-disk"></div>
+                <div id="chart-disk"><canvas></canvas></div>
             </div>
         </div>
 
@@ -104,7 +104,7 @@
                 <div class="panel-meta">Throughput</div>
             </div>
             <div class="chart-wrapper">
-                <div id="chart-network"></div>
+                <div id="chart-network"><canvas></canvas></div>
             </div>
         </div>
 
@@ -115,7 +115,7 @@
                 <div class="panel-meta">CPU Temp (°C)</div>
             </div>
             <div class="chart-wrapper">
-                <div id="chart-temp"></div>
+                <div id="chart-temp"><canvas></canvas></div>
             </div>
         </div>
 
