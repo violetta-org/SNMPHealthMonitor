@@ -119,8 +119,33 @@
         });
     }
 
+    let apexChartsLoaded = false;
+    let apexChartsLoadingPromise = null;
+
+    function loadApexCharts() {
+        if (apexChartsLoaded) return Promise.resolve();
+        if (apexChartsLoadingPromise) return apexChartsLoadingPromise;
+        
+        apexChartsLoadingPromise = new Promise((resolve, reject) => {
+            if (window.ApexCharts) {
+                apexChartsLoaded = true;
+                return resolve();
+            }
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/apexcharts';
+            script.onload = () => {
+                apexChartsLoaded = true;
+                resolve();
+            };
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+        return apexChartsLoadingPromise;
+    }
+
     // ── Fetch Predictions from API ──────────────────────────────────────
     async function fetchPredictions() {
+        await loadApexCharts();
         const sysname = getSysname();
         if (!sysname) return;
 

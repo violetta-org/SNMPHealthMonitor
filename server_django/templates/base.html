@@ -13,11 +13,6 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet"></noscript>
     <link rel="preload" href="{% static 'css/dashboard.css' %}" as="style">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <link rel="preload" href="{% static 'css/ai-chatbot.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{% static 'css/ai-chatbot.css' %}"></noscript>
-    
-    <link rel="preload" href="{% static 'css/prediction.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{% static 'css/prediction.css' %}"></noscript>
     <!-- Module Preloading to eliminate ES6 import critical request chains -->
     <link rel="modulepreload" href="{% static 'js/dashboard.js' %}">
     <link rel="modulepreload" href="{% static 'js/websocket-manager.js' %}">
@@ -123,10 +118,14 @@
     {% endblock %}
 
     <!-- Predictive AIOps (Machine Learning) -->
-    <script defer src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- ApexCharts is lazy-loaded in prediction.js -->
     <script defer src="{% static 'js/prediction.js' %}"></script>
 
     <!-- AI DevOps Assistant Chatbot -->
     <script defer src="{% static 'js/ai-chatbot.js' %}"></script>
+
+    <!-- Deferred CSS -->
+    <link rel="stylesheet" href="{% static 'css/ai-chatbot.css' %}">
+    <link rel="stylesheet" href="{% static 'css/prediction.css' %}">
 </body>
 </html>
