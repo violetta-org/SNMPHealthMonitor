@@ -42,7 +42,7 @@
                 stroke-dasharray="283" stroke-dashoffset="283" transform="rotate(-90 60 60)"
                 stroke-linecap="round" />
             <text x="60" y="65" text-anchor="middle" class="gauge-value" id="load-1m-value" style="font-size: 1.2rem;">
-                 <tspan class="skeleton" style="fill: var(--text-muted); font-size: 0.8em;">-</tspan>
+                 <tspan style="fill: var(--text-muted); font-size: 0.8em;">-</tspan>
             </text>
         </svg>
     </div>
@@ -89,7 +89,7 @@
     <!-- CPU & Network Chart (Span 6) -->
     <div class="card span-6">
         <h3 class="card-title">CPU & Network Activity</h3>
-        <div id="cpu-network-chart" style="width: 100%; height: 320px;"></div>
+        <div id="cpu-network-chart" style="width: 100%; height: 320px;"><canvas></canvas></div>
         <div style="display: flex; justify-content: space-around; margin-top: 10px; font-family: monospace; font-size: 0.8rem; color: var(--text-body);">
             <div><span class="legend-dot text-danger">●</span> CPU: <span id="cpu-avg-value">--%</span></div>
             <div><span class="legend-dot text-warning">●</span> Up: <span id="net-upload-value">-- B/s</span></div>
@@ -101,7 +101,7 @@
     <div class="card span-6">
         <h3 class="card-title">Memory Usage</h3>
         <!-- Note: ID matches system-chart.js usage -->
-        <div id="memory-usage-chart" style="width: 100%; height: 320px;"></div>
+        <div id="memory-usage-chart" style="width: 100%; height: 320px;"><canvas></canvas></div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 4px;">
             <div id="mem-summary-text" style="color: var(--success); font-weight: bold; font-family: monospace;">
                 <span class="skeleton skeleton-text" style="width: 140px; display: inline-block;"></span>

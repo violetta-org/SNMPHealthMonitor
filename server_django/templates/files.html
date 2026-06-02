@@ -347,7 +347,7 @@
         <td class="file-date">{{ item.mtime }}</td>
         <td>
           {% if item.is_editable %}
-          <a class="btn" href="{% url 'web:edit' %}?req_path={{ item.relative_path }}">Edit</a>
+          <a class="btn" href="{% url 'web:edit' item.relative_path %}">Edit</a>
           {% endif %}
           {% if item.is_archive %}
           <button class="btn unzip-btn" data-path="{{ item.relative_path }}">Unzip</button>

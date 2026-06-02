@@ -50,11 +50,19 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Enable WhiteNoise for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'apps.core.middleware.LoginRequiredMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.ngrok-free.app',
+    'http://*.ngrok-free.app',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -128,6 +136,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # Required for WhiteNoise/collectstatic
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -140,6 +149,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 UDP_LISTEN_HOST = os.getenv('UDP_LISTEN_HOST', '0.0.0.0')
 UDP_LISTEN_PORT = int(os.getenv('UDP_LISTEN_PORT', '9999'))
 
+
+# =============================================================================
+# Remote SSH Credentials (Jetson Nano)
+# =============================================================================
+JETSON_SSH_HOST = os.getenv('JETSON_SSH_HOST', '172.16.1.186')
+JETSON_SSH_USERNAME = os.getenv('JETSON_SSH_USERNAME', 'jetson')
+JETSON_SSH_PASSWORD = os.getenv('JETSON_SSH_PASSWORD', 'jetson')
 
 # =============================================================================
 # File Management Settings

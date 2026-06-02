@@ -69,39 +69,43 @@ def _insert_load_avg_batch(cur, sysname: str, metrics_by_ts: Dict[int, Dict[str,
         )
 
 
-def _insert_cpu_percent(cur, sysname: str, labels: Dict[str, Any], value: Any, ts: int) -> None:
-    """Insert per-core CPU percent from hrProcessorLoad."""
-    hr_index = int(labels.get("hrDeviceIndex", "0"))
+def _insert_cpu_percent_batch(cur, sysname: str, cpu_metrics: List[Tuple[Dict[str, Any], Any, int]]) -> None:
+    """Insert per-core CPU percent using executemany."""
+    if not cpu_metrics:
+        return
+        
+    values_to_insert = []
+    
+    for labels, value, ts in cpu_metrics:
+        hr_index = int(labels.get("hrDeviceIndex", "0"))
 
-    # Initialize device mapping if first time
-    if sysname not in _cpu_core_mapping:
-        _cpu_core_mapping[sysname] = {}
+        # Initialize device mapping if first time
+        if sysname not in _cpu_core_mapping:
+            _cpu_core_mapping[sysname] = {}
 
-    # Assign sequential core number if this hrDeviceIndex is new
-    if hr_index not in _cpu_core_mapping[sysname]:
-        # Get all existing indices for this device, sort them, assign next number
-        existing_indices = sorted(_cpu_core_mapping[sysname].keys())
+        # Assign sequential core number if this hrDeviceIndex is new
+        if hr_index not in _cpu_core_mapping[sysname]:
+            existing_indices = sorted(_cpu_core_mapping[sysname].keys())
+            core_num = 0
+            for existing_idx in existing_indices:
+                if hr_index < existing_idx:
+                    break
+                core_num += 1
 
-        # Find where this index should go in sorted order
-        core_num = 0
-        for existing_idx in existing_indices:
-            if hr_index < existing_idx:
-                break
-            core_num += 1
+            for idx, num in list(_cpu_core_mapping[sysname].items()):
+                if num >= core_num:
+                    _cpu_core_mapping[sysname][idx] = num + 1
 
-        # Shift existing mappings if needed
-        for idx, num in list(_cpu_core_mapping[sysname].items()):
-            if num >= core_num:
-                _cpu_core_mapping[sysname][idx] = num + 1
+            _cpu_core_mapping[sysname][hr_index] = core_num
 
-        _cpu_core_mapping[sysname][hr_index] = core_num
+        cpu_name = f"cpu{_cpu_core_mapping[sysname][hr_index]}"
+        values_to_insert.append((_to_dt(ts), sysname, cpu_name, value))
 
-    cpu_name = f"cpu{_cpu_core_mapping[sysname][hr_index]}"
-    cur.execute(
-        "INSERT INTO cpu_percent (time, sysname, cpu, percent) VALUES (%s, %s, %s, %s)",
-        (_to_dt(ts), sysname, cpu_name, value),
-    )
-    logger.debug(f"[DEBUG] _insert_cpu_percent: sysname={sysname}, ts={ts}, cpu={cpu_name}, value={value}")
+    if values_to_insert:
+        cur.executemany(
+            "INSERT INTO cpu_percent (time, sysname, cpu, percent) VALUES (%s, %s, %s, %s)",
+            values_to_insert,
+        )
 
 
 def _insert_memory(cur, sysname: str, metrics_by_name: Dict[str, Tuple[Any, int]], swap_metrics: Dict[str, Tuple[Any, int]] = None) -> None:
@@ -192,15 +196,14 @@ def _insert_swap(cur, sysname: str, metrics_by_name: Dict[str, Tuple[Any, int]])
     )
     logger.debug(f"[DEBUG] _insert_swap: sysname={sysname}, ts={ts}, total={total}, used={used}, free={free}, percent={percent}")
 
-def _insert_disk_usage(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, Any]], ts: int) -> None:
-    """Insert disk usage from UCD-SNMP-MIB::dskTable.
-
-    metrics_by_index format: {
-        "31": {"mount": "/", "device": "/dev/sda1", "total": 123456, ...},
-        "32": {"mount": "/home", "device": "/dev/sda2", ...}
-    }
-    """
+def _insert_disk_usage(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, Any]]) -> None:
+    """Insert disk usage from UCD-SNMP-MIB::dskTable using executemany."""
+    values_to_insert = []
     for idx, values in metrics_by_index.items():
+        ts = values.get("ts")
+        if not ts:
+            continue
+            
         mount = values.get("mount")
         device = values.get("device")
         total = values.get("total")
@@ -208,28 +211,38 @@ def _insert_disk_usage(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, 
         free = values.get("free")
         percent = values.get("percent")
 
-        cur.execute(
+        values_to_insert.append((_to_dt(ts), sysname, mount, device, total, used, free, percent))
+
+    if values_to_insert:
+        cur.executemany(
             "INSERT INTO disk_usage (time, sysname, mount, device_partition, total, used, free, percent) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-            (_to_dt(ts), sysname, mount, device, total, used, free, percent),
+            values_to_insert,
         )
-    logger.debug(f"[DEBUG] _insert_disk_usage: sysname={sysname}, ts={ts}, metrics_by_index={metrics_by_index}")
 
-def _insert_disk_io(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, Any]], ts: int) -> None:
-    """Insert disk I/O from UCD-DISKIO-MIB::diskIOTable."""
+
+def _insert_disk_io(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, Any]]) -> None:
+    """Insert disk I/O from UCD-DISKIO-MIB::diskIOTable using executemany."""
+    values_to_insert = []
     for idx, values in metrics_by_index.items():
+        ts = values.get("ts")
+        if not ts:
+            continue
+            
         disk = values.get("device")
         read_count = values.get("read_count")
         write_count = values.get("write_count")
         read_bytes = values.get("read_bytes")
         write_bytes = values.get("write_bytes")
 
-        cur.execute(
+        values_to_insert.append((_to_dt(ts), sysname, disk, read_count, write_count, read_bytes, write_bytes))
+
+    if values_to_insert:
+        cur.executemany(
             "INSERT INTO disk_io_counters (time, sysname, disk, read_count, write_count, read_bytes, write_bytes) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (_to_dt(ts), sysname, disk, read_count, write_count, read_bytes, write_bytes),
+            values_to_insert,
         )
-    logger.debug(f"[DEBUG] _insert_disk_io: sysname={sysname}, ts={ts}, metrics_by_index={metrics_by_index}")
 
 def _insert_temperature(cur, sysname: str, cpu_temp: Any, ts: int) -> None:
     """Insert CPU temperature from SNMP extend."""
@@ -257,24 +270,32 @@ def _insert_temperature(cur, sysname: str, cpu_temp: Any, ts: int) -> None:
     )
 
 
-def _insert_net_io(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, Any]], ts: int) -> None:
-    """Insert network I/O from IF-MIB."""
+def _insert_net_io(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, Any]]) -> None:
+    """Insert network I/O from IF-MIB using executemany."""
+    values_to_insert = []
     for idx, values in metrics_by_index.items():
-        cur.execute(
+        ts = values.get("ts")
+        if not ts:
+            continue
+            
+        values_to_insert.append((
+            _to_dt(ts),
+            sysname,
+            idx,
+            values.get("iface"),
+            values.get("if_high_speed_mbps"),
+            values.get("if_admin_status"),
+            values.get("if_oper_status"),
+            values.get("bytes_sent"),
+            values.get("bytes_recv"),
+        ))
+
+    if values_to_insert:
+        cur.executemany(
             "INSERT INTO net_io_counters (time, sysname, if_index, iface, if_high_speed_mbps, "
             "if_admin_status, if_oper_status, bytes_sent, bytes_recv) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-            (
-                _to_dt(ts),
-                sysname,
-                idx,
-                values.get("iface"),
-                values.get("if_high_speed_mbps"),
-                values.get("if_admin_status"),
-                values.get("if_oper_status"),
-                values.get("bytes_sent"),
-                values.get("bytes_recv"),
-            ),
+            values_to_insert,
         )
 
 
@@ -291,6 +312,8 @@ def write_metrics_batch(conn, sysname: str, metrics: List[Dict[str, Any]]) -> No
         disk_io_group: Dict[str, Dict[str, Any]] = {}  # {index: {device, read_count, write_count, read_bytes, write_bytes}}
         net_io_group: Dict[str, Dict[str, Any]] = {}  # {ifIndex: {iface, if_high_speed_mbps, if_admin_status, if_oper_status, bytes_sent, bytes_recv}}
 
+        cpu_percent_group: List[Tuple[Dict[str, Any], Any, int]] = []
+        
         for m in metrics or []:
             name = m.get("name")
             value = m.get("value")
@@ -319,7 +342,7 @@ def write_metrics_batch(conn, sysname: str, metrics: List[Dict[str, Any]]) -> No
                         load_avg_group[ts] = {}
                     load_avg_group[ts][name] = value
                 elif name == "cpu.core.percent":
-                    _insert_cpu_percent(cur, sysname, labels, value, ts)
+                    cpu_percent_group.append((labels, value, ts))
                 elif name.startswith("memory."):
                     mem_group[name] = (value, ts)
                 elif name.startswith("swap."):
@@ -390,6 +413,8 @@ def write_metrics_batch(conn, sysname: str, metrics: List[Dict[str, Any]]) -> No
 
         if load_avg_group:
             _insert_load_avg_batch(cur, sysname, load_avg_group)
+        if cpu_percent_group:
+            _insert_cpu_percent_batch(cur, sysname, cpu_percent_group)
         if mem_group:
             _insert_memory(cur, sysname, mem_group, swap_group)
         if swap_group:
@@ -397,20 +422,11 @@ def write_metrics_batch(conn, sysname: str, metrics: List[Dict[str, Any]]) -> No
         if sys_info_group:
             _insert_system_info(cur, sysname, sys_info_group)
         if disk_usage_group:
-            for idx, values in disk_usage_group.items():
-                ts = values.get("ts")
-                if ts:
-                    _insert_disk_usage(cur, sysname, {idx: values}, ts)
+            _insert_disk_usage(cur, sysname, disk_usage_group)
         if disk_io_group:
-            for idx, values in disk_io_group.items():
-                ts = values.get("ts")
-                if ts:
-                    _insert_disk_io(cur, sysname, {idx: values}, ts)
+            _insert_disk_io(cur, sysname, disk_io_group)
         if net_io_group:
-            for idx, values in net_io_group.items():
-                ts = values.get("ts")
-                if ts:
-                    _insert_net_io(cur, sysname, {idx: values}, ts)
+            _insert_net_io(cur, sysname, net_io_group)
 
     try:
         conn.commit()

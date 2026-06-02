@@ -6,12 +6,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Dashboard - {{ sysname }}{% endblock %}</title>
+    <!-- Non-render-blocking Google Fonts loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=optional" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet"></noscript>
+    <link rel="preload" href="{% static 'css/dashboard.css' %}" as="style">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <link rel="stylesheet" href="{% static 'css/ai-chatbot.css' %}">
     <link rel="stylesheet" href="{% static 'css/prediction.css' %}">
+    <!-- Module Preloading to eliminate ES6 import critical request chains -->
+    <link rel="modulepreload" href="{% static 'js/dashboard.js' %}">
+    <link rel="modulepreload" href="{% static 'js/websocket-manager.js' %}">
+    <link rel="modulepreload" href="{% static 'js/data-processor.js' %}">
+    <link rel="modulepreload" href="{% static 'js/system-chart.js' %}">
+    <link rel="modulepreload" href="{% static 'js/dashboard/base.js' %}">
+    <link rel="modulepreload" href="{% static 'js/dashboard/systemstatus.js' %}">
+    <link rel="modulepreload" href="{% static 'js/dashboard/network.js' %}">
+    <link rel="modulepreload" href="{% static 'js/dashboard/disk.js' %}">
+    <link rel="modulepreload" href="{% static 'js/dashboard/diskio.js' %}">
+    <link rel="modulepreload" href="{% static 'js/dashboard/history.js' %}">
     {% block extra_head %}{% endblock %}
 </head>
 
@@ -81,6 +95,10 @@
                     <span class="nav-icon">🕒</span>
                     <span class="nav-label">History</span>
                 </a>
+                <a href="{% url 'web:index' %}" class="nav-item">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-label">Remote Control</span>
+                </a>
             </div>
         </nav>
 
@@ -94,7 +112,7 @@
     <div id="toast-container" class="toast-container"></div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script defer src="{% static 'js/vendor/chart.js' %}"></script>
 
     <!-- Base dashboard script -->
     {% block extra_scripts %}

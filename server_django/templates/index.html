@@ -1,9 +1,9 @@
 {% extends 'layout.html' %}
 
 {% block head_scripts %}
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" crossorigin="anonymous" />
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.js" crossorigin="anonymous"></script>
 {% endblock %}
 
 {% block content %}
@@ -26,12 +26,15 @@
       term.open(host);
       term.focus();
 
-      const socket = io({ auth: { window_name: 'main' } });
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+      const wsUrl = wsProtocol + window.location.host + '/ws/terminal/';
+      const socket = new WebSocket(wsUrl);
 
       function sendResize() {
+        if (socket.readyState !== WebSocket.OPEN) return;
         const cols = term.cols || 80;
         const rows = term.rows || 24;
-        socket.emit('resize', { cols, rows });
+        socket.send(JSON.stringify({ event: 'resize', cols: cols, rows: rows }));
       }
 
       function fitAndResize() {
@@ -39,17 +42,22 @@
         sendResize();
       }
 
-      socket.on('connect', () => {
+      socket.onopen = () => {
         fitAndResize();
-      });
+      };
 
       term.onData((data) => {
-        socket.emit('terminal_input', data);
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({ event: 'terminal_input', data: data }));
+        }
       });
 
-      socket.on('terminal_output', (data) => {
-        term.write(data);
-      });
+      socket.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        if (msg.event === 'terminal_output') {
+          term.write(msg.data);
+        }
+      };
 
       function debounce(fn, wait) { let t; return function(){ clearTimeout(t); t = setTimeout(fn, wait); }; }
       window.addEventListener('resize', debounce(fitAndResize, 150));

@@ -14,6 +14,7 @@ if project_root not in sys.path:
 from units import UNITLESS, BYTES, COUNT, PERCENT, SECONDS, MBPS, CELSIUS
 
 try:
+    # Modern PySNMP 7.x+ v3arch asyncio HLAPI
     from pysnmp.hlapi.v3arch.asyncio import (
         CommunityData,
         SnmpEngine,
@@ -24,8 +25,58 @@ try:
         get_cmd,
         walk_cmd,
     )
-except Exception as e:
-    raise
+except ImportError:
+    # Fallback to PySNMP 6.x / 4.x asyncio HLAPI
+    from pysnmp.hlapi.asyncio import (
+        CommunityData,
+        SnmpEngine,
+        UdpTransportTarget,
+        ContextData,
+        ObjectType,
+        ObjectIdentity,
+        getCmd as get_cmd,
+        nextCmd as _next_cmd,
+    )
+    
+    async def walk_cmd(snmp_engine, auth_data, transport_target, context_data, *var_binds, **options):
+        """Asynchronous generator wrapper around nextCmd to simulate walk_cmd in PySNMP 6.x"""
+        current_var_binds = list(var_binds)
+        while True:
+            error_indication, error_status, error_index, var_bind_table = await _next_cmd(
+                snmp_engine,
+                auth_data,
+                transport_target,
+                context_data,
+                *current_var_binds,
+                **options
+            )
+            if error_indication or error_status:
+                yield error_indication, error_status, error_index, []
+                break
+            if not var_bind_table:
+                break
+            
+            for row in var_bind_table:
+                yield error_indication, error_status, error_index, row
+                
+            last_row = var_bind_table[-1]
+            is_end = False
+            for var_bind in last_row:
+                val = var_bind[1]
+                val_str = str(val)
+                if "endofmib" in val_str.lower() or "end of mib" in val_str.lower():
+                    is_end = True
+                    break
+                try:
+                    from pysnmp.hlapi.asyncio import isEndOfMib
+                    if isEndOfMib(val):
+                        is_end = True
+                        break
+                except Exception:
+                    pass
+            if is_end:
+                break
+            current_var_binds = last_row
 
 
 
@@ -103,7 +154,10 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
     context = ContextData()
     
     # tạo transport target
-    transport = await UdpTransportTarget.create((host, port), timeout=3.0, retries=0)
+    if hasattr(UdpTransportTarget, 'create'):
+        transport = await UdpTransportTarget.create((host, port), timeout=3.0, retries=0)
+    else:
+        transport = UdpTransportTarget((host, port), timeout=3.0, retries=0)
 
     metrics: List[Dict[str, Any]] = []
 

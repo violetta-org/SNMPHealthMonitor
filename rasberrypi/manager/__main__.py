@@ -14,11 +14,8 @@ from manager.config_prompt import prompt_config_interactive
 logger = configure_logger(__name__)
 
 def check_prerequisites():
-    """Kiểm tra database trước khi chạy main."""
-    logger.info("Checking database readiness...")
-    from db_service.db_config import ensure_db_ready
-    ensure_db_ready()
-    logger.info("Database ready")
+    """Decoupled edge-node execution mode."""
+    logger.info("Running in decoupled edge mode. Direct DB checks bypassed.")
 
 if __name__ == '__main__':
     try:

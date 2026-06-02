@@ -1,0 +1,188 @@
+/**
+ * Memory Percent Chart Module (Chart.js version)
+ * Line Chart displaying Memory Usage Percentage over time
+ */
+
+export class MemoryPercentChart {
+    constructor() {
+        this.chart = null;
+        this.color = '#008FFB'; // Primary blue
+        this.initialized = false;
+        this.lastTimestamp = null;
+        this.dataBuffer = {
+            labels: [],
+            percent: []
+        };
+    }
+
+    /**
+     * Initialize the memory percent chart
+     */
+    init() {
+        if (this.initialized) {
+            console.warn('[MemoryPercentChart] Chart already initialized');
+            return;
+        }
+
+        const chartElement = document.getElementById('memory-percent-chart');
+        if (!chartElement) {
+            console.error('[MemoryPercentChart] Chart container not found');
+            return;
+        }
+
+        let canvas = chartElement.querySelector('canvas');
+        if (!canvas) {
+            canvas = document.createElement('canvas');
+            chartElement.appendChild(canvas);
+        }
+
+        const ctx = canvas.getContext('2d');
+        this.chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Memory Usage",
+                    data: [],
+                    borderColor: this.color,
+                    backgroundColor: 'rgba(0, 143, 251, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
+                    fill: false,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: '#1a1a1a',
+                        titleColor: '#fff',
+                        bodyColor: '#e0e0e0',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: (context) => `Usage: ${context.parsed.y.toFixed(2)} %`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#3a4d5f' },
+                        ticks: { color: '#a0aec0', font: { size: 10 } }
+                    },
+                    y: {
+                        min: 0,
+                        max: 100,
+                        grid: { color: '#3a4d5f' },
+                        ticks: {
+                            color: '#a0aec0',
+                            font: { size: 10 },
+                            callback: (value) => `${value}%`
+                        },
+                        title: {
+                            display: true,
+                            text: 'Phần trăm (%)',
+                            color: '#a0aec0',
+                            font: { size: 12, weight: 600 }
+                        }
+                    }
+                }
+            }
+        });
+
+        this.initialized = true;
+        console.log('[MemoryPercentChart] Chart initialized');
+    }
+
+    /**
+     * Update chart with initial history data
+     */
+    updateHistory(historyData) {
+        if (!this.initialized) {
+            this.init();
+        }
+
+        if (!historyData || historyData.length === 0) {
+            console.warn('[MemoryPercentChart] No history data provided');
+            return;
+        }
+
+        console.log(`[MemoryPercentChart] Updating with ${historyData.length} history points`);
+
+        this.dataBuffer.labels = [];
+        this.dataBuffer.percent = [];
+
+        historyData.forEach(point => {
+            const date = new Date(point.time);
+            const label = isNaN(date.getTime()) ? '' : date.toLocaleTimeString('en-US', { hour12: false });
+            this.dataBuffer.labels.push(label);
+            this.dataBuffer.percent.push(point.percent || 0);
+        });
+
+        this.chart.data.labels = this.dataBuffer.labels;
+        this.chart.data.datasets[0].data = this.dataBuffer.percent;
+        this.chart.update('none');
+
+        if (historyData.length > 0) {
+            this.lastTimestamp = new Date(historyData[historyData.length - 1].time).getTime();
+        }
+    }
+
+    /**
+     * Append new data point (real-time update)
+     */
+    appendData(memoryData) {
+        if (!this.initialized) {
+            console.warn('[MemoryPercentChart] Chart not initialized, cannot append data');
+            return;
+        }
+
+        if (!memoryData || !memoryData.time || memoryData.percent === undefined) {
+            console.warn('[MemoryPercentChart] Invalid memory data provided');
+            return;
+        }
+
+        const timestamp = new Date(memoryData.time).getTime();
+        const percent = memoryData.percent || 0;
+
+        if (this.lastTimestamp !== null && timestamp <= this.lastTimestamp) {
+            return;
+        }
+
+        const date = new Date(memoryData.time);
+        const timeLabel = isNaN(date.getTime()) ? '' : date.toLocaleTimeString('en-US', { hour12: false });
+
+        this.dataBuffer.labels.push(timeLabel);
+        this.dataBuffer.percent.push(percent);
+
+        // Keep last 50 points to slide
+        if (this.dataBuffer.labels.length > 50) {
+            this.dataBuffer.labels.shift();
+            this.dataBuffer.percent.shift();
+        }
+
+        this.chart.data.labels = this.dataBuffer.labels;
+        this.chart.data.datasets[0].data = this.dataBuffer.percent;
+        this.chart.update('none');
+
+        this.lastTimestamp = timestamp;
+    }
+
+    /**
+     * Destroy chart instance
+     */
+    destroy() {
+        if (this.chart) {
+            this.chart.destroy();
+            this.chart = null;
+            this.initialized = false;
+            console.log('[MemoryPercentChart] Chart destroyed');
+        }
+    }
+}

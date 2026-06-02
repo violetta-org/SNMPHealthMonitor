@@ -1,0 +1,416 @@
+/**
+ * SYSTEM MONITOR CHARTS (Chart.js version)
+ */
+
+export function createRAMUsageChart(container, totalRAMBytes) {
+    if (!container) return null;
+    if (typeof Chart === 'undefined') return null;
+
+    let maxRAM = 4; // Default safe max
+    if (Number.isFinite(totalRAMBytes) && totalRAMBytes > 0) {
+        const exactGB = totalRAMBytes / (1024 * 1024 * 1024);
+        maxRAM = Math.ceil(exactGB);
+    }
+
+    let canvas = container.querySelector('canvas');
+    if (!canvas) {
+        canvas = document.createElement('canvas');
+        container.appendChild(canvas);
+    }
+
+    if (container.__chartJS) {
+        try { container.__chartJS.destroy(); } catch (e) { }
+    }
+
+    const ctx = canvas.getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Used',
+                data: [],
+                fill: true,
+                borderColor: '#4dbd74',
+                backgroundColor: 'rgba(77, 189, 116, 0.1)',
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false, // Disable animations
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#1a1a1a',
+                    titleColor: '#fff',
+                    bodyColor: '#e0e0e0',
+                    borderColor: '#4dbd74',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: (context) => `Used: ${context.parsed.y.toFixed(2)} GB`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#333' },
+                    ticks: { color: '#aaa', font: { size: 10 } }
+                },
+                y: {
+                    min: 0,
+                    max: maxRAM,
+                    grid: { color: '#333' },
+                    ticks: {
+                        color: '#4dbd74',
+                        font: { family: 'Consolas, monospace', size: 10 },
+                        callback: (value) => `${value.toFixed(1)} GB`
+                    }
+                }
+            }
+        }
+    });
+
+    container.__chartJS = chart;
+    return chart;
+}
+
+// --- DATA MANAGER CLASS ---
+
+export class ChartDataManager {
+    constructor(maxDataPoints = 3000, sampleThreshold = 2000) {
+        this.maxPoints = maxDataPoints;
+        this.sampleThreshold = sampleThreshold;
+        this.timeData = [];
+        this.updateCount = 0;
+    }
+
+    setMaxPoints(n) { this.maxPoints = n; }
+    setSampleThreshold(n) { this.sampleThreshold = n; }
+
+    toGB(bytes) {
+        const v = bytes / (1024 * 1024 * 1024);
+        return Number(v.toFixed(2));
+    }
+
+    _downsample(array, target) {
+        if (!Array.isArray(array)) return array;
+        const len = array.length;
+        if (len <= target) return array.slice();
+        const step = Math.ceil(len / target);
+        const sampled = [];
+        for (let i = 0; i < len; i += step) sampled.push(array[i]);
+        if (sampled[sampled.length - 1] !== array[len - 1]) sampled.push(array[len - 1]);
+        return sampled;
+    }
+
+    bulkLoad(timeLabels, dataMap) {
+        if (!Array.isArray(timeLabels) || !dataMap) return { timeData: [], series: {} };
+        let t = timeLabels.slice();
+        if (t.length > this.sampleThreshold) {
+            t = this._downsample(t, this.sampleThreshold);
+        }
+        if (t.length > this.maxPoints) {
+            t = t.slice(t.length - this.maxPoints);
+        }
+        const aligned = {};
+        Object.entries(dataMap).forEach(([idx, arr]) => {
+            let seriesArr = arr.slice();
+            if (arr.length !== timeLabels.length) {
+                if (arr.length > this.sampleThreshold) seriesArr = this._downsample(arr, this.sampleThreshold);
+            } else if (arr.length > this.sampleThreshold) {
+                seriesArr = this._downsample(arr, this.sampleThreshold);
+            }
+            if (seriesArr.length > t.length) {
+                seriesArr = seriesArr.slice(seriesArr.length - t.length);
+            } else if (seriesArr.length < t.length) {
+                const padCount = t.length - seriesArr.length;
+                const padVal = seriesArr.length ? seriesArr[0] : 0;
+                seriesArr = new Array(padCount).fill(padVal).concat(seriesArr);
+            }
+            aligned[idx] = seriesArr;
+        });
+
+        this.timeData = t;
+        return { timeData: this.timeData, series: aligned };
+    }
+
+    addDataPoint(timestamp, ramAppUsed, ramBuffers, ramCached, ramFree) {
+        let timeLabel = timestamp;
+        try {
+            const d = new Date(timestamp);
+            timeLabel = isNaN(d.getTime()) ? String(timestamp) : d.toISOString();
+        } catch (e) {
+            timeLabel = String(timestamp);
+        }
+        this.timeData.push(timeLabel);
+        if (this.timeData.length > this.maxPoints) this.timeData.shift();
+
+        const appUsedNum = Number.parseFloat(ramAppUsed);
+        const buffersNum = Number.parseFloat(ramBuffers);
+        const cachedNum = Number.parseFloat(ramCached);
+        const freeNum = Number.parseFloat(ramFree);
+
+        return {
+            ramAppUsed: this.toGB(Number.isFinite(appUsedNum) ? appUsedNum : 0),
+            ramBuffers: this.toGB(Number.isFinite(buffersNum) ? buffersNum : 0),
+            ramCached: this.toGB(Number.isFinite(cachedNum) ? cachedNum : 0),
+            ramFree: this.toGB(Number.isFinite(freeNum) ? freeNum : 0)
+        };
+    }
+
+    updateChart(chart, dataArrays) {
+        if (!chart) return;
+
+        const len = this.timeData.length;
+        let out = Array.isArray(dataArrays?.[0]) ? dataArrays[0].slice() : [];
+        if (out.length > len) out = out.slice(out.length - len);
+        else if (out.length < len) {
+            const padVal = out.length ? out[0] : 0;
+            out = new Array(len - out.length).fill(padVal).concat(out);
+        }
+
+        const labels = this.timeData.map(t => {
+            const d = new Date(t);
+            return isNaN(d.getTime()) ? '' : d.toLocaleTimeString('en-US', { hour12: false });
+        });
+
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = out;
+        chart.update('none'); // Update immediately without animation
+        this.updateCount++;
+    }
+
+    destroy() {
+        // Stub for consistency
+    }
+}
+
+/**
+ * Create CPU + Network dual Y-axis chart
+ */
+export function createCpuNetworkChart(container) {
+    if (!container) return null;
+    if (typeof Chart === 'undefined') return null;
+
+    let canvas = container.querySelector('canvas');
+    if (!canvas) {
+        canvas = document.createElement('canvas');
+        container.appendChild(canvas);
+    }
+
+    if (container.__chartJS) {
+        try { container.__chartJS.destroy(); } catch (e) { }
+    }
+
+    const ctx = canvas.getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: { color: '#ccc', font: { family: 'Consolas, monospace' } }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#1a1a1a',
+                    titleColor: '#fff',
+                    bodyColor: '#e0e0e0',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: (context) => {
+                            const label = context.dataset.label || '';
+                            const val = context.parsed.y;
+                            if (label === 'CPU') return `${label}: ${val.toFixed(1)}%`;
+                            return `${label}: ${formatNetworkRate(val)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#333' },
+                    ticks: { color: '#aaa', font: { size: 10 } }
+                },
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    min: 0,
+                    grid: { color: '#333' },
+                    ticks: {
+                        color: '#00E396',
+                        font: { size: 10 },
+                        callback: (value) => formatNetworkRate(value)
+                    },
+                    title: {
+                        display: true,
+                        text: 'Throughput',
+                        color: '#00E396',
+                        font: { size: 11 }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    position: 'right',
+                    min: 0,
+                    max: 100,
+                    grid: { drawOnChartArea: false },
+                    ticks: {
+                        color: '#FF4560',
+                        font: { size: 10 },
+                        callback: (value) => `${value}%`
+                    },
+                    title: {
+                        display: true,
+                        text: 'CPU %',
+                        color: '#FF4560',
+                        font: { size: 11 }
+                    }
+                }
+            }
+        }
+    });
+
+    container.__chartJS = chart;
+    return chart;
+}
+
+let _networkUnit = 'KB/s';
+let _networkDivisor = 1024;
+
+function determineNetworkUnit(maxBytesPerSec) {
+    if (!Number.isFinite(maxBytesPerSec) || maxBytesPerSec <= 0) {
+        _networkUnit = 'KB/s';
+        _networkDivisor = 1024;
+    } else if (maxBytesPerSec >= 1024 * 1024 * 1024) {
+        _networkUnit = 'GB/s';
+        _networkDivisor = 1024 * 1024 * 1024;
+    } else if (maxBytesPerSec >= 1024 * 1024) {
+        _networkUnit = 'MB/s';
+        _networkDivisor = 1024 * 1024;
+    } else {
+        _networkUnit = 'KB/s';
+        _networkDivisor = 1024;
+    }
+}
+
+function formatNetworkRate(bytesPerSec) {
+    if (!Number.isFinite(bytesPerSec) || bytesPerSec < 0) return `0 ${_networkUnit}`;
+    return `${(bytesPerSec / _networkDivisor).toFixed(1)} ${_networkUnit}`;
+}
+
+export function updateCpuNetworkChart(chart, cpuData, networkData) {
+    if (!chart) return;
+
+    const labels = (cpuData || []).map(d => {
+        const date = new Date(d.time);
+        return isNaN(date.getTime()) ? '' : date.toLocaleTimeString('en-US', { hour12: false });
+    });
+
+    const datasets = [];
+
+    // CPU Line
+    const cpuVals = (cpuData || []).map(d => Number(d.percent) || 0);
+    datasets.push({
+        label: 'CPU',
+        data: cpuVals,
+        yAxisID: 'y1',
+        borderColor: '#FF4560',
+        backgroundColor: '#FF4560',
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: false,
+        tension: 0.3
+    });
+
+    // Network Stacked Area
+    const networkInterfaces = [];
+    if (networkData && typeof networkData === 'object') {
+        for (const [iface, data] of Object.entries(networkData)) {
+            if (!Array.isArray(data)) continue;
+            const points = data.map(d => {
+                const send = Number(d.send_rate) || 0;
+                const recv = Number(d.recv_rate) || 0;
+                return send + recv;
+            });
+            networkInterfaces.push({ name: iface, data: points });
+        }
+    }
+
+    const netColors = ['#00E396', '#008FFB', '#FEB019', '#775DD0'];
+    const netBgColors = [
+        'rgba(0, 227, 150, 0.15)',
+        'rgba(0, 143, 251, 0.15)',
+        'rgba(254, 176, 25, 0.15)',
+        'rgba(119, 93, 208, 0.15)'
+    ];
+
+    let cumulativeY = new Array(labels.length).fill(0);
+    let maxRate = 0;
+
+    networkInterfaces.forEach((iface, idx) => {
+        const stackedVals = iface.data.map((val, i) => {
+            const prev = cumulativeY[i] || 0;
+            const newY = prev + val;
+            cumulativeY[i] = newY;
+            if (newY > maxRate) maxRate = newY;
+            return newY;
+        });
+
+        const colorIdx = idx % netColors.length;
+
+        datasets.push({
+            label: iface.name,
+            data: stackedVals,
+            yAxisID: 'y',
+            fill: true,
+            borderColor: netColors[colorIdx],
+            backgroundColor: netBgColors[colorIdx],
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.3
+        });
+    });
+
+    determineNetworkUnit(maxRate);
+
+    chart.data.labels = labels;
+    chart.data.datasets = datasets;
+    chart.options.scales.y.title.text = `Throughput (${_networkUnit})`;
+    chart.update('none');
+}
+
+export function appendCpuNetworkData(chart, cpuPoint, networkSnapshot) {
+    // Deprecated for Chart.js - updates are handled directly by updateCpuNetworkChart
+}
+
+export function initializeSystemCharts(totalRAMBytes) {
+    const ramUsageChart = createRAMUsageChart(document.getElementById('memory-usage-chart'), totalRAMBytes);
+
+    window.addEventListener('resize', () => {
+        if (ramUsageChart && typeof ramUsageChart.resize === 'function') {
+            try { ramUsageChart.resize(); } catch (e) { }
+        }
+    }, { passive: true });
+
+    return {
+        ramUsageChart,
+        dataManager: new ChartDataManager(300, 300)
+    };
+}

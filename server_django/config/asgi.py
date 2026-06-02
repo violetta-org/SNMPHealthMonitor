@@ -26,6 +26,8 @@ from apps.realtime.udp_listener import start_udp_listener
 
 # Flag to ensure UDP listener starts only once
 _udp_started = False
+# Strong references to background tasks to prevent garbage collection
+_background_tasks = set()
 
 
 class LifespanManager:
@@ -38,31 +40,36 @@ class LifespanManager:
 
     async def __call__(self, scope, receive, send):
         global _udp_started
-        # print(f"DEBUG: ASGI Scope type: {scope['type']}") # UNCOMMENT TO DEBUG SCOPES
-        
+        # Log every ASGI scope to confirm lifespan events are received
+        print(f"DEBUG: LifespanManager.__call__ scope={scope['type']}", flush=True)
+
         if scope['type'] == 'lifespan':
             while True:
                 message = await receive()
                 if message['type'] == 'lifespan.startup':
-                    # Start UDP listener as background task
-                    # Check RUN_MAIN to avoid starting it twice when Django's auto-reloader is active
-                    is_reloader_watcher = os.environ.get('RUN_MAIN') != 'true' and 'runserver' in os.environ.get('SERVER_SOFTWARE', '')
-                    # Daphne doesn't set SERVER_SOFTWARE, runserver sets it to something like "WSGIServer/0.2"
-                    # But simpler check: if we are using runserver, RUN_MAIN will be set to 'true' in the actual server process.
-                    # If it's not set, but we are in runserver, we might be the watcher.
-                    
                     is_runserver = any('runserver' in arg for arg in os.sys.argv)
                     is_main_process = os.environ.get('RUN_MAIN') == 'true'
 
                     if not _udp_started and (not is_runserver or is_main_process):
-                        print("DEBUG: Lifespan Startup detected - Launching UDP Listener")
-                        asyncio.create_task(start_udp_listener())
+                        print("DEBUG: Lifespan Startup - Launching UDP Listener", flush=True)
+                        task = asyncio.create_task(start_udp_listener())
+                        _background_tasks.add(task)
+                        task.add_done_callback(_background_tasks.discard)
                         _udp_started = True
+                    else:
+                        print(f"DEBUG: Lifespan Startup skipped (is_runserver={is_runserver}, is_main={is_main_process}, started={_udp_started})", flush=True)
                     await send({'type': 'lifespan.startup.complete'})
                 elif message['type'] == 'lifespan.shutdown':
                     await send({'type': 'lifespan.shutdown.complete'})
                     return
         else:
+            # Fallback: start UDP listener on first real request if lifespan never fired
+            if not _udp_started:
+                print("DEBUG: Lifespan never fired! Starting UDP listener on first request", flush=True)
+                task = asyncio.create_task(start_udp_listener())
+                _background_tasks.add(task)
+                task.add_done_callback(_background_tasks.discard)
+                _udp_started = True
             await self.app(scope, receive, send)
 
 
