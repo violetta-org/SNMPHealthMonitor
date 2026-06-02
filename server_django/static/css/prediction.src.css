@@ -1,0 +1,355 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Predictive AIOps — Dashboard Prediction Panel Styles
+   Design: Dark glassmorphism, status-color coded cards, smooth transitions
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Prediction Panel Container ──────────────────────────────────────────── */
+.prediction-panel {
+    margin-top: 20px;
+    padding: 0;
+    animation: pred-fade-in 0.5s ease;
+}
+
+@keyframes pred-fade-in {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Panel Header with Toggle ────────────────────────────────────────────── */
+.prediction-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.12), rgba(72, 52, 212, 0.08));
+    border: 1px solid rgba(108, 99, 255, 0.2);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.prediction-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.prediction-header-left h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #e6edf3;
+    letter-spacing: 0.3px;
+}
+
+.prediction-header-left .pred-icon {
+    font-size: 20px;
+}
+
+.prediction-header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* ── Toggle Switch ───────────────────────────────────────────────────────── */
+.pred-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pred-toggle-label {
+    font-size: 12px;
+    color: #8b949e;
+    font-weight: 500;
+}
+
+.pred-toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pred-toggle.active {
+    background: linear-gradient(135deg, #6c63ff, #4834d4);
+    border-color: rgba(108, 99, 255, 0.5);
+}
+
+.pred-toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.pred-toggle.active::after {
+    transform: translateX(20px);
+}
+
+/* Lookback selector */
+.pred-lookback {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pred-lookback label {
+    font-size: 11px;
+    color: #8b949e;
+}
+
+.pred-lookback select {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #e6edf3;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    outline: none;
+}
+
+.pred-lookback select:focus {
+    border-color: #6c63ff;
+}
+
+/* ── Overall Status Banner ───────────────────────────────────────────────── */
+.pred-overall-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    font-weight: 500;
+    animation: pred-fade-in 0.3s ease;
+}
+
+.pred-overall-banner.healthy {
+    background: rgba(63, 185, 80, 0.1);
+    border: 1px solid rgba(63, 185, 80, 0.25);
+    color: #3fb950;
+}
+
+.pred-overall-banner.caution {
+    background: rgba(210, 153, 34, 0.1);
+    border: 1px solid rgba(210, 153, 34, 0.25);
+    color: #d29922;
+}
+
+.pred-overall-banner.warning {
+    background: rgba(248, 81, 73, 0.1);
+    border: 1px solid rgba(248, 81, 73, 0.25);
+    color: #f85149;
+}
+
+.pred-overall-banner.critical {
+    background: rgba(248, 81, 73, 0.2);
+    border: 1px solid rgba(248, 81, 73, 0.4);
+    color: #ff6b6b;
+    animation: pred-critical-pulse 1.5s infinite;
+}
+
+@keyframes pred-critical-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0); }
+    50% { box-shadow: 0 0 15px rgba(248, 81, 73, 0.2); }
+}
+
+/* ── Prediction Cards Grid ───────────────────────────────────────────────── */
+.pred-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+}
+
+/* ── Individual Prediction Card ──────────────────────────────────────────── */
+.pred-card {
+    background: rgba(22, 27, 34, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.pred-card:hover {
+    border-color: rgba(108, 99, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Status indicator strip on left */
+.pred-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+}
+
+.pred-card.status-healthy::before { background: #3fb950; }
+.pred-card.status-safe::before { background: #3fb950; }
+.pred-card.status-stable::before { background: #58a6ff; }
+.pred-card.status-caution::before { background: #d29922; }
+.pred-card.status-warning::before { background: #f85149; }
+.pred-card.status-critical::before { background: #ff4444; }
+.pred-card.status-insufficient_data::before { background: #8b949e; }
+.pred-card.status-error::before { background: #8b949e; }
+
+.pred-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.pred-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e6edf3;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pred-card-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pred-card-badge.healthy,
+.pred-card-badge.safe { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
+.pred-card-badge.stable { background: rgba(88, 166, 255, 0.15); color: #58a6ff; }
+.pred-card-badge.caution { background: rgba(210, 153, 34, 0.15); color: #d29922; }
+.pred-card-badge.warning { background: rgba(248, 81, 73, 0.15); color: #f85149; }
+.pred-card-badge.critical { background: rgba(248, 81, 73, 0.25); color: #ff6b6b; }
+.pred-card-badge.insufficient_data,
+.pred-card-badge.error { background: rgba(139, 148, 158, 0.15); color: #8b949e; }
+
+.pred-card-message {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #b1bac4;
+    margin-bottom: 10px;
+}
+
+/* ── Metric Stats Row ────────────────────────────────────────────────────── */
+.pred-stats-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.pred-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pred-stat-label {
+    font-size: 10px;
+    color: #6e7681;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pred-stat-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e6edf3;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ── Mini Chart Container ────────────────────────────────────────────────── */
+.pred-chart-container {
+    width: 100%;
+    height: 140px;
+    margin-top: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* ── Loading State ───────────────────────────────────────────────────────── */
+.pred-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    gap: 12px;
+    color: #8b949e;
+    font-size: 13px;
+}
+
+.pred-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(108, 99, 255, 0.2);
+    border-top-color: #6c63ff;
+    border-radius: 50%;
+    animation: pred-spin 0.8s linear infinite;
+}
+
+@keyframes pred-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── TTF (Time To Failure) highlight ─────────────────────────────────────── */
+.pred-ttf {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: monospace;
+}
+
+.pred-ttf.danger {
+    background: rgba(248, 81, 73, 0.15);
+    color: #f85149;
+}
+
+.pred-ttf.warning {
+    background: rgba(210, 153, 34, 0.15);
+    color: #d29922;
+}
+
+.pred-ttf.safe {
+    background: rgba(63, 185, 80, 0.1);
+    color: #3fb950;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .pred-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    .prediction-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
