@@ -142,6 +142,7 @@ class RealTimeTransformer:
         
         # Network counters per interface: ifIndex -> {rx, tx, name, ...}
         net_counters: Dict[str, Dict] = {}
+        cpu_temp = None
         
         # === Pass 1: Extract all values ===
         for m in metrics:
@@ -173,6 +174,10 @@ class RealTimeTransformer:
             elif name == 'cpu.core.percent':
                 hr_index = m.get('labels', {}).get('hrDeviceIndex', '0')
                 cpu_map[hr_index] = {'percent': val, 'time': ts}
+            
+            # Temperature
+            elif name == 'temperature.cpu':
+                cpu_temp = val
             
             # Memory
             elif name.startswith('memory.'):
@@ -327,6 +332,10 @@ class RealTimeTransformer:
             'cpu_percent': cpu_cores,
             'memory': mem_data if mem_data else None,
             'swap': swap_data if swap_data else None,
+            'temperature': {
+                'time': ts,
+                'cpu_temp': cpu_temp
+            },
             'device_info': {
                 'online': True,
                 'last_seen': ts
@@ -518,7 +527,7 @@ class RealTimeTransformer:
                 disk_map[idx]['total'] = val
             elif m['name'].endswith('used_kb'):
                 disk_map[idx]['used'] = val
-            elif m['name'].endswith('free_kb'):
+            elif m['name'].endswith('free_kb') or m['name'].endswith('avail_kb'):
                 disk_map[idx]['free'] = val
             elif m['name'].endswith('percent'):
                 disk_map[idx]['percent'] = val
