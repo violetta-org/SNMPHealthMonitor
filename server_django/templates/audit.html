@@ -619,12 +619,35 @@
                     <label class="filter-label">Action</label>
                     <select id="filterAction" class="filter-select">
                         <option value="">All Actions</option>
-                        <option value="UPLOAD_FILE">Upload File</option>
-                        <option value="DELETE_FILE">Delete File</option>
-                        <option value="SAVE_FILE">Save File</option>
-                        <option value="EMPTY_TRASH">Empty Trash</option>
-                        <option value="RESTORE_FILE">Restore File</option>
-                        <option value="DELETE_BATCH">Batch Delete</option>
+                        <optgroup label="Auth">
+                            <option value="LOGIN">Login</option>
+                            <option value="LOGIN_FAILED">Login Failed</option>
+                            <option value="LOGOUT">Logout</option>
+                        </optgroup>
+                        <optgroup label="Terminal">
+                            <option value="SSH_CONNECT">SSH Connect</option>
+                        </optgroup>
+                        <optgroup label="File Manager">
+                            <option value="UPLOAD_FILE">Upload File</option>
+                            <option value="SAVE_FILE">Save File</option>
+                            <option value="TRASH_FILE">Move to Trash</option>
+                            <option value="TRASH_BATCH">Batch Trash</option>
+                            <option value="DELETE_PERMANENT">Delete Permanent</option>
+                            <option value="DELETE_BATCH_PERMANENT">Batch Delete Permanent</option>
+                            <option value="ZIP_FILES">Zip Files</option>
+                            <option value="UNZIP_FILE">Unzip File</option>
+                            <option value="RESTORE_BACKUP">Restore Backup</option>
+                        </optgroup>
+                        <optgroup label="Trash">
+                            <option value="RESTORE_FILE">Restore File</option>
+                            <option value="EMPTY_TRASH">Empty Trash</option>
+                        </optgroup>
+                        <optgroup label="System Manager">
+                            <option value="PROCESS_KILL">Kill Process</option>
+                            <option value="PROCESS_KILL_FAILED">Kill Process Failed</option>
+                            <option value="PACKAGE_MANAGE">Package Install/Remove</option>
+                            <option value="PACKAGE_MANAGE_FAILED">Package Action Failed</option>
+                        </optgroup>
                     </select>
                 </div>
 

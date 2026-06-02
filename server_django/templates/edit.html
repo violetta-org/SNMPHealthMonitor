@@ -167,15 +167,17 @@
   }
 </style>
 <div class="container">
-  {% set parent_path = '/'.join(rel_path.split('/')[:-1]) %}
   <h2>Editor</h2>
   {% if is_binary %}
   <div class="alert alert-warn">Tệp có vẻ là nhị phân (binary). Mở ở dạng văn bản có thể làm hỏng dữ liệu nếu lưu. Hãy
     thận trọng.</div>
   {% endif %}
   <div class="toolbar">
-    <a class="btn" href="{{ url_for('web.files', req_path=parent_path) if parent_path else url_for('web.files') }}">←
-      Back to Folder</a>
+    {% if parent_path %}
+    <a class="btn" href="{% url 'web:files' parent_path %}">← Back to Folder</a>
+    {% else %}
+    <a class="btn" href="{% url 'web:files' %}">← Back to Folder</a>
+    {% endif %}
     <div class="path" title="{{ rel_path }}">{{ rel_path }}</div>
     <button id="saveBtn" class="btn btn-primary" type="button">Save</button>
     <span id="status" class="status"></span>
@@ -210,10 +212,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
 <script>
-  const initialValue = {{ content| tojson }};
-  const relPath = {{ rel_path| tojson }};
-  const initialMtime = {{ mtime| tojson }};
-  const fileLanguage = {{ language| tojson }};
+  const initialValue = "{{ content|escapejs }}";
+  const relPath = "{{ rel_path|escapejs }}";
+  const initialMtime = {{ mtime|safe }};
+  const fileLanguage = "{{ language|escapejs }}";
 
   const statusEl = document.getElementById('status');
   const saveBtn = document.getElementById('saveBtn');
@@ -237,7 +239,7 @@
     saveBtn.disabled = true;
     setStatus(force ? 'Saving (force)...' : 'Saving...', false);
     const payload = { path: relPath, content: editor.getValue(), mtime: lastSavedMtime, force: !!force };
-    fetch("{{ url_for('api.api_save') }}", {
+    fetch("/api/save", {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -249,7 +251,7 @@
           setStatus('Conflict detected. The file has changed on disk.', false);
           const conf = confirm('File has changed on disk. Overwrite with your version?');
           if (conf) {
-            return fetch("{{ url_for('api.api_save') }}", {
+            return fetch("/api/save", {
               method: 'POST', headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ path: relPath, content: editor.getValue(), mtime: data.current_mtime, force: true })
             }).then(async (r2) => {
@@ -303,13 +305,13 @@
   function fmtTs(ts) { return ts; }
   function loadBackups() {
     backupsBody.innerHTML = '<div class="muted">Loading...</div>';
-    fetch(`{{ url_for('api.api_backups') }}?path=${encodeURIComponent(relPath)}`)
+    fetch(`/api/backups?path=${encodeURIComponent(relPath)}`)
       .then(r => r.json()).then(data => {
         if (!data || !data.ok) { backupsBody.innerHTML = '<div class="muted">Error loading backups.</div>'; return; }
         const items = data.items || [];
         if (!items.length) { backupsBody.innerHTML = '<div class="muted">No backups.</div>'; return; }
         const rows = items.map(it => {
-          const dUrl = `{{ url_for('web.download_backup') }}?path=${encodeURIComponent(relPath)}&ts=${encodeURIComponent(it.ts)}`;
+          const dUrl = `{% url 'web:download_backup' %}?path=${encodeURIComponent(relPath)}&ts=${encodeURIComponent(it.ts)}`;
           return `<tr>
               <td class="mono">${it.ts}</td>
               <td>${fmtBytes(it.size || 0)}</td>
@@ -329,7 +331,7 @@
 
   function restoreBackup(ts) {
     if (!confirm('Restore this backup? A current backup will be created before restore.')) return;
-    fetch("{{ url_for('api.api_restore_backup') }}", { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: relPath, ts }) })
+    fetch("/api/restore_backup", { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: relPath, ts }) })
       .then(r => r.json()).then(resp => { if (resp && resp.ok) { location.reload(); } else { alert('Restore failed: ' + (resp && (resp.error || JSON.stringify(resp)))); } })
       .catch(err => alert('Network error: ' + err));
   }
@@ -337,10 +339,10 @@
   function openDiff(ts) {
     viewingTs = ts;
     setStatus('Loading backup...', false);
-    fetch(`{{ url_for('api.api_backup_content') }}?path=${encodeURIComponent(relPath)}&ts=${encodeURIComponent(ts)}`)
+    fetch(`/api/backup_content?path=${encodeURIComponent(relPath)}&ts=${encodeURIComponent(ts)}`)
       .then(r => r.json()).then(data => {
         if (!data || !data.ok) { alert('Cannot load backup content.'); return; }
-        downloadBackupLink.href = `{{ url_for('web.download_backup') }}?path=${encodeURIComponent(relPath)}&ts=${encodeURIComponent(ts)}`;
+        downloadBackupLink.href = `{% url 'web:download_backup' %}?path=${encodeURIComponent(relPath)}&ts=${encodeURIComponent(ts)}`;
         if (data.binary) {
           // show simple info and current content side by side not useful; just notify
           alert('This backup is binary or too large to preview. You can Download or Restore.');
