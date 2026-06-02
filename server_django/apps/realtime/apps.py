@@ -12,10 +12,9 @@ class RealtimeConfig(AppConfig):
     def ready(self):
         print("DEBUG: RealtimeConfig.ready() called") # DEBUG PROBE
         
-        # Start always for now to debug - we can refine logic later if it runs twice
-        from .udp_listener import start_udp_listener_thread
-        
-        logger.info("Initializing UDP Listener Thread via AppConfig...")
-        print("DEBUG: Launching UDP thread...")
-        t = threading.Thread(target=start_udp_listener_thread, daemon=True)
-        t.start()
+        # Removed UDP thread startup from here because it is now handled by asgi.py (LifespanManager)
+        # to ensure it runs in the same asyncio loop as WebSockets and doesn't run twice.
+        # logger.info("Initializing UDP Listener Thread via AppConfig...")
+        # print("DEBUG: Launching UDP thread...")
+        # t = threading.Thread(target=start_udp_listener_thread, daemon=True)
+        # t.start()
