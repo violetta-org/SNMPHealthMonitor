@@ -110,12 +110,17 @@ export class WebSocketManager {
                     const message = JSON.parse(event.data);
                     
                     if (message.type === 'data') {
+                        // Real-time metric data → forward to dashboard
                         this.emit('message', message);
                     } else if (message.type === 'pong') {
-                        // Received pong
+                        // Internal keepalive - ignore
+                    } else if (message.status) {
+                        // Control/confirmation messages (subscribed, unsubscribed, error)
+                        // Handle internally - don't forward to dashboard handleMessage
+                        console.log(`[WebSocketManager] Server ack: status=${message.status}`, message);
                     } else {
-                        // Forward generic messages too
-                        this.emit('message', message);
+                        // Unknown message type - log but don't forward
+                        console.warn('[WebSocketManager] Unknown message type:', message);
                     }
                 } catch (e) {
                     console.error('[WebSocketManager] Error parsing message:', e);
