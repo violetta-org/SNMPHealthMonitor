@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="{% static 'css/dashboard.css' %}" as="style">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
@@ -92,7 +93,7 @@
     <div id="toast-container" class="toast-container"></div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <!-- Base dashboard script -->
     {% block extra_scripts %}
