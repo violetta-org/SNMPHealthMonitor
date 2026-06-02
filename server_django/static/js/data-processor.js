@@ -1,114 +1,37 @@
 /**
  * Data Processor Module
- * Processes raw metric data from WebSocket
+ * Processes raw metric data from WebSocket using a Web Worker
  * Separated from WebSocket and UI logic
  */
 export class DataProcessor {
     constructor() {
-        this.processors = new Map();
-        this.registerDefaultProcessors();
-    }
+        this.worker = new Worker('/static/js/data-worker.js');
+        this.messageId = 0;
+        this.pendingRequests = new Map();
 
-    /**
-     * Register default data processors
-     */
-    registerDefaultProcessors() {
-        // System status processor (default) - pass through vì structure đã đúng
-        this.processors.set('systemstatus', (data) => {
-            console.log('[DataProcessor] Processing systemstatus data');
-            // Pass through vì server đã trả về đúng format: {system_info, load_avg, memory, swap, cpu_percent}
-            return data;
-        });
-
-        // System metrics processor - pass through vì structure đã đúng
-        this.processors.set('system', (data) => {
-            console.log('[DataProcessor] Processing system data', data);
-            // Ensure structure is correct, include device_info
-            return {
-                device_info: data.device_info || {},
-                system_info: data.system_info || {},
-                load_avg: data.load_avg || {}
-            };
-        });
-
-        // CPU metrics processor
-        this.processors.set('cpu', (data) => {
-            console.log('[DataProcessor] Processing cpu data', data);
-            // Include device_info
-            return {
-                device_info: data.device_info || {},
-                cpu_percent: data.cpu_percent || []
-            };
-        });
-
-        // Memory metrics processor
-        this.processors.set('memory', (data) => {
-            console.log('[DataProcessor] Processing memory data', data);
-            // Include device_info
-            return {
-                device_info: data.device_info || {},
-                memory: data.memory || {},
-                swap: data.swap || {}
-            };
-        });
-
-        // Network metrics processor
-        this.processors.set('network', (data) => {
-            console.log('[DataProcessor] Processing network data', data);
-            // Include device_info
-            return {
-                device_info: data.device_info || {},
-                network: data.network || []
-            };
-        });
-
-        // Disk metrics processor
-        this.processors.set('disk', (data) => {
-            console.log('[DataProcessor] Processing disk data', data);
-            // Include device_info
-            return {
-                device_info: data.device_info || {},
-                disk_usage: data.disk_usage || []
-            };
-        });
-
-        // Disk IO metrics processor
-        this.processors.set('diskio', (data) => {
-            console.log('[DataProcessor] Processing diskio data', data);
-            // Include device_info
-            return {
-                device_info: data.device_info || {},
-                disk_io: data.disk_io || {}
-            };
-        });
-
-
-    }
-
-    /**
-     * Register custom processor for a topic
-     */
-    registerProcessor(topic, processor) {
-        console.log(`[DataProcessor] Registering processor for topic: ${topic}`);
-        this.processors.set(topic, processor);
+        this.worker.onmessage = (e) => {
+            const { id, result, error } = e.data;
+            const promiseCallbacks = this.pendingRequests.get(id);
+            if (promiseCallbacks) {
+                this.pendingRequests.delete(id);
+                if (error) {
+                    promiseCallbacks.reject(new Error(error));
+                } else {
+                    promiseCallbacks.resolve(result);
+                }
+            }
+        };
     }
 
     /**
      * Process data for a specific topic
      */
     process(topic, rawData) {
-        const processor = this.processors.get(topic);
-        if (processor) {
-            try {
-                return processor(rawData);
-            } catch (error) {
-                console.error(`[DataProcessor] Error processing ${topic}:`, error);
-                return null;
-            }
-        } else {
-            console.warn(`[DataProcessor] No processor found for topic: ${topic}`);
-            return rawData;
-        }
+        return new Promise((resolve, reject) => {
+            const id = ++this.messageId;
+            this.pendingRequests.set(id, { resolve, reject });
+            this.worker.postMessage({ id, topic, rawData });
+        });
     }
 
     /**
@@ -133,4 +56,5 @@ export class DataProcessor {
         return `${days}d ${hours}h ${minutes}m`;
     }
 }
+
 

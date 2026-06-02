@@ -117,19 +117,25 @@ export class Dashboard {
             try {
                 // Process data
                 console.log(`[Dashboard] Processing ${this.topic} data...`);
-                const processedData = this.dataProcessor.process(this.topic, message.data);
-                console.log(`[Dashboard] Processed data:`, processedData);
+                this.dataProcessor.process(this.topic, message.data)
+                    .then(processedData => {
+                        console.log(`[Dashboard] Processed data:`, processedData);
 
-                if (processedData) {
-                    // Update UI using topic-specific dashboard's update method
-                    console.log(`[Dashboard] Updating UI for topic: ${this.topic}`);
-                    this.uiUpdater.update(processedData);
+                        if (processedData) {
+                            // Update UI using topic-specific dashboard's update method
+                            console.log(`[Dashboard] Updating UI for topic: ${this.topic}`);
+                            this.uiUpdater.update(processedData);
 
-                    this.uiUpdater.hideError();
-                } else {
-                    console.warn('[Dashboard] Failed to process data');
-                    this.uiUpdater.showWarning('Failed to process data');
-                }
+                            this.uiUpdater.hideError();
+                        } else {
+                            console.warn('[Dashboard] Failed to process data');
+                            this.uiUpdater.showWarning('Failed to process data');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('[Dashboard] Error processing message:', error);
+                        this.uiUpdater.showWarning('Error processing data: ' + error.message);
+                    });
             } catch (error) {
                 console.error('[Dashboard] Error handling message:', error);
                 this.uiUpdater.showWarning('Error processing data: ' + error.message);

@@ -13,6 +13,31 @@ export class WebSocketManager {
         this.reconnectInterval = 3000;
         this.reconnectTimer = null;
         this.isExplicitDisconnect = false;
+        this.throttleInterval = 250;
+        this.lastEmitTime = 0;
+        this.pendingMessage = null;
+        this.throttleTimer = null;
+    }
+
+    _throttleEmit(message) {
+        const now = Date.now();
+        if (now - this.lastEmitTime >= this.throttleInterval) {
+            this.emit('message', message);
+            this.lastEmitTime = now;
+            if (this.throttleTimer) {
+                clearTimeout(this.throttleTimer);
+                this.throttleTimer = null;
+            }
+        } else {
+            this.pendingMessage = message;
+            if (!this.throttleTimer) {
+                this.throttleTimer = setTimeout(() => {
+                    this.emit('message', this.pendingMessage);
+                    this.lastEmitTime = Date.now();
+                    this.throttleTimer = null;
+                }, this.throttleInterval - (now - this.lastEmitTime));
+            }
+        }
     }
 
     /**
@@ -111,7 +136,7 @@ export class WebSocketManager {
                     
                     if (message.type === 'data') {
                         // Real-time metric data → forward to dashboard
-                        this.emit('message', message);
+                        this._throttleEmit(message);
                     } else if (message.type === 'pong') {
                         // Internal keepalive - ignore
                     } else if (message.status) {
