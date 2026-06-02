@@ -19,6 +19,7 @@ This report details the cybersecurity posture of the SNMP Health Monitor project
 | **Reflow Mitigation** | Resolved startup forced reflows by deferring text formatting (`this.init()`) in the base UI. | Resolved Main-Thread locking and boosted UI response time during critical path. | `75daa6d` |
 | **CSS Segregation** | Extracted history investigation styles into `history.css` load path. | Reduced base stylesheet overhead by ~30%, saving bandwidth. | `7e7f848` |
 | **Contrast Correct** | Adjusted color scheme variables and status badges to satisfy WCAG AA contrast standards. | Complied with regulatory usability guidelines for impaired users. | `7e7f848` |
+| **Layout Shift Fix** | Set `display: optional` on web fonts and established static size bounds on connection-status badges. | Eliminated visual layout shifts (CLS), improving usability and rendering stability. | `d23bfe7` |
 
 ## 3. Vulnerability Findings & Security Posture
 
