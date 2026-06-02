@@ -53,6 +53,11 @@ export class BaseDashboardUI {
         const element = document.querySelector(selector);
         if (element) {
             this.elements.set(key, element);
+            // Pre-cache progress circle to avoid querySelector in rapid update loops
+            const progress = element.querySelector('.gauge-progress');
+            if (progress) {
+                this.elements.set(key + '-progress', progress);
+            }
             console.log(`[BaseDashboardUI] Registered element: ${key} -> ${selector}`);
         } else {
             console.warn(`[BaseDashboardUI] Element not found: ${selector}`);
@@ -73,8 +78,8 @@ export class BaseDashboardUI {
 
         const clampedPercent = Math.min(Math.max(percent, 0), 100);
 
-        // Find the progress circle
-        const progressCircle = gaugeElement.querySelector('.gauge-progress');
+        // Find the progress circle from cache to avoid Layout Thrashing
+        const progressCircle = this.elements.get(id + '-gauge-progress') || gaugeElement.querySelector('.gauge-progress');
         if (progressCircle) {
             const circumference = 2 * Math.PI * 45; // radius = 45
             const offset = circumference - (clampedPercent / 100) * circumference;
