@@ -66,7 +66,7 @@
                 </div>
                 <div class="prediction-header-right">
                     <div class="pred-lookback">
-                        <label>Dữ liệu:</label>
+                        <label for="pred-lookback-select">Dữ liệu:</label>
                         <select id="pred-lookback-select">
                             <option value="6">6 giờ</option>
                             <option value="12">12 giờ</option>

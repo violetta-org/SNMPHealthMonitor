@@ -430,7 +430,8 @@
         const messages = document.getElementById('ai-chat-messages');
         if (messages) {
             requestAnimationFrame(() => {
-                messages.scrollTop = messages.scrollHeight;
+                const last = messages.lastElementChild;
+                if (last) last.scrollIntoView({ behavior: 'smooth', block: 'end' });
             });
         }
     }
