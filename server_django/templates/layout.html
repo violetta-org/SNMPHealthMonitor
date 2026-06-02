@@ -71,7 +71,7 @@
       /* Deep Charcoal / Luxury Dark */
     }
   </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   {% block head_scripts %}{% endblock %}
 </head>
@@ -81,6 +81,7 @@
     <h3
       style="margin-top:0; padding-left: 12px; margin-bottom: 30px; letter-spacing: 1px; font-weight: 600; color: #fff; text-transform: uppercase; font-size: 0.85rem;">
       System</h3>
+    <a href="{% url 'web:dashboard_default' %}"><i class="fas fa-chart-line" style="width: 20px;"></i> Dashboard</a>
     <a href="{% url 'web:index' %}"><i class="fas fa-terminal" style="width: 20px;"></i> Terminal</a>
     <a href="{% url 'web:files' %}"><i class="fas fa-folder-open" style="width: 20px;"></i> File Manager</a>
     <a href="{% url 'web:trash' %}"><i class="fas fa-trash-alt" style="width: 20px;"></i> Trash</a>
