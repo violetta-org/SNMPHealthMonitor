@@ -1,7 +1,13 @@
 import os
 import sys
 import json
+import logging
 from typing import Dict, Any, Optional
+from utils.logging import configure_logger
+
+# Setup logging
+logger = configure_logger(__name__)
+logger.setLevel(level=logging.DEBUG)
 
 # Setup project root path for imports
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,10 +29,8 @@ def get_oids_file_path(oids_file: str) -> str:
     # Try relative to oids directory
     oids_path = os.path.join(_OIDS_DIR, oids_file)
     if os.path.exists(oids_path):
-        print(f"[DEBUG] Found OIDs file in oids directory: {oids_path}")
         return oids_path
     # Return as-is if not found (will raise error later)
-    print(f"[WARNING] OIDs file not found, returning as-is: {oids_file}")
     return oids_file
 
 
@@ -34,13 +38,12 @@ def load_config_from_file() -> Dict[str, Any]:
     """Load config from JSON file if exists."""
     if os.path.exists(_CONFIG_FILE):
         try:
-            print(f"[DEBUG] Loading config from file: {_CONFIG_FILE}")
             with open(_CONFIG_FILE, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except Exception as e:
-            print(f"[WARNING] Failed to load config file: {e}")
+            logger.error(f"Failed to load config file: {e}")
     else:
-        print(f"[DEBUG] Config file not found: {_CONFIG_FILE}, using empty config")
+        logger.debug(f"Config file not found: {_CONFIG_FILE}, using empty config")
     return {}
 
 
@@ -58,7 +61,7 @@ def prompt_with_default(prompt_text: str, default: Any, value_type: type = str) 
         try:
             return int(user_input)
         except ValueError:
-            print(f"[WARNING] Invalid integer, using default: {default}")
+            logger.warning(f"Invalid integer, using default: {default}")
             return default
     elif value_type == float:
         default_str = str(default)
@@ -68,7 +71,7 @@ def prompt_with_default(prompt_text: str, default: Any, value_type: type = str) 
         try:
             return float(user_input)
         except ValueError:
-            print(f"[WARNING] Invalid float, using default: {default}")
+            logger.warning(f"Invalid float, using default: {default}")
             return default
     else:
         return default
@@ -126,7 +129,7 @@ def prompt_config_interactive() -> Dict[str, Any]:
     
     confirm = input("\nUse this configuration? [Y/n]: ").strip().lower()
     if confirm and confirm != 'y':
-        print("[INFO] Configuration cancelled, using defaults from config.json")
+        logger.info("Configuration cancelled, using defaults from config.json")
         # Load from file and store in _config_dict
         _config_dict = file_config
         return file_config
@@ -135,6 +138,7 @@ def prompt_config_interactive() -> Dict[str, Any]:
     _config_dict = config
     
     return config
+
 
 def get_config() -> Dict[str, Any]:
     """Get current config dict (from prompt or load from file)."""

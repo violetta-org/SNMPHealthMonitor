@@ -1,15 +1,14 @@
 {
   "snmp": {
-    "agent": "192.168.220.96",
+    "agent": "192.168.80.130",
     "port": 161,
     "community": "public",
     "version": "2c",
     "oids_file": "snmp_oids_linux.json"
   },
-  "pull_interval": 4.0,
+  "pull_interval": 1.0,
   "query_service": {
     "host": "localhost",
     "notify_port": 6003
   }
 }
-

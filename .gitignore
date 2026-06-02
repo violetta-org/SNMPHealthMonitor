@@ -8,6 +8,27 @@ env/
 .venv/
 .env/
 .cursorignore
-notebooks/
-.cursor/
+.cursor
 database/*.txt
+query-service/logs/*.log
+rasberrypi/logs/*.log
+.windsurf
+
+# Ignore architecture and visualization files
+*.dot
+*.png
+*.svg
+.arcforge-architecture
+architecture.json
+
+# Ignore NestJS/React app from this repo
+my-nest-react-app/
+my-nest-react-app
+
+# Ignore plans
+plans/
+plans
+
+#Ignore github
+.github/
+.github

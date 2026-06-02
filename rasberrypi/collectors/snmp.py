@@ -29,8 +29,17 @@ except Exception as e:
 
 
 
+# Global cache for OIDs to avoid re-reading file every cycle
+_OIDS_CACHE: List[Dict[str, Any]] = None
+
+
 def _load_oids(oids_file_path: str) -> List[Dict[str, Any]]:
-    """Load OIDs from file. Expects absolute or relative path already resolved."""
+    """Load OIDs from file with caching. Expects absolute or relative path already resolved."""
+    global _OIDS_CACHE
+    
+    if _OIDS_CACHE is not None:
+        return _OIDS_CACHE
+
     print(f"[DEBUG] Loading OIDs from: {oids_file_path}")
     
     with open(oids_file_path, 'r', encoding='utf-8') as f:
@@ -38,7 +47,9 @@ def _load_oids(oids_file_path: str) -> List[Dict[str, Any]]:
     # Expected format: [{"name": "cpu.load1", "oid": "1.3...", "unit": "unitless", "type": "gauge", "labels": {}}]
     if not isinstance(data, list):
         raise ValueError("SNMP OIDs file must contain a list of OID mappings")
-    return data
+    
+    _OIDS_CACHE = data
+    return _OIDS_CACHE
 
 
 _UNIT_MAP = {
@@ -112,12 +123,12 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
         if not name or not oid:
             continue
 
-        print(f"[DEBUG] Processing {name} (OID: {oid}, method: {method})")
+        # print(f"[DEBUG] Processing {name} (OID: {oid}, method: {method})")
 
         try:
             #GETNEXT
             if method == 'walk':
-                print(f"[DEBUG] Walking OID {oid}")
+                # print(f"[DEBUG] Walking OID {oid}")
                 
                 # đảm bảo base_oid kết thúc với dấu chấm để khớp với prefix
                 base_oid = oid if oid.endswith('.') else oid + '.'
@@ -144,7 +155,7 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
                         # Check if we're still walking the expected OID tree
                         full_oid_str = str(full_oid)
                         if not full_oid_str.startswith(base_oid):
-                            print(f"[DEBUG] Beyond subtree for {name}: {full_oid_str}")
+                            # print(f"[DEBUG] Beyond subtree for {name}: {full_oid_str}")
                             stop_walk = True
                             break
                         
@@ -165,7 +176,7 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
                                     ts=ts,
                                 ).to_dict()
                             )
-                            print(f"[DEBUG] Walked {name}[{idx}] = {v}")
+                            # print(f"[DEBUG] Walked {name}[{idx}] = {v}")
                         except ValueError as e:
                             print(f"[DEBUG] Error creating metric {name}[{idx}]: {e}")
                             # Discard metric if ts is invalid
@@ -174,7 +185,7 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
                     if stop_walk:
                         break
             else:
-                print(f"[DEBUG] Getting OID {oid}")
+                # print(f"[DEBUG] Getting OID {oid}")
                 #GET
                 error_indication, error_status, error_index, var_binds = await get_cmd(
                     engine,
@@ -209,7 +220,7 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
                                     ts=ts,
                                 ).to_dict()
                             )
-                            print(f"[DEBUG] Got {name} = {v}")
+                            # print(f"[DEBUG] Got {name} = {v}")
                         except ValueError as e:
                             print(f"[DEBUG] Error creating metric {name}: {e}")
                             # Discard metric if ts is invalid
@@ -217,18 +228,18 @@ async def fetch_snmp_metrics_async(host: str, port: int, community: str, version
             print(f"[DEBUG] Exception processing {name}: {e}")
             # Skip this metric on exception
 
-    print(f"[DEBUG] Collected {len(metrics)} metrics total")
+    # print(f"[DEBUG] Collected {len(metrics)} metrics total")
     return metrics
 
 
 def fetch_snmp_metrics(host: str, port: int, community: str, version: str, oids_file_path: str) -> List[Dict[str, Any]]:
     """Sync wrapper for async SNMP metrics collector"""
-    print(f"[DEBUG] Starting sync SNMP collection wrapper")
+    # print(f"[DEBUG] Starting sync SNMP collection wrapper")
     
     try:
         # Check if we're already in an event loop
         loop = asyncio.get_running_loop()
-        print(f"[DEBUG] Already in event loop, creating new thread")
+        # print(f"[DEBUG] Already in event loop, creating new thread")
         # If we're already in an event loop, we need to run in a new thread
         import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -236,6 +247,6 @@ def fetch_snmp_metrics(host: str, port: int, community: str, version: str, oids_
             return future.result()
     except RuntimeError:
         # No event loop running, safe to use asyncio.run
-        print(f"[DEBUG] No event loop running, using asyncio.run")
+        # print(f"[DEBUG] No event loop running, using asyncio.run")
         return asyncio.run(fetch_snmp_metrics_async(host, port, community, version, oids_file_path))
 

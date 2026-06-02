@@ -1,13 +1,15 @@
 import os
+import json
 import time
 import random
-import json
-from datetime import datetime
 from pathlib import Path
-
+from datetime import datetime
+from utils.logging import configure_logger
 from .db_config import load_db_config
 from .db_retention import RetentionManager
 
+# Set up logging
+logger = configure_logger(__name__)
 
 def load_retention_config():
     """Load retention configuration from file or environment variables."""
@@ -53,7 +55,7 @@ def load_retention_config():
                     else:
                         default_config[key] = value
         except Exception as e:
-            print(f"[WARNING] Could not load retention config from {config_file}: {e}")
+            logger.warning(f"Could not load retention config from {config_file}: {e}")
     
     # Override with environment variables
     retention_policies = default_config["retention_policies"]
@@ -83,27 +85,27 @@ def run_once(rm: RetentionManager, config: dict):
     
     # Log results
     total_deleted = sum(deleted_results.values()) if deleted_results else 0
-    print(f"[DEBUG] {datetime.now()} cleanup: deleted={total_deleted}, offline_marked={off}")
+    logger.debug(f"Cleanup: deleted={total_deleted}, offline_marked={off}")
     
     # Log detailed results per table
     if deleted_results:
         for table, count in deleted_results.items():
             if count > 0:
-                print(f"[DEBUG] {table}: deleted {count} rows")
+                logger.debug(f"{table}: deleted {count} rows")
     
     # Get database stats if monitoring is enabled
     if monitoring.get("enable_stats_logging", False):
         stats = rm.get_database_stats()
         if stats:
-            print(f"[DEBUG] Database size: {stats.get('database_size_mb', 0):.2f} MB")
+            logger.debug(f"Database size: {stats.get('database_size_mb', 0):.2f} MB")
             
             # Check size limit
             max_size = monitoring.get("max_database_size_mb", 1000)
             if stats.get('database_size_mb', 0) > max_size:
-                print(f"[WARNING] Database size ({stats['database_size_mb']:.2f} MB) exceeds limit ({max_size} MB)")
+                logger.warning(f"Database size ({stats['database_size_mb']:.2f} MB) exceeds limit ({max_size} MB)")
                 
                 if monitoring.get("alert_on_size_exceeded", True):
-                    print(f"[ALERT] Consider reducing retention periods or increasing cleanup frequency")
+                    logger.warning("Consider reducing retention periods or increasing cleanup frequency")
 
 
 def main():
@@ -120,11 +122,11 @@ def main():
     cleanup_settings = config["cleanup_settings"]
     monitoring = config["monitoring"]
     
-    print(f"[DEBUG] Retention CLI start:")
-    print(f"[DEBUG]   - Retention policies: {retention_config}")
-    print(f"[DEBUG]   - Check interval: {cleanup_settings['check_interval_seconds']}s")
-    print(f"[DEBUG]   - Agent timeout: {cleanup_settings['agent_timeout_seconds']}s")
-    print(f"[DEBUG]   - Monitoring: {'enabled' if monitoring.get('enable_stats_logging') else 'disabled'}")
+    logger.info(f"Retention CLI start:")
+    logger.info(f"  - Retention policies: {retention_config}")
+    logger.info(f"  - Check interval: {cleanup_settings['check_interval_seconds']}s")
+    logger.info(f"  - Agent timeout: {cleanup_settings['agent_timeout_seconds']}s")
+    logger.info(f"  - Monitoring: {'enabled' if monitoring.get('enable_stats_logging') else 'disabled'}")
     
     backoff = cleanup_settings["backoff_min_seconds"]
     last_stats_log = time.time()
@@ -140,26 +142,25 @@ def main():
                 if time.time() - last_stats_log >= stats_interval:
                     stats = rm.get_database_stats()
                     if stats:
-                        print(f"[STATS] Database: {stats.get('database_size_mb', 0):.2f} MB")
+                        logger.info(f"Database: {stats.get('database_size_mb', 0):.2f} MB")
                         for table, info in stats.get('tables', {}).items():
                             if info['row_count'] > 0:
-                                print(f"[STATS] {table}: {info['row_count']} rows, {info['size_mb']:.2f} MB")
+                                logger.info(f"{table}: {info['row_count']} rows, {info['size_mb']:.2f} MB")
                     last_stats_log = time.time()
             
             time.sleep(cleanup_settings["check_interval_seconds"])
             
         except KeyboardInterrupt:
-            print("[DEBUG] Retention CLI stopped by user")
+            logger.info("Retention CLI stopped by user")
             break
         except Exception as e:
             jitter = random.uniform(0, backoff * 0.2)
             wait = min(backoff + jitter, cleanup_settings["backoff_max_seconds"])
-            print(f"[ERROR] Retention CLI loop: {e} | backoff={wait:.1f}s")
+            logger.error(f"Retention CLI loop: {e} | backoff={wait:.1f}s")
             time.sleep(wait)
             backoff = min(backoff * cleanup_settings["backoff_factor"], cleanup_settings["backoff_max_seconds"])
 
 
 if __name__ == "__main__":
+    import pymysql as MySQLdb
     main()
-
-

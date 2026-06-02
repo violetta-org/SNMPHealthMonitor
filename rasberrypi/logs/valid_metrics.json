@@ -1,0 +1,992 @@
+[
+    {
+        "name": "sys.uptime.seconds",
+        "value": 401.38,
+        "unit": "s",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "sys.name",
+        "value": "viole",
+        "unit": "",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "sys.location",
+        "value": "\"Tram 247 xin chao\"",
+        "unit": "",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "cpu.core.percent",
+        "value": 21.0,
+        "unit": "%",
+        "type": "gauge",
+        "labels": {
+            "hrDeviceIndex": "196608"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "cpu.core.percent",
+        "value": 18.0,
+        "unit": "%",
+        "type": "gauge",
+        "labels": {
+            "hrDeviceIndex": "196609"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "load.1m",
+        "value": 1.41,
+        "unit": "",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "load.5m",
+        "value": 0.48,
+        "unit": "",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "load.15m",
+        "value": 0.23,
+        "unit": "",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "memory.total",
+        "value": 4072574976.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "memory.available",
+        "value": 3163877376.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "memory.free",
+        "value": 7455694848.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "memory.shared",
+        "value": 2367488.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "memory.buffers",
+        "value": 42360832.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "memory.cached",
+        "value": 371605504.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "swap.total",
+        "value": 4291817472.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "swap.free",
+        "value": 4291817472.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    },
+    {
+        "name": "network.rx_bytes_total",
+        "value": 240.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "ifIndex": "1"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "network.rx_bytes_total",
+        "value": 36961.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "ifIndex": "2"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "network.tx_bytes_total",
+        "value": 240.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "ifIndex": "1"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "network.tx_bytes_total",
+        "value": 36223.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "ifIndex": "2"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "network.interface.name",
+        "value": "lo",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "ifIndex": "1"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "network.interface.name",
+        "value": "eth0",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "ifIndex": "2"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "network.interface.high_speed_mbps",
+        "value": 10.0,
+        "unit": "mbps",
+        "type": "gauge",
+        "labels": {
+            "ifIndex": "1"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "network.interface.high_speed_mbps",
+        "value": 1000.0,
+        "unit": "mbps",
+        "type": "gauge",
+        "labels": {
+            "ifIndex": "2"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "network.interface.admin_status",
+        "value": 1.0,
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "ifIndex": "1"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "network.interface.admin_status",
+        "value": 1.0,
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "ifIndex": "2"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "network.interface.oper_status",
+        "value": 1.0,
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "ifIndex": "1"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "network.interface.oper_status",
+        "value": 1.0,
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "ifIndex": "2"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.mount",
+        "value": "/run",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "5"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.mount",
+        "value": "/",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "6"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.mount",
+        "value": "/dev/shm",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "8"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.mount",
+        "value": "/run/lock",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "17"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.mount",
+        "value": "/run/credentials/systemd-journald.service",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "18"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.mount",
+        "value": "/tmp",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "22"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.mount",
+        "value": "/run/credentials/getty@tty1.service",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "24"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.mount",
+        "value": "/run/user/1000",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "27"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.device",
+        "value": "tmpfs",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "5"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.device",
+        "value": "/dev/sda1",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "6"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.device",
+        "value": "tmpfs",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "8"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.device",
+        "value": "tmpfs",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "17"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.device",
+        "value": "tmpfs",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "18"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.device",
+        "value": "tmpfs",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "22"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.device",
+        "value": "tmpfs",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "24"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.device",
+        "value": "tmpfs",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "27"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.total_kb",
+        "value": 407261184.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "5"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.total_kb",
+        "value": 79732346880.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "6"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.total_kb",
+        "value": 2036285440.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "8"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.total_kb",
+        "value": 5242880.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "17"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.total_kb",
+        "value": 1048576.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "18"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.total_kb",
+        "value": 2036289536.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "22"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.total_kb",
+        "value": 1048576.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "24"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.total_kb",
+        "value": 407257088.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "27"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.avail_kb",
+        "value": 406102016.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "5"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.avail_kb",
+        "value": 58888458240.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "6"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.avail_kb",
+        "value": 2036281344.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "8"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.avail_kb",
+        "value": 5242880.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "17"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.avail_kb",
+        "value": 1048576.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "18"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.avail_kb",
+        "value": 2036281344.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "22"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.avail_kb",
+        "value": 1048576.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "24"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.avail_kb",
+        "value": 407134208.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "27"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.used_kb",
+        "value": 1159168.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "5"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.used_kb",
+        "value": 16746893312.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "6"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.used_kb",
+        "value": 4096.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "8"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.used_kb",
+        "value": 0.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "17"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.used_kb",
+        "value": 0.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "18"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.used_kb",
+        "value": 8192.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "22"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.used_kb",
+        "value": 0.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "24"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.used_kb",
+        "value": 122880.0,
+        "unit": "bytes",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "27"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.percent",
+        "value": 0.0,
+        "unit": "%",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "5"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.percent",
+        "value": 21.0,
+        "unit": "%",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "6"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.percent",
+        "value": 0.0,
+        "unit": "%",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "8"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.percent",
+        "value": 0.0,
+        "unit": "%",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "17"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.percent",
+        "value": 0.0,
+        "unit": "%",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "18"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.percent",
+        "value": 0.0,
+        "unit": "%",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "22"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.percent",
+        "value": 0.0,
+        "unit": "%",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "24"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.usage.percent",
+        "value": 0.0,
+        "unit": "%",
+        "type": "gauge",
+        "labels": {
+            "dskIndex": "27"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.device",
+        "value": "sda",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "index": "1"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.device",
+        "value": "sda1",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "index": "2"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.device",
+        "value": "sda2",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "index": "3"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.device",
+        "value": "sda5",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "index": "4"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.device",
+        "value": "sr0",
+        "unit": "",
+        "type": "gauge",
+        "labels": {
+            "index": "5"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.read_count_total",
+        "value": 9617.0,
+        "unit": "count",
+        "type": "counter",
+        "labels": {
+            "index": "1"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.read_count_total",
+        "value": 9455.0,
+        "unit": "count",
+        "type": "counter",
+        "labels": {
+            "index": "2"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.read_count_total",
+        "value": 2.0,
+        "unit": "count",
+        "type": "counter",
+        "labels": {
+            "index": "3"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.read_count_total",
+        "value": 66.0,
+        "unit": "count",
+        "type": "counter",
+        "labels": {
+            "index": "4"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.read_count_total",
+        "value": 24.0,
+        "unit": "count",
+        "type": "counter",
+        "labels": {
+            "index": "5"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.write_count_total",
+        "value": 1706.0,
+        "unit": "count",
+        "type": "counter",
+        "labels": {
+            "index": "1"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.write_count_total",
+        "value": 1706.0,
+        "unit": "count",
+        "type": "counter",
+        "labels": {
+            "index": "2"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.write_count_total",
+        "value": 0.0,
+        "unit": "count",
+        "type": "counter",
+        "labels": {
+            "index": "3"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.write_count_total",
+        "value": 0.0,
+        "unit": "count",
+        "type": "counter",
+        "labels": {
+            "index": "4"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.write_count_total",
+        "value": 0.0,
+        "unit": "count",
+        "type": "counter",
+        "labels": {
+            "index": "5"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.read_bytes_total_64",
+        "value": 419888128.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "index": "1"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.read_bytes_total_64",
+        "value": 417010688.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "index": "2"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.read_bytes_total_64",
+        "value": 2048.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "index": "3"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.read_bytes_total_64",
+        "value": 1499136.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "index": "4"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.read_bytes_total_64",
+        "value": 512000.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "index": "5"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.write_bytes_total_64",
+        "value": 27308032.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "index": "1"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.write_bytes_total_64",
+        "value": 27308032.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "index": "2"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.write_bytes_total_64",
+        "value": 0.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "index": "3"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.write_bytes_total_64",
+        "value": 0.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "index": "4"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "disk.io.write_bytes_total_64",
+        "value": 0.0,
+        "unit": "bytes",
+        "type": "counter",
+        "labels": {
+            "index": "5"
+        },
+        "ts": 1766402841
+    },
+    {
+        "name": "temperature.cpu",
+        "value": "",
+        "unit": "\u00b0C",
+        "type": "gauge",
+        "labels": {},
+        "ts": 1766402841
+    }
+]

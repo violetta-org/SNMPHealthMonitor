@@ -1,9 +1,9 @@
 -- MySQL schema for Linux via SNMP (no psutil, no SNMPv3, no SNMP conn configs in DB)
 
-CREATE DATABASE IF NOT EXISTS metrics
+CREATE DATABASE IF NOT EXISTS python_programming
   DEFAULT CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
-USE metrics;
+USE python_programming;
 
 -- devices: chỉ dùng sysname làm identifier chính (static, do admin cấu hình)
 CREATE TABLE IF NOT EXISTS devices (

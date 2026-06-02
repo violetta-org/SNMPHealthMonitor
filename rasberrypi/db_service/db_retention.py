@@ -1,9 +1,10 @@
 """Data retention manager - deletes old metrics from component tables."""
 
 import pymysql as MySQLdb
-import time
 from datetime import datetime, timedelta
+from utils.logging import configure_logger
 
+logger = configure_logger(__name__)
 
 class RetentionManager:
     """Manages data retention policy with configurable periods per metric type."""
@@ -37,7 +38,8 @@ class RetentionManager:
         self.conn = MySQLdb.connect(**db_config)
         self.conn.autocommit(True)
         
-        print(f"[DEBUG] RetentionManager initialized with config: {self.retention_config}")
+        self.logger = logger
+        self.logger.debug(f"RetentionManager initialized with config: {self.retention_config}")
     
     def cleanup_old_metrics(self):
         """
@@ -51,7 +53,7 @@ class RetentionManager:
             results = {}
             total_deleted = 0
             
-            print(f"[DEBUG] RetentionManager: starting cleanup with config: {self.retention_config}")
+            self.logger.debug(f"Starting cleanup with config: {self.retention_config}")
             
             for table, retention_minutes in self.retention_config.items():
                 if table == 'system_info':
@@ -67,13 +69,13 @@ class RetentionManager:
                 total_deleted += deleted
                 
                 if deleted > 0:
-                    print(f"[DEBUG] RetentionManager: {table}: deleted {deleted} rows (retention: {retention_minutes}m)")
+                    self.logger.debug(f"{table}: deleted {deleted} rows (retention: {retention_minutes}m)")
             
-            print(f"[DEBUG] RetentionManager: total deleted {total_deleted} rows across all tables")
+            self.logger.debug(f"Total deleted {total_deleted} rows across all tables")
             return results
             
         except Exception as e:
-            print(f"[ERROR] RetentionManager: cleanup failed: {e}")
+            self.logger.error(f"Cleanup failed: {e}", exc_info=True)
             return {}
     
     def _cleanup_system_info(self, cursor):
@@ -107,12 +109,12 @@ class RetentionManager:
             deleted += cursor.rowcount
             
             if deleted > 0:
-                print(f"[DEBUG] RetentionManager: system_info: deleted {deleted} old records")
+                self.logger.debug(f"system_info: deleted {deleted} old records")
             
             return deleted
             
         except Exception as e:
-            print(f"[ERROR] RetentionManager: system_info cleanup failed: {e}")
+            self.logger.error(f"system_info cleanup failed: {e}", exc_info=True)
             return 0
     
     def mark_offline_devices(self, timeout_seconds: int = 60):
@@ -138,12 +140,12 @@ class RetentionManager:
             
             count = cursor.rowcount
             if count > 0:
-                print(f"[DEBUG] RetentionManager: marked {count} devices offline")
+                self.logger.debug(f"Marked {count} devices offline")
             
             return count
             
         except Exception as e:
-            print(f"[ERROR] RetentionManager: mark offline failed: {e}")
+            self.logger.error(f"Mark offline failed: {e}", exc_info=True)
             return 0
     
     def get_database_stats(self):
@@ -207,15 +209,15 @@ class RetentionManager:
                             'total_rows': result[2]
                         }
                 except Exception as e:
-                    print(f"[WARNING] Could not get time range for {table}: {e}")
+                    self.logger.warning(f"Could not get time range for {table}: {e}")
             
             return stats
             
         except Exception as e:
-            print(f"[ERROR] RetentionManager: get_database_stats failed: {e}")
+            self.logger.error(f"Get database stats failed: {e}", exc_info=True)
             return {}
     
     def close(self):
         """Close database connection."""
         self.conn.close()
-        print("[DEBUG] RetentionManager: closed")
+        self.logger.debug("RetentionManager: closed")

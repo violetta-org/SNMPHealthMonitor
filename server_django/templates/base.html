@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard - {{ sysname }}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body data-sysname="{{ sysname }}" data-topic="{{ topic }}">
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1>{% block header_title %}Dashboard{% endblock %}</h1>
+                <div class="server-info">
+                    <span class="server-label">Server:</span>
+                    <span class="server-name" id="server-name">{{ sysname }}</span>
+                    {% if device_info and device_info.ip_address %}
+                    <span id="server-ip" class="server-ip">{{ device_info.ip_address }}</span>
+                    {% else %}
+                    <span id="server-ip" class="server-ip" style="display: none;"></span>
+                    {% endif %}
+
+                    {% if device_info %}
+                    {% if device_info.online %}
+                    <span id="connection-status" class="status-badge status-connected">Online</span>
+                    {% else %}
+                    <span id="connection-status" class="status-badge status-disconnected">Offline</span>
+                    {% endif %}
+                    {% else %}
+                    <span id="connection-status" class="status-badge status-disconnected">Checking...</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="last-update">
+                    <span class="update-label">Last update:</span>
+                    <span id="last-update-time">
+                        {% if device_info and device_info.last_seen %}
+                        {{ device_info.last_seen }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Menu -->
+        <nav class="dashboard-nav">
+            <div class="nav-container">
+                <a href="/dashboard/{{ sysname }}/systemstatus"
+                    class="nav-item {% if topic == 'systemstatus' %}active{% endif %}">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Status</span>
+                </a>
+                <a href="/dashboard/{{ sysname }}/network"
+                    class="nav-item {% if topic == 'network' %}active{% endif %}">
+                    <span class="nav-icon">🌐</span>
+                    <span class="nav-label">Network</span>
+                </a>
+                <a href="/dashboard/{{ sysname }}/disk" class="nav-item {% if topic == 'disk' %}active{% endif %}">
+                    <span class="nav-icon">💿</span>
+                    <span class="nav-label">Disk</span>
+                </a>
+                <a href="/dashboard/{{ sysname }}/diskio" class="nav-item {% if topic == 'diskio' %}active{% endif %}">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-label">Disk IO</span>
+                </a>
+                <a href="/dashboard/{{ sysname }}/history"
+                    class="nav-item {% if topic == 'history' %}active{% endif %}">
+                    <span class="nav-icon">🕒</span>
+                    <span class="nav-label">History</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content - CHỈ CÓ BLOCK, KHÔNG INCLUDE -->
+        <main class="dashboard-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <!-- Base dashboard script -->
+    {% block extra_scripts %}
+    <script type="module" src="{% static 'js/dashboard.js' %}"></script>
+    {% endblock %}
+</body>
+</html>

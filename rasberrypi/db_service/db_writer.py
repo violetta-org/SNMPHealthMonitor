@@ -10,7 +10,10 @@ one transaction for each payload received by the manager.
 
 import pymysql as MySQLdb
 from datetime import datetime
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, Tuple, Optional, List
+from utils.logging import configure_logger
+
+logger = configure_logger(__name__)
 
 _TEXT_WHITELIST = {
     "sys.name", "sys.location",
@@ -58,7 +61,7 @@ def _insert_load_avg_batch(cur, sysname: str, metrics_by_ts: Dict[int, Dict[str,
         load_5m = values.get("load.5m")
         load_15m = values.get("load.15m")
         
-        print(f"[DEBUG] _insert_load_avg_batch: sysname={sysname}, ts={ts}, load_1m={load_1m}, load_5m={load_5m}, load_15m={load_15m}")
+        logger.debug(f"[DEBUG] _insert_load_avg_batch: sysname={sysname}, ts={ts}, load_1m={load_1m}, load_5m={load_5m}, load_15m={load_15m}")
         cur.execute(
             "INSERT INTO load_avg (time, sysname, load_1m, load_5m, load_15m) "
             "VALUES (%s, %s, %s, %s, %s)",
@@ -98,9 +101,10 @@ def _insert_cpu_percent(cur, sysname: str, labels: Dict[str, Any], value: Any, t
         "INSERT INTO cpu_percent (time, sysname, cpu, percent) VALUES (%s, %s, %s, %s)",
         (_to_dt(ts), sysname, cpu_name, value),
     )
+    logger.debug(f"[DEBUG] _insert_cpu_percent: sysname={sysname}, ts={ts}, cpu={cpu_name}, value={value}")
 
 
-def _insert_memory(cur, sysname: str, metrics_by_name: Dict[str, Tuple[Any, int]]) -> None:
+def _insert_memory(cur, sysname: str, metrics_by_name: Dict[str, Tuple[Any, int]], swap_metrics: Dict[str, Tuple[Any, int]] = None) -> None:
     # Expect names: memory.total, memory.available, memory.used, memory.free, memory.percent, memory.buffers, memory.cached, memory.shared
     ts = metrics_by_name.get("memory.total", (None, None))[1] or metrics_by_name.get("memory.available", (None, None))[1]
     if ts is None:
@@ -111,16 +115,41 @@ def _insert_memory(cur, sysname: str, metrics_by_name: Dict[str, Tuple[Any, int]
     buffers = metrics_by_name.get("memory.buffers", (None, ts))[0]
     cached = metrics_by_name.get("memory.cached", (None, ts))[0]
     shared = metrics_by_name.get("memory.shared", (None, ts))[0]
-
+    free_mem = metrics_by_name.get("memory.free", (None, ts))[0]
+    
+    # Get swap.free for normalization
+    swap_free = None
+    if swap_metrics:
+        swap_free = swap_metrics.get("swap.free", (None, None))[0]
+    
+    # CRITICAL: Normalize free when it includes Swap
+    # Formula: memFree (Physical) = memTotalFree (SNMP) - memSwapFree (SNMP)
+    if total is not None and free_mem is not None and swap_free is not None:
+        if free_mem > total:
+            # Free includes swap, normalize to RAM-only
+            free_mem = free_mem - swap_free
+    
     # Calculate derived fields
     used = None
-    free = available  # Use available as free
+    free = free_mem if free_mem is not None else available # Fallback if free missing
     percent = None
 
-    if total is not None and available is not None:
-        used = total - available
-        if total > 0:
-            percent = (used / total) * 100
+    if total is not None:
+        # Standard calculation: used = total - free - buffers - cached
+        # Now free is normalized to RAM-only, so calculation is correct
+        if free_mem is not None:
+            _buf = buffers if buffers is not None else 0
+            _cache = cached if cached is not None else 0
+            used = total - free_mem - _buf - _cache
+        elif available is not None:
+            # Fallback if raw 'free' is missing: used = total - available
+            used = total - available
+            
+        # Sanity check
+        if used is not None:
+            used = max(0, used)
+            if total > 0:
+                percent = (used / total) * 100
 
     vals = {
         "total": total,
@@ -138,7 +167,7 @@ def _insert_memory(cur, sysname: str, metrics_by_name: Dict[str, Tuple[Any, int]
         (_to_dt(ts), sysname, vals["total"], vals["available"], vals["used"], vals["free"],
          vals["percent"], vals["buffers"], vals["cached"], vals["shared"]),
     )
-
+    logger.debug(f"[DEBUG] _insert_memory: sysname={sysname}, ts={ts}, vals={vals}")
 
 def _insert_swap(cur, sysname: str, metrics_by_name: Dict[str, Tuple[Any, int]]) -> None:
     ts = metrics_by_name.get("swap.total", (None, None))[1] or metrics_by_name.get("swap.free", (None, None))[1]
@@ -161,7 +190,7 @@ def _insert_swap(cur, sysname: str, metrics_by_name: Dict[str, Tuple[Any, int]])
         "INSERT INTO swap_memory (time, sysname, total, used, free, percent) VALUES (%s, %s, %s, %s, %s, %s)",
         (_to_dt(ts), sysname, total, used, free, percent),
     )
-
+    logger.debug(f"[DEBUG] _insert_swap: sysname={sysname}, ts={ts}, total={total}, used={used}, free={free}, percent={percent}")
 
 def _insert_disk_usage(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, Any]], ts: int) -> None:
     """Insert disk usage from UCD-SNMP-MIB::dskTable.
@@ -184,7 +213,7 @@ def _insert_disk_usage(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, 
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
             (_to_dt(ts), sysname, mount, device, total, used, free, percent),
         )
-
+    logger.debug(f"[DEBUG] _insert_disk_usage: sysname={sysname}, ts={ts}, metrics_by_index={metrics_by_index}")
 
 def _insert_disk_io(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, Any]], ts: int) -> None:
     """Insert disk I/O from UCD-DISKIO-MIB::diskIOTable."""
@@ -200,11 +229,11 @@ def _insert_disk_io(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, Any
             "VALUES (%s, %s, %s, %s, %s, %s, %s)",
             (_to_dt(ts), sysname, disk, read_count, write_count, read_bytes, write_bytes),
         )
-
+    logger.debug(f"[DEBUG] _insert_disk_io: sysname={sysname}, ts={ts}, metrics_by_index={metrics_by_index}")
 
 def _insert_temperature(cur, sysname: str, cpu_temp: Any, ts: int) -> None:
     """Insert CPU temperature from SNMP extend."""
-    print(f"[DEBUG] _insert_temperature: sysname={sysname}, cpu_temp={cpu_temp}, ts={ts}")
+    logger.debug(f"[DEBUG] _insert_temperature: sysname={sysname}, cpu_temp={cpu_temp}, ts={ts}")
     # Parse temperature value - might be string like "45.7" or already float
     temp_value = None
     if isinstance(cpu_temp, (int, float)):
@@ -214,11 +243,11 @@ def _insert_temperature(cur, sysname: str, cpu_temp: Any, ts: int) -> None:
             # Try to parse string to float (handles "45.7" or error messages)
             temp_value = float(cpu_temp.strip())
         except (ValueError, AttributeError):
-            print(f"[DEBUG] _insert_temperature: Cannot parse temperature value: {cpu_temp}")
+            logger.debug(f"[DEBUG] _insert_temperature: Cannot parse temperature value: {cpu_temp}")
             return
     
     if temp_value is None:
-        print(f"[DEBUG] _insert_temperature: Invalid temperature value, skipping")
+        logger.debug(f"[DEBUG] _insert_temperature: Invalid temperature value, skipping")
         return
     
     cur.execute(
@@ -251,7 +280,7 @@ def _insert_net_io(cur, sysname: str, metrics_by_index: Dict[str, Dict[str, Any]
 
 def write_metrics_batch(conn, sysname: str, metrics: List[Dict[str, Any]]) -> None:
     """Write raw metrics into tables for a device in a single transaction."""
-    print(f"[DEBUG] write_metrics_batch: begin sysname={sysname}, metrics={len(metrics) if metrics else 0}")
+    logger.debug(f"[DEBUG] write_metrics_batch: begin sysname={sysname}, metrics={len(metrics) if metrics else 0}")
     with conn.cursor() as cur:
         # Group some families that benefit from a single insert
         load_avg_group: Dict[int, Dict[str, Any]] = {}  # {ts: {load.1m, load.5m, load.15m}}
@@ -270,7 +299,7 @@ def write_metrics_batch(conn, sysname: str, metrics: List[Dict[str, Any]]) -> No
 
             # Discard metrics without timestamp
             if ts is None:
-                print(f"[WARN] Discarding metric {name} - no timestamp")
+                logger.debug(f"[WARN] Discarding metric {name} - no timestamp")
                 continue
 
             # Helper to check if value is numeric
@@ -280,7 +309,7 @@ def write_metrics_batch(conn, sysname: str, metrics: List[Dict[str, Any]]) -> No
             # Allow whitelisted text metrics, skip other non-numeric values
             allow_text = name in _TEXT_WHITELIST
             if value is not None and not _is_number(value) and not allow_text:
-                print(f"[DEBUG] Skipping non-numeric metric {name}: {value} (type: {type(value).__name__})")
+                logger.debug(f"[DEBUG] Skipping non-numeric metric {name}: {value} (type: {type(value).__name__})")
                 continue
 
             try:
@@ -334,6 +363,10 @@ def write_metrics_batch(conn, sysname: str, metrics: List[Dict[str, Any]]) -> No
                     if if_index not in net_io_group:
                         net_io_group[if_index] = {}
 
+                    # Robust timestamp capture: use ANY metric's timestamp
+                    if ts is not None:
+                        net_io_group[if_index]["ts"] = ts
+                        
                     if name == "network.interface.name":
                         net_io_group[if_index]["iface"] = value
                     elif name == "network.interface.high_speed_mbps":
@@ -346,20 +379,19 @@ def write_metrics_batch(conn, sysname: str, metrics: List[Dict[str, Any]]) -> No
                         net_io_group[if_index]["bytes_recv"] = value
                     elif name == "network.tx_bytes_total":
                         net_io_group[if_index]["bytes_sent"] = value
-                        net_io_group[if_index]["ts"] = ts
                 elif name.startswith("sys."):
                     sys_info_group[name] = (value, ts)
                 elif name == "temperature.cpu":
                     _insert_temperature(cur, sysname, value, ts)
                 else:
-                    print(f"[DEBUG] Unknown metric {name}, skipping")
+                    logger.debug(f"[DEBUG] Unknown metric {name}, skipping")
             except Exception as e:
-                print(f"[ERROR] DBWriter route failed for {name}: {e}")
+                logger.debug(f"[ERROR] DBWriter route failed for {name}: {e}")
 
         if load_avg_group:
             _insert_load_avg_batch(cur, sysname, load_avg_group)
         if mem_group:
-            _insert_memory(cur, sysname, mem_group)
+            _insert_memory(cur, sysname, mem_group, swap_group)
         if swap_group:
             _insert_swap(cur, sysname, swap_group)
         if sys_info_group:
@@ -382,14 +414,14 @@ def write_metrics_batch(conn, sysname: str, metrics: List[Dict[str, Any]]) -> No
 
     try:
         conn.commit()
-        print(f"[DEBUG] write_metrics_batch: commit OK, wrote {len(metrics)} metrics for sysname={sysname}")
+        logger.debug(f"[DEBUG] write_metrics_batch: commit OK, wrote {len(metrics)} metrics for sysname={sysname}")
     except Exception as e:
-        print(f"[ERROR] write_metrics_batch: commit failed for sysname={sysname}: {e}")
+        logger.debug(f"[ERROR] write_metrics_batch: commit failed for sysname={sysname}: {e}")
         try:
             conn.rollback()
-            print(f"[DEBUG] write_metrics_batch: rollback OK for sysname={sysname}")
+            logger.debug(f"[DEBUG] write_metrics_batch: rollback OK for sysname={sysname}")
         except Exception as re:
-            print(f"[ERROR] write_metrics_batch: rollback failed for sysname={sysname}: {re}")
+            logger.debug(f"[ERROR] write_metrics_batch: rollback failed for sysname={sysname}: {re}")
 
 
 def _insert_system_info(cur, sysname: str, metrics_by_name: Dict[str, Tuple[Any, int]]) -> None:
@@ -401,7 +433,7 @@ def _insert_system_info(cur, sysname: str, metrics_by_name: Dict[str, Tuple[Any,
     sys_uptime = metrics_by_name.get("sys.uptime.seconds", (None, 0))[0]
     ts = max((v[1] for v in metrics_by_name.values()), default=0)
 
-    print(f"[DEBUG] _insert_system_info: sysname={sysname}, sys_location={sys_location}, sys_uptime={sys_uptime}, ts={ts}")
+    logger.debug(f"[DEBUG] _insert_system_info: sysname={sysname}, sys_location={sys_location}, sys_uptime={sys_uptime}, ts={ts}")
     cur.execute(
         "INSERT INTO system_info (time, sysname, sys_location, sys_uptime) "
         "VALUES (%s, %s, %s, %s) "
