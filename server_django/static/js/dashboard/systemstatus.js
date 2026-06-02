@@ -24,6 +24,8 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             this.isInitialized = true;
         }
 
+        this.cpuCoreElementsCache = [];
+
         // Local data buffers mapped by series index
         this.ramAppUsedData = [];
 
@@ -119,31 +121,25 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
         console.log('[SystemStatusDashboard] Updating system status UI', processedData);
 
-        // Update device info (online status, last_seen, ip_address)
-        if (processedData.device_info) {
-            this.updateDeviceStatus(processedData.device_info);
-            this.updateLastUpdateTime(processedData.device_info);
-            this.updateServerIP(processedData.device_info);
-        }
+        // ==========================================
+        // BATCH 1: DOM READS / APEXCHARTS UPDATES
+        // ==========================================
+        // ApexCharts internally reads DOM geometric properties (offsetWidth, etc.). 
+        // We run these FIRST to avoid Layout Thrashing (Forced Synchronous Reflow)
+        // caused by reading DOM *after* we've made manual writes.
+        
+        let appUsedBytes, buffers, cached, free, memTotal, memPct, swapTotal, swapUsed, swapPct;
 
-        // System info
-        if (processedData.system_info) {
-            this.updateText('sysname', processedData.system_info.sysname || 'N/A');
-            this.updateText('sys-location', processedData.system_info.sys_location || 'N/A');
-            this.updateText('sys-uptime', this.dataProcessor.formatUptime(processedData.system_info.sys_uptime));
-        }
-
-        // CPU cores individually
-        if (processedData.cpu_percent && processedData.cpu_percent.length > 0) {
-            this.updateCPUCores(processedData.cpu_percent);
-        }
-
-        // Memory
         if (processedData.memory) {
-            // Set fixed RAM scale once when total becomes available
-            if (!this.totalRamMarkSet && processedData.memory.total) {
-                this.totalRamBytes = processedData.memory.total;
-                // Round UP to nearest integer for clean Y-axis ticks (e.g. 3.8GB -> 4GB)
+            const mem = processedData.memory;
+            memTotal = Number(mem.total || 0);
+            appUsedBytes = Number(mem.used || 0);
+            buffers = Number(mem.buffers || 0);
+            cached = Number(mem.cached || 0);
+            free = Number(mem.free || 0);
+
+            if (!this.totalRamMarkSet && memTotal) {
+                this.totalRamBytes = memTotal;
                 this.totalRamGB = Math.ceil(this.totalRamBytes / (1024 * 1024 * 1024));
 
                 if (this.charts?.ramUsageChart && typeof this.charts.ramUsageChart.updateOptions === 'function') {
@@ -151,7 +147,6 @@ export class SystemStatusDashboard extends BaseDashboardUI {
                         yaxis: {
                             min: 0,
                             max: this.totalRamGB,
-                            // tickAmount: removed to let ApexCharts auto-calculate even intervals
                             forceNiceScale: false,
                             axisBorder: { show: false },
                             axisTicks: { show: false },
@@ -165,32 +160,58 @@ export class SystemStatusDashboard extends BaseDashboardUI {
                 this.totalRamMarkSet = true;
             }
 
-            // Live-only streaming update
-            const timeLabel = processedData.memory.time ? new Date(processedData.memory.time).toISOString() : new Date().toISOString();
-            const mem = processedData.memory;
-            const total = Number(mem.total || 0);
-
-            // IMPORTANT: Use database's pre-calculated 'used' instead of calculating from 'free'
-            // Reason: SNMP's memTotalFree includes both RAM free + Swap free, making calculation incorrect
-            // Database already handles this by using 'available' when 'free' is invalid
-            const appUsedBytes = Number(mem.used || 0);
-
-            // For display purposes, still extract individual components
-            const free = Number(mem.free || 0);
-            const buffers = Number(mem.buffers || 0);
-            const cached = Number(mem.cached || 0);
-
-            const formatted = this.charts.dataManager.addDataPoint(
-                timeLabel,
-                appUsedBytes,
-                buffers,
-                cached,
-                free
-            );
-
+            const timeLabel = mem.time ? new Date(mem.time).toISOString() : new Date().toISOString();
+            const formatted = this.charts.dataManager.addDataPoint(timeLabel, appUsedBytes, buffers, cached, free);
             this.ramAppUsedData.push(formatted.ramAppUsed);
+            
+            memPct = mem.percent !== undefined && mem.percent !== null
+                ? Number(mem.percent).toFixed(1)
+                : (memTotal > 0 ? ((appUsedBytes / memTotal) * 100).toFixed(1) : '0.0');
 
-            // Update RAM metrics labels
+            const swap = processedData.swap || {};
+            swapTotal = Number(swap.total || 0);
+            swapUsed = Number(swap.used || 0);
+            swapPct = swapTotal > 0 ? ((swapUsed / swapTotal) * 100).toFixed(1) : '0.0';
+
+            this.charts.dataManager.updateChart(this.charts.ramUsageChart, {
+                0: this.ramAppUsedData
+            });
+        }
+
+        if (this.cpuNetworkChart && processedData.cpu_percent && processedData.network) {
+            this.updateCpuNetworkHistory(processedData.cpu_percent, processedData.network);
+            const isLiveUpdate = Array.isArray(processedData.network);
+
+            if (isLiveUpdate && this.chartSeriesInitialized) {
+                const lastCpu = this.cpuNetworkHistory.cpu[this.cpuNetworkHistory.cpu.length - 1];
+                appendCpuNetworkData(this.cpuNetworkChart, lastCpu, processedData.network);
+            } else {
+                updateCpuNetworkChart(this.cpuNetworkChart, this.cpuNetworkHistory.cpu, this.cpuNetworkHistory.network);
+                if (this.cpuNetworkHistory.cpu.length > 0) this.chartSeriesInitialized = true;
+            }
+        }
+
+        // ==========================================
+        // BATCH 2: DOM WRITES (Text, Gauges, UI)
+        // ==========================================
+
+        if (processedData.device_info) {
+            this.updateDeviceStatus(processedData.device_info);
+            this.updateLastUpdateTime(processedData.device_info);
+            this.updateServerIP(processedData.device_info);
+        }
+
+        if (processedData.system_info) {
+            this.updateText('sysname', processedData.system_info.sysname || 'N/A');
+            this.updateText('sys-location', processedData.system_info.sys_location || 'N/A');
+            this.updateText('sys-uptime', this.dataProcessor.formatUptime(processedData.system_info.sys_uptime));
+        }
+
+        if (processedData.cpu_percent && processedData.cpu_percent.length > 0) {
+            this.updateCPUCores(processedData.cpu_percent);
+        }
+
+        if (processedData.memory) {
             const fmt = (v) => this.formatBytesIEC(v, 1);
             const appEl = document.getElementById('val-app-used');
             const bufEl = document.getElementById('val-buffers');
@@ -202,32 +223,13 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             if (freeEl) freeEl.textContent = fmt(free);
 
             const memSummaryEl = document.getElementById('mem-summary-text');
-            if (memSummaryEl) {
-                // Use database's pre-calculated percent or calculate from used
-                const pct = mem.percent !== undefined && mem.percent !== null
-                    ? Number(mem.percent).toFixed(1)
-                    : (total > 0 ? ((appUsedBytes / total) * 100).toFixed(1) : '0.0');
-                memSummaryEl.textContent = `Memory: ${pct}% (${this.formatBytesIEC(appUsedBytes, 1)} / ${this.formatMemoryTotal(total)})`;
-            }
+            if (memSummaryEl) memSummaryEl.textContent = `Memory: ${memPct}% (${this.formatBytesIEC(appUsedBytes, 1)} / ${this.formatMemoryTotal(memTotal)})`;
 
             const swapSummaryEl = document.getElementById('swap-summary-text');
-            if (swapSummaryEl) {
-                const swap = processedData.swap || {};
-                const swapTotal = Number(swap.total || 0);
-                const swapUsed = Number(swap.used || 0);
-                const swapPct = swapTotal > 0 ? ((swapUsed / swapTotal) * 100).toFixed(1) : '0.0';
-                swapSummaryEl.textContent = `Swap: ${swapPct}% (${this.formatBytesIEC(swapUsed, 0)} / ${this.formatMemoryTotal(swapTotal)})`;
-            }
-
-            this.charts.dataManager.updateChart(this.charts.ramUsageChart, {
-                0: this.ramAppUsedData
-            });
+            if (swapSummaryEl) swapSummaryEl.textContent = `Swap: ${swapPct}% (${this.formatBytesIEC(swapUsed, 0)} / ${this.formatMemoryTotal(swapTotal)})`;
         }
-        // Swap handled together with memory via dataManager
 
-        // Load Averages
         if (processedData.load_avg) {
-            // Show raw load averages (not percent). Fallback to 0 when missing.
             const load1 = Number(processedData.load_avg.load_1m) || 0;
             const load5 = Number(processedData.load_avg.load_5m) || 0;
             const load15 = Number(processedData.load_avg.load_15m) || 0;
@@ -236,7 +238,6 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             this.updateGauge('load-5m', load5);
             this.updateGauge('load-15m', load15);
 
-            // Also update textual values if present
             const load1El = document.getElementById('load-1m-value');
             const load5El = document.getElementById('load-5m-value');
             const load15El = document.getElementById('load-15m-value');
@@ -244,7 +245,6 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             if (load5El) load5El.textContent = load5;
             if (load15El) load15El.textContent = load15;
 
-            // Force gauge value text to raw number (override default "%")
             const val1 = document.querySelector('#load-1m-gauge .gauge-value');
             const val5 = document.querySelector('#load-5m-gauge .gauge-value');
             const val15 = document.querySelector('#load-15m-gauge .gauge-value');
@@ -253,10 +253,8 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             if (val15) val15.textContent = load15;
         }
 
-        // Temperature
         if (processedData.temperature && processedData.temperature.cpu_temp !== null && processedData.temperature.cpu_temp !== undefined) {
             const temp = processedData.temperature.cpu_temp;
-            // Temperature gauge: 0-100°C scale (0% = 0°C, 100% = 100°C)
             const tempPercent = Math.min(Math.max((temp / 100) * 100, 0), 100);
             this.updateGauge('temperature', tempPercent);
             this.updateText('temperature-value', temp.toFixed(1) + '°C');
@@ -264,26 +262,7 @@ export class SystemStatusDashboard extends BaseDashboardUI {
             this.updateText('temperature-value', 'N/A');
         }
 
-        // Update CPU + Network combined chart (Accumulate History)
         if (this.cpuNetworkChart && processedData.cpu_percent && processedData.network) {
-            // 1. Update Buffer (Always keep valid history)
-            this.updateCpuNetworkHistory(processedData.cpu_percent, processedData.network);
-
-            // 2. Render Strategy: Append vs Full Redraw
-            const isLiveUpdate = Array.isArray(processedData.network);
-
-            if (isLiveUpdate && this.chartSeriesInitialized) {
-                // Efficient Append
-                // We need the calculated CPU avg point, which updateCpuNetworkHistory just added to buffer end
-                const lastCpu = this.cpuNetworkHistory.cpu[this.cpuNetworkHistory.cpu.length - 1];
-                appendCpuNetworkData(this.cpuNetworkChart, lastCpu, processedData.network);
-            } else {
-                // Full Redraw (First load or History Dump)
-                updateCpuNetworkChart(this.cpuNetworkChart, this.cpuNetworkHistory.cpu, this.cpuNetworkHistory.network);
-                // Mark initialized if we have valid data
-                if (this.cpuNetworkHistory.cpu.length > 0) this.chartSeriesInitialized = true;
-            }
-
             this.updateCpuNetworkSummary(processedData.cpu_percent, processedData.network);
         }
     }
@@ -493,10 +472,16 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
         if (!this.cpuCoresInitialized || currentCoreCount !== newCoreCount) {
             container.innerHTML = '';
+            this.cpuCoreElementsCache = [];
 
             cpuData.forEach((cpu, index) => {
                 const coreCard = this.createCPUCoreGauge(index);
                 container.appendChild(coreCard);
+                
+                this.cpuCoreElementsCache[index] = {
+                    progressCircle: coreCard.querySelector('.gauge-progress'),
+                    valueElement: coreCard.querySelector('.gauge-value')
+                };
             });
 
             this.cpuCoresInitialized = true;
@@ -505,20 +490,13 @@ export class SystemStatusDashboard extends BaseDashboardUI {
 
         cpuData.forEach((cpu, index) => {
             const percent = cpu.percent || 0;
-            const gaugeId = `cpu-core-${index}`;
-
-            const gaugeElement = document.getElementById(`${gaugeId}-gauge`);
-            const valueElement = document.getElementById(`${gaugeId}-value`);
-
-            if (gaugeElement && valueElement) {
-                const progressCircle = gaugeElement.querySelector('.gauge-progress');
-                if (progressCircle) {
-                    const circumference = 2 * Math.PI * 45;
-                    const offset = circumference - (percent / 100) * circumference;
-                    progressCircle.style.strokeDashoffset = offset;
-                }
-
-                valueElement.textContent = Math.round(percent) + '%';
+            const cache = this.cpuCoreElementsCache[index];
+            
+            if (cache && cache.progressCircle && cache.valueElement) {
+                const circumference = 2 * Math.PI * 45;
+                const offset = circumference - (percent / 100) * circumference;
+                cache.progressCircle.style.strokeDashoffset = offset;
+                cache.valueElement.textContent = Math.round(percent) + '%';
             }
         });
     }
