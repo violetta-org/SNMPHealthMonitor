@@ -24,6 +24,10 @@
     <link rel="modulepreload" href="{% static 'js/dashboard/disk.js' %}">
     <link rel="modulepreload" href="{% static 'js/dashboard/diskio.js' %}">
     <link rel="modulepreload" href="{% static 'js/dashboard/history.js' %}">
+    <link rel="stylesheet" href="{% static 'css/ai-chatbot.css' %}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{% static 'css/ai-chatbot.css' %}"></noscript>
+    <link rel="stylesheet" href="{% static 'css/prediction.css' %}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{% static 'css/prediction.css' %}"></noscript>
     {% block extra_head %}{% endblock %}
 </head>
 
@@ -123,21 +127,5 @@
 
     <!-- AI DevOps Assistant Chatbot -->
     <script defer src="{% static 'js/ai-chatbot.js' %}"></script>
-
-    <!-- Deferred CSS loaded via JS to completely eliminate render-blocking -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const cssFiles = [
-                "{% static 'css/ai-chatbot.css' %}",
-                "{% static 'css/prediction.css' %}"
-            ];
-            cssFiles.forEach(function(url) {
-                const link = document.createElement("link");
-                link.rel = "stylesheet";
-                link.href = url;
-                document.head.appendChild(link);
-            });
-        });
-    </script>
 </body>
 </html>
