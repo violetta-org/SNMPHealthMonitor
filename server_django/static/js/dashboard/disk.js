@@ -1,63 +1,9 @@
-/**
- * Disk Dashboard Module
- * Handles disk metrics page
- */
-import { BaseDashboardUI } from '/static/js/dashboard/base.js';
-
-export class DiskDashboard extends BaseDashboardUI {
-    constructor(dataProcessor) {
-        super(dataProcessor);
-        this.wsManager = null;
-        this.sysname = null;
-        this.topic = null;
-    }
-
-    attachWebSocketManager(wsManager, sysname, topic) {
-        this.wsManager = wsManager;
-        this.sysname = sysname;
-        this.topic = topic;
-    }
-
-    /**
-     * Register UI elements for disk page
-     */
-    registerElements() {
-        // Header elements only (disk usage is dynamic)
-        this.registerElement('connection-status', '#connection-status');
-        this.registerElement('last-update-time', '#last-update-time');
-    }
-
-    /**
-     * Update disk metrics UI
-     */
-    update(processedData) {
-        console.log('[DiskDashboard] Updating disk UI', processedData);
-        
-        // Update device info (online status, last_seen, ip_address)
-        if (processedData.device_info) {
-            this.updateDeviceStatus(processedData.device_info);
-            this.updateLastUpdateTime(processedData.device_info);
-            this.updateServerIP(processedData.device_info);
-        }
-        
-        const container = document.getElementById('disk-usage-container');
-        if (!container) {
-            console.warn('[DiskDashboard] Disk usage container not found');
-            return;
-        }
-
-        if (processedData.disk_usage && processedData.disk_usage.length > 0) {
-            container.innerHTML = '';
-            
-            processedData.disk_usage.forEach((disk) => {
-                const diskCard = document.createElement('div');
-                diskCard.className = 'disk-card';
-                const percent = disk.percent || 0;
-                // Use correct field names: mount and device_partition (from query)
-                const displayName = disk.mount || disk.device_partition || 'Unknown';
-                const deviceName = disk.device_partition || disk.mount || '';
-                
-                diskCard.innerHTML = `
+import{BaseDashboardUI}from'/static/js/dashboard/base.js';export class DiskDashboard extends BaseDashboardUI{constructor(dataProcessor){super(dataProcessor);this.wsManager=null;this.sysname=null;this.topic=null;}
+attachWebSocketManager(wsManager,sysname,topic){this.wsManager=wsManager;this.sysname=sysname;this.topic=topic;}
+registerElements(){this.registerElement('connection-status','#connection-status');this.registerElement('last-update-time','#last-update-time');}
+update(processedData){console.log('[DiskDashboard] Updating disk UI',processedData);if(processedData.device_info){this.updateDeviceStatus(processedData.device_info);this.updateLastUpdateTime(processedData.device_info);this.updateServerIP(processedData.device_info);}
+const container=document.getElementById('disk-usage-container');if(!container){console.warn('[DiskDashboard] Disk usage container not found');return;}
+if(processedData.disk_usage&&processedData.disk_usage.length>0){container.innerHTML='';processedData.disk_usage.forEach((disk)=>{const diskCard=document.createElement('div');diskCard.className='disk-card';const percent=disk.percent||0;const displayName=disk.mount||disk.device_partition||'Unknown';const deviceName=disk.device_partition||disk.mount||'';diskCard.innerHTML=`
                     <h3>${displayName}</h3>
                     <div class="disk-gauge">
                         <svg class="gauge" viewBox="0 0 120 120">
@@ -82,20 +28,4 @@ export class DiskDashboard extends BaseDashboardUI {
                             <span>${this.dataProcessor.formatBytes(disk.free || 0)}</span>
                         </div>
                     </div>
-                `;
-                container.appendChild(diskCard);
-                
-                // Update gauge
-                setTimeout(() => {
-                    const progressCircle = diskCard.querySelector('.gauge-progress');
-                    if (progressCircle) {
-                        const circumference = 2 * Math.PI * 45;
-                        const offset = circumference - (percent / 100) * circumference;
-                        progressCircle.style.strokeDashoffset = offset;
-                    }
-                }, 100);
-            });
-        }
-    }
-}
-
+                `;container.appendChild(diskCard);setTimeout(()=>{const progressCircle=diskCard.querySelector('.gauge-progress');if(progressCircle){const circumference=2*Math.PI*45;const offset=circumference-(percent/100)*circumference;progressCircle.style.strokeDashoffset=offset;}},100);});}}}

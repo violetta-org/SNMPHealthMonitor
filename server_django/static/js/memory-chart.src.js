@@ -1,0 +1,236 @@
+/**
+ * Memory Chart Module (Chart.js version)
+ * Stacked Area Chart displaying Used, Cached, and Free memory
+ */
+
+export class MemoryChart {
+    constructor() {
+        this.chart = null;
+        this.colors = ['#008FFB', '#00E396', '#FEB019']; // Used (Blue), Cached (Green), Free (Orange)
+        this.bgColors = ['rgba(0, 143, 251, 0.15)', 'rgba(0, 227, 150, 0.15)', 'rgba(254, 176, 25, 0.15)'];
+        this.initialized = false;
+        this.lastTimestamp = null;
+        this.dataBuffer = {
+            labels: [],
+            used: [],
+            cached: [],
+            free: []
+        };
+    }
+
+    /**
+     * Initialize the memory chart
+     */
+    init() {
+        if (this.initialized) {
+            console.warn('[MemoryChart] Chart already initialized');
+            return;
+        }
+
+        const chartElement = document.getElementById('memory-chart');
+        if (!chartElement) {
+            console.error('[MemoryChart] Chart container not found');
+            return;
+        }
+
+        let canvas = chartElement.querySelector('canvas');
+        if (!canvas) {
+            canvas = document.createElement('canvas');
+            chartElement.appendChild(canvas);
+        }
+
+        const ctx = canvas.getContext('2d');
+        this.chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Used',
+                        data: [],
+                        fill: true,
+                        borderColor: this.colors[0],
+                        backgroundColor: this.bgColors[0],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Cached',
+                        data: [],
+                        fill: true,
+                        borderColor: this.colors[1],
+                        backgroundColor: this.bgColors[1],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Free',
+                        data: [],
+                        fill: true,
+                        borderColor: this.colors[2],
+                        backgroundColor: this.bgColors[2],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        align: 'end',
+                        labels: { color: '#e0e0e0', font: { family: 'Inter, sans-serif', size: 12 } }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: '#1a1a1a',
+                        titleColor: '#fff',
+                        bodyColor: '#e0e0e0',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: (context) => {
+                                const valGB = context.parsed.y / (1024 * 1024 * 1024);
+                                return `${context.dataset.label}: ${valGB.toFixed(2)} GB`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#3a4d5f' },
+                        ticks: { color: '#a0aec0', font: { size: 10 } }
+                    },
+                    y: {
+                        stacked: true, // Enable stacking
+                        min: 0,
+                        grid: { color: '#3a4d5f' },
+                        ticks: {
+                            color: '#a0aec0',
+                            font: { size: 10 },
+                            callback: (value) => {
+                                const gb = value / (1024 * 1024 * 1024);
+                                return `${gb.toFixed(gb % 1 === 0 ? 0 : 1)} GB`;
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Dung lượng',
+                            color: '#a0aec0',
+                            font: { size: 12, weight: 600 }
+                        }
+                    }
+                }
+            }
+        });
+
+        this.initialized = true;
+        console.log('[MemoryChart] Chart initialized');
+    }
+
+    /**
+     * Update chart with initial history data
+     */
+    updateHistory(historyData) {
+        if (!this.initialized) {
+            this.init();
+        }
+
+        if (!historyData || historyData.length === 0) {
+            console.warn('[MemoryChart] No history data provided');
+            return;
+        }
+
+        console.log(`[MemoryChart] Updating with ${historyData.length} history points`);
+
+        this.dataBuffer.labels = [];
+        this.dataBuffer.used = [];
+        this.dataBuffer.cached = [];
+        this.dataBuffer.free = [];
+
+        historyData.forEach(point => {
+            const date = new Date(point.time);
+            const label = isNaN(date.getTime()) ? '' : date.toLocaleTimeString('en-US', { hour12: false });
+            this.dataBuffer.labels.push(label);
+            this.dataBuffer.used.push(point.used || 0);
+            this.dataBuffer.cached.push(point.cached || 0);
+            this.dataBuffer.free.push(point.free || 0);
+        });
+
+        this.chart.data.labels = this.dataBuffer.labels;
+        this.chart.data.datasets[0].data = this.dataBuffer.used;
+        this.chart.data.datasets[1].data = this.dataBuffer.cached;
+        this.chart.data.datasets[2].data = this.dataBuffer.free;
+        this.chart.update('none');
+
+        if (historyData.length > 0) {
+            this.lastTimestamp = new Date(historyData[historyData.length - 1].time).getTime();
+        }
+    }
+
+    /**
+     * Append new data point (real-time update)
+     */
+    appendData(memoryData) {
+        if (!this.initialized) {
+            console.warn('[MemoryChart] Chart not initialized, cannot append data');
+            return;
+        }
+
+        if (!memoryData || !memoryData.time) {
+            console.warn('[MemoryChart] Invalid memory data provided');
+            return;
+        }
+
+        const timestamp = new Date(memoryData.time).getTime();
+        const used = memoryData.used || 0;
+        const cached = memoryData.cached || 0;
+        const free = memoryData.free || 0;
+
+        if (this.lastTimestamp !== null && timestamp <= this.lastTimestamp) {
+            return;
+        }
+
+        const date = new Date(memoryData.time);
+        const timeLabel = isNaN(date.getTime()) ? '' : date.toLocaleTimeString('en-US', { hour12: false });
+
+        this.dataBuffer.labels.push(timeLabel);
+        this.dataBuffer.used.push(used);
+        this.dataBuffer.cached.push(cached);
+        this.dataBuffer.free.push(free);
+
+        // Keep last 50 points to slide
+        if (this.dataBuffer.labels.length > 50) {
+            this.dataBuffer.labels.shift();
+            this.dataBuffer.used.shift();
+            this.dataBuffer.cached.shift();
+            this.dataBuffer.free.shift();
+        }
+
+        this.chart.data.labels = this.dataBuffer.labels;
+        this.chart.data.datasets[0].data = this.dataBuffer.used;
+        this.chart.data.datasets[1].data = this.dataBuffer.cached;
+        this.chart.data.datasets[2].data = this.dataBuffer.free;
+        this.chart.update('none');
+
+        this.lastTimestamp = timestamp;
+    }
+
+    /**
+     * Destroy chart instance
+     */
+    destroy() {
+        if (this.chart) {
+            this.chart.destroy();
+            this.chart = null;
+            this.initialized = false;
+            console.log('[MemoryChart] Chart destroyed');
+        }
+    }
+}
