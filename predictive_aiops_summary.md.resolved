@@ -1,0 +1,63 @@
+# 🚀 Predictive AIOps (Machine Learning) — Ý TƯỞNG 2: HOÀN THÀNH 100%
+
+## Tổng kết những gì đã làm
+
+### Các file đã tạo mới
+| File | Mô tả |
+|------|--------|
+| [ml_services.py](file:///d:/Project_Py/SNMPHealthMonitor/server_django/apps/metrics/ml_services.py) | **Core ML Engine** — Áp dụng `scikit-learn` Linear Regression, phân tích mảng dữ liệu Time-series, tính toán Hệ số R², Độ dốc (Slope), và Time-To-Failure (TTF). |
+| [ml_api.py](file:///d:/Project_Py/SNMPHealthMonitor/server_django/apps/metrics/ml_api.py) | **API Endpoints** — Cung cấp route `/api/ml/predict/{sysname}` trả về JSON phân tích. |
+| [prediction.css](file:///d:/Project_Py/SNMPHealthMonitor/server_django/static/css/prediction.css) | **Stylesheet** — Giao diện Dark Glassmorphism, Responsive Grid, Animations mượt mà cho Widget Dự đoán. |
+| [prediction.js](file:///d:/Project_Py/SNMPHealthMonitor/server_django/static/js/prediction.js) | **Frontend Logic** — Nút bật/tắt (Toggle Switch), tự động chèn DOM, vẽ biểu đồ ApexCharts phụ (Mini Charts) hiển thị đường dự báo nét đứt (Dashed lines). |
+
+### Các file đã chỉnh sửa
+| File | Thay đổi |
+|------|----------|
+| [urls.py](file:///d:/Project_Py/SNMPHealthMonitor/server_django/config/urls.py) | Đăng ký route `/api/ml/` |
+| [requirements.txt](file:///d:/Project_Py/SNMPHealthMonitor/server_django/requirements.txt) | Thêm `scikit-learn>=1.3.0` và `numpy>=1.24.0` |
+| [base.html](file:///d:/Project_Py/SNMPHealthMonitor/server_django/templates/base.html) | Nhúng `prediction.css` và `prediction.js` để mọi trang Dashboard đều có thể gọi AI Predictor. |
+
+---
+
+## Thuật toán sử dụng: Linear Regression (Hồi quy Tuyến tính)
+Chúng ta dùng thuật toán hồi quy trên 4 luồng dữ liệu chính:
+1. **Ổ cứng (Disk):** Tính ngày/giờ chính xác ổ cứng chạm ngưỡng 95% (Cạn kiệt tài nguyên).
+2. **RAM (Memory):** Phát hiện Memory Leak nếu xu hướng tăng kéo dài (Chạm 90%).
+3. **CPU:** Nhận diện xu hướng quá tải (Saturations - chạm 90%).
+4. **Nhiệt độ (Temp):** Cảnh báo nếu hệ thống tản nhiệt suy yếu (Chạm 85°C).
+
+*Lưu ý kỹ thuật:* Trục X được chuyển về **Unix Epoch Time** thay vì Index để bảo toàn các khoảng đứt gãy dữ liệu (vd: lúc sập nguồn), giúp đường hồi quy không bị gấp khúc sai lệch.
+
+---
+
+## Edge Cases (Xử lý Biên) đã "Vét Cạn"
+
+| Trường hợp | Cách AI xử lý (Backend Code) |
+| :--- | :--- |
+| **Data quá ít (Cold Start)** | Bắt buộc số mẫu $\ge 10$ và thời gian $\ge 30$ phút. Nếu thiếu $\rightarrow$ Trạng thái `insufficient_data`. |
+| **Nhiễu loạn, không quy luật** | Tính hệ số phân tán $R^2$. Nếu $R^2 < 0.15$ $\rightarrow$ Trạng thái `stable` (Không có xu hướng). |
+| **Dự đoán giảm (Negative slope)** | Thuật toán phát hiện độ dốc $< 0$ $\rightarrow$ Trạng thái `safe` (Thời gian sống: Vô hạn). |
+| **Vuợt trần 100% / Âm < 0%** | Dùng thuật toán `clamp(0, 100)` chặn dữ liệu vẽ biểu đồ, điểm chạm mốc được ghi nhận là TTF. |
+| **Ngoại lệ ML Library** | `try-catch` khi `import sklearn`. Trả về báo lỗi thân thiện gợi ý lệnh cài đặt. |
+
+---
+
+## Hướng dẫn cài đặt & Test
+
+1. **Cài đặt thư viện ML (Quan trọng):**
+   Mở terminal và chạy lệnh:
+   ```bash
+   pip install scikit-learn numpy
+   ```
+
+2. **Chạy Server:**
+   ```bash
+   python manage.py runserver
+   ```
+
+3. **Hướng dẫn Test trên UI:**
+   - Mở giao diện Dashboard của một thiết bị.
+   - Ngay dưới các biểu đồ tổng quan, bạn sẽ thấy một Widget xịn sò: **"🚀 Predictive AIOps — Dự đoán Tài nguyên (ML)"**.
+   - Gạt **Nút Toggle (Bật dự đoán)** sang ON.
+   - Đợi 1 giây, AI sẽ load dữ liệu quá khứ, chạy thuật toán và vẽ ra các Mini Charts với **đường đứt nét màu đỏ** (Dự báo tương lai 24h tới).
+   - Trạng thái màu sắc (Xanh lá / Vàng / Đỏ) tương ứng với độ nguy hiểm và TTF (Thời gian sống) sẽ hiển thị chuyên nghiệp.
