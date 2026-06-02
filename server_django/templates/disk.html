@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Disk Metrics - {{ sysname }}{% endblock %}
+
+{% block header_title %}Disk Metrics{% endblock %}
+
+{% block content %}
+<section class="metrics-section">
+    <h2 class="section-title">Disk Usage</h2>
+    <div id="disk-usage-container" class="disk-usage-grid">
+        <!-- Disk usage will be dynamically inserted here -->
+    </div>
+</section>
+{% endblock %}
