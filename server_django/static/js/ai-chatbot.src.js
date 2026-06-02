@@ -101,6 +101,7 @@
         const chatWindow = document.createElement('div');
         chatWindow.className = 'ai-chat-window';
         chatWindow.id = 'ai-chat-window';
+        chatWindow.style.display = 'none'; // Prevent initial CLS
         chatWindow.innerHTML = `
             <!-- Header -->
             <div class="ai-chat-header">
@@ -171,6 +172,11 @@
         // Toggle chat window
         toggleBtn.addEventListener('click', () => {
             isOpen = !isOpen;
+            if (isOpen) {
+                chatWindow.style.display = 'flex';
+                // Force reflow for animation
+                chatWindow.offsetHeight;
+            }
             chatWindow.classList.toggle('open', isOpen);
             toggleBtn.classList.toggle('active', isOpen);
             if (isOpen) {
@@ -179,6 +185,9 @@
                 input.focus();
             } else {
                 toggleBtn.style.animation = '';
+                setTimeout(() => {
+                    if (!isOpen) chatWindow.style.display = 'none';
+                }, 300); // Wait for transition
             }
         });
 
@@ -427,6 +436,7 @@
     }
 
     function scrollToBottom() {
+        if (!isOpen) return; // Prevent unnecessary reflows when hidden
         const messages = document.getElementById('ai-chat-messages');
         if (messages) {
             requestAnimationFrame(() => {
